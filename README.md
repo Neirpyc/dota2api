@@ -6,17 +6,115 @@ golang dota2-api
 
 ### Usage
 
+### Steam Api
+#### ResolveVanityURL 
 
-### Api
-|   Api name | URL |
-|------------|-------------------|
-| GetMatchHistory | https://api.steampowered.com/IDOTA2Match_570/GetMatchHistory/v001/A |
-| GetMatchDetails | https://api.steampowered.com/IDOTA2Match_570/GetMatchDetails/v001/  |
-| GetPlayerSummaries | https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/ |
-| GetLeagueListing | https://api.steampowered.com/IDOTA2Match_570/GetLeagueListing/v0001/ |
-| GetLiveLeagueGames | https://api.steampowered.com/IDOTA2Match_570/GetLiveLeagueGames/v0001/ |
-| GetTeamInfoByTeamID | https://api.steampowered.com/IDOTA2Match_570/GetTeamInfoByTeamID/v001/ |
-| GetHeroes | https://api.steampowered.com/IEconDOTA2_570/GetHeroes/v0001/ |
-| GetTournamentPrizePool | https://api.steampowered.com/IEconDOTA2_570/GetTournamentPrizePool/v1/ |
-| GetGameItems | https://api.steampowered.com/IEconDOTA2_570/GetGameItems/v0001/ |
+** Url **
 
+http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/
+
+** Arguments **
+
+key: Your Steam API Key
+vanityurl: The user's vanity URL that you would like to retrieve a steam ID for, e.g. http://steamcommunity.com/id/gabelogannewell would use "gabelogannewell"
+
+** Result Data **
+success: The status of the request. 1 if successful, 42 if there was no match.
+steamid (Optional): The 64 bit Steam ID the vanity URL resolves to. Not returned on resolution failures.
+message (Optional): The message associated with the request status. Currently only used on resolution failures.
+
+### Dota2 Api
+
+#### GetMatchHistory 
+
+** Url **
+
+https://api.steampowered.com/IDOTA2Match_570/GetMatchHistory/v001/
+
+** Arguments **
+
+key: Your Steam API Key
+
+steamid:
+
+** Result Data **
+
+#### GetMatchDetails
+
+** Url **
+
+https://api.steampowered.com/IDOTA2Match_570/GetMatchDetails/v001/ 
+
+** Arguments **
+
+** Result Data **
+
+#### GetPlayerSummaries
+
+** Url **
+
+https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/ 
+
+** Arguments **
+
+** Result Data **
+
+#### GetLeagueListing
+
+** Url **
+
+https://api.steampowered.com/IDOTA2Match_570/GetLeagueListing/v0001/ 
+
+** Arguments **
+
+** Result Data **
+
+#### GetLiveLeagueGames 
+
+** Url **
+
+https://api.steampowered.com/IDOTA2Match_570/GetLiveLeagueGames/v0001/
+
+** Arguments **
+
+** Result Data **
+
+#### GetTeamInfoByTeamID 
+
+** Url **
+
+https://api.steampowered.com/IDOTA2Match_570/GetTeamInfoByTeamID/v001/ 
+
+** Arguments **
+
+** Result Data **
+
+#### GetHeroes
+
+** Url **
+
+https://api.steampowered.com/IEconDOTA2_570/GetHeroes/v0001/
+
+** Arguments **
+
+** Result Data **
+
+#### GetTournamentPrizePool 
+
+** Url **
+
+https://api.steampowered.com/IEconDOTA2_570/GetTournamentPrizePool/v1/ |
+
+** Arguments **
+
+** Result Data **
+
+#### GetGameItems
+
+** Url **
+
+https://api.steampowered.com/IEconDOTA2_570/GetGameItems/v0001/ |
+
+** Arguments **
+
+** Result Data **
