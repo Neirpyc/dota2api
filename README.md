@@ -4,8 +4,10 @@ dota2-api
 golang dota2-api
 
 
-### Request
+### Usage
 
+
+### Api
 |   Api name | URL |
 |------------|-------------------|
 | GetMatchHistory | https://api.steampowered.com/IDOTA2Match_570/GetMatchHistory/v001/A |
