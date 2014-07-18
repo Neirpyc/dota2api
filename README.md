@@ -18,11 +18,15 @@ http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/
 **Arguments**
 
 key: Your Steam API Key
+
 vanityurl: The user's vanity URL that you would like to retrieve a steam ID for, e.g. http://steamcommunity.com/id/gabelogannewell would use "gabelogannewell"
 
 **Result Data**
+
 success: The status of the request. 1 if successful, 42 if there was no match.
+
 steamid (Optional): The 64 bit Steam ID the vanity URL resolves to. Not returned on resolution failures.
+
 message (Optional): The message associated with the request status. Currently only used on resolution failures.
 
 
