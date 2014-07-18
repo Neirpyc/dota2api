@@ -45,9 +45,31 @@ https://api.steampowered.com/IDOTA2Match_570/GetMatchHistory/v001/
 
 key: Your Steam API Key
 
-steamid:
+steamid (Optional): The 64 bit Steam ID the vanity URL resolves to. Not returned on resolution failures.
 
 **Result Data**
+
+status: 
+
+num_result:
+
+total_results:
+
+results_remaining:
+
+matches
+
+> match_idi:
+> match_seq_num:
+> start_time:
+> lobby_type:
+> radiant_team_id:
+> dire_team_id:
+> players:
+>> account_id:
+>> player_slot:
+>> hero_id:
+
 
 #### GetMatchDetails
 
@@ -113,7 +135,7 @@ https://api.steampowered.com/IEconDOTA2_570/GetHeroes/v0001/
 
 **Url**
 
-https://api.steampowered.com/IEconDOTA2_570/GetTournamentPrizePool/v1/ |
+https://api.steampowered.com/IEconDOTA2_570/GetTournamentPrizePool/v1/
 
 **Arguments**
 
@@ -123,7 +145,7 @@ https://api.steampowered.com/IEconDOTA2_570/GetTournamentPrizePool/v1/ |
 
 **Url**
 
-https://api.steampowered.com/IEconDOTA2_570/GetGameItems/v0001/ |
+https://api.steampowered.com/IEconDOTA2_570/GetGameItems/v0001/
 
 **Arguments**
 
