@@ -32,6 +32,7 @@ message (Optional): The message associated with the request status. Currently on
 #### GetPlayerSummaries
 
 **Url**
+
 http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/
 
 key
