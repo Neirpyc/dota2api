@@ -10,7 +10,6 @@ golang dota2-api
 #### ResolveVanityURL 
 
 **Url**
-
 http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/
 
 ** Arguments **
