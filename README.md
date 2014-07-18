@@ -59,15 +59,24 @@ results_remaining:
 
 matches
 
-> match_idi:
+> match_id:
+
 > match_seq_num:
+
 > start_time:
+
 > lobby_type:
+
 > radiant_team_id:
+
 > dire_team_id:
+
 > players:
+
 >> account_id:
+
 >> player_slot:
+
 >> hero_id:
 
 
