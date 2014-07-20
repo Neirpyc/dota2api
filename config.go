@@ -25,7 +25,7 @@ var (
 
 	// convert 64-bit steamID to 32-bit steamID
 	// STEAMID64 - 76561197960265728 = STEAMID32
-	ConvertInt = 76561197960265728
+	ConvertInt int64 = 76561197960265728
 
 	// http request timeout
 	Timeout = 10

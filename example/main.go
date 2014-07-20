@@ -16,7 +16,16 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
-
 	fmt.Println(steamId)
+
+	accountId := dota2.GetAccountId(steamId)
+	param := map[string]interface{}{
+		"account_id": accountId,
+	}
+	matchHistory, err := dota2.GetMatchHistory(param)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(matchHistory)
 
 }
