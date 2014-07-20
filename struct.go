@@ -21,18 +21,65 @@ type MatchResult struct {
 	TotalResults     int     `json:"total_results"`
 }
 
+type MatchDetails struct {
+	Result Match `json:"result"`
+}
+
 type Match struct {
-	DireTeamID    int64    `json:"dire_team_id"`
-	LobbyType     int      `json:"lobby_type"`
-	MatchID       int64    `json:"match_id"`
-	MatchSeqNum   int64    `json:"match_seq_num"`
-	Players       []Player `json:"players"`
-	RadiantTeamID int64    `json:"radiant_team_id"`
-	StartTime     int64    `json:"start_time"`
+	DireTeamID            int64    `json:"dire_team_id"`
+	LobbyType             int      `json:"lobby_type"`
+	MatchID               int64    `json:"match_id"`
+	MatchSeqNum           int64    `json:"match_seq_num"`
+	Players               []Player `json:"players"`
+	RadiantTeamID         int64    `json:"radiant_team_id"`
+	StartTime             int64    `json:"start_time"`
+	BarracksStatusDire    int      `json:"barracks_status_dire"`
+	BarracksStatusRadiant int      `json:"barracks_status_radiant"`
+	Cluster               int      `json:"cluster"`
+	DireCaptain           int64    `json:"dire_captain"`
+	Duration              int      `json:"duration"`
+	FirstBloodTime        int      `json:"first_blood_time"`
+	GameMode              int      `json:"game_mode"`
+	HumanPlayers          int      `json:"human_players"`
+	Leagueid              int      `json:"leagueid"`
+	NegativeVotes         int      `json:"negative_votes"`
+	PositiveVotes         int      `json:"positive_votes"`
+	RadiantCaptain        int64    `json:"radiant_captain"`
+	RadiantWin            bool     `json:"radiant_win"`
+	TowerStatusDire       int      `json:"tower_status_dire"`
+	TowerStatusRadiant    int      `json:"tower_status_radiant"`
+	Error                 string   `json:"error"`
 }
 
 type Player struct {
-	AccountID  int64 `json:"account_id"`
-	HeroID     int   `json:"hero_id"`
-	PlayerSlot int   `json:"player_slot"`
+	AccountID       int64            `json:"account_id"`
+	HeroID          int              `json:"hero_id"`
+	PlayerSlot      int              `json:"player_slot"`
+	AbilityUpgrades []AbilityUpgrade `json:"ability_upgrades"`
+	Assists         int              `json:"assists"`
+	Deaths          int              `json:"deaths"`
+	Denies          int              `json:"denies"`
+	Gold            int              `json:"gold"`
+	GoldPerMin      int              `json:"gold_per_min"`
+	GoldSpent       int              `json:"gold_spent"`
+	HeroDamage      int              `json:"hero_damage"`
+	HeroHealing     int              `json:"hero_healing"`
+	Item0           int              `json:"item_0"`
+	Item1           int              `json:"item_1"`
+	Item2           int              `json:"item_2"`
+	Item3           int              `json:"item_3"`
+	Item4           int              `json:"item_4"`
+	Item5           int              `json:"item_5"`
+	Kills           int              `json:"kills"`
+	LastHits        int              `json:"last_hits"`
+	LeaverStatus    int              `json:"leaver_status"`
+	Level           int              `json:"level"`
+	TowerDamage     int              `json:"tower_damage"`
+	XpPerMin        int              `json:"xp_per_min"`
+}
+
+type AbilityUpgrade struct {
+	Ability int `json:"ability"`
+	Level   int `json:"level"`
+	Time    int `json:"time"`
 }

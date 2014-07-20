@@ -71,13 +71,40 @@ func (d *Dota2) GetMatchHistory(param map[string]interface{}) (MatchHistory, err
 	return matchHistory, nil
 }
 
-func (d *Dota2) GetMatchDetails(param map[string]interface{}) {
+//Get match details
+func (d *Dota2) GetMatchDetails(matchId int64) (MatchDetails, error) {
 
-	fmt.Println()
+	var matchDetails MatchDetails
+
+	param := map[string]interface{}{
+		"key":      SteamApiKey,
+		"match_id": matchId,
+	}
+	url, err := parseUrl(getMatchDetailsUrl(), param)
+
+	if err != nil {
+		return matchDetails, err
+	}
+	resp, err := Get(url)
+	if err != nil {
+		return matchDetails, err
+	}
+
+	err = json.Unmarshal(resp, &matchDetails)
+	if err != nil {
+		return matchDetails, err
+	}
+
+	if matchDetails.Result.Error != "" {
+		return matchDetails, errors.New(string(resp))
+	}
+
+	return matchDetails, nil
 }
 
 func (d *Dota2) GetPlayerSummaries(steamIds []int64) {
 
+	fmt.Println()
 }
 
 func (d *Dota2) GetLeagueListing() {}

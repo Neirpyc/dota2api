@@ -28,4 +28,10 @@ func main() {
 	}
 	fmt.Println(matchHistory)
 
+	matchDetails, err := dota2.GetMatchDetails(786250116)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(matchDetails)
+
 }
