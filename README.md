@@ -35,7 +35,9 @@ message (Optional): The message associated with the request status. Currently on
 
 http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/
 
-key
+**Arguments**
+
+key: Your Steam API Key
 
 steamids
 
