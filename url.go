@@ -28,3 +28,8 @@ func getHeroesUrl() string {
 
 	return fmt.Sprintf("%s/%s/%s/", Dota2EconUrl, "GetHeroes", Dota2ApiVersion)
 }
+
+func getFriendListUrl() string {
+
+	return fmt.Sprintf("%s/%s/%s/", SteamUserUrl, "GetFriendList", SteamApiVersion)
+}

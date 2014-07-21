@@ -112,6 +112,37 @@ gameextrainfo (Optional): The title of the game.
 
 gameserverip (Optional): The server URL given as an IP address and port number separated by a colon, this will not be present or set to "0.0.0.0:0" if none is available.
 
+#### GetFriendList
+
+**Url**
+
+http://api.steampowered.com/ISteamUser/GetFriendList/v0001/
+
+
+**Arguments**
+
+key:
+
+steamid: The 64 bit ID of the user to retrieve a list for.
+
+relationship: Filter by a given role.
+
+>all - All roles
+
+>friend
+
+**Result Data**
+
+If the profile is not public or there are no available entries for the given relationship only an empty object will be returned.
+
+friends - A list of objects for each list entry.
+
+steamid: The 64 bit ID of the friend.
+
+relationship: Role in relation to the given steamid
+
+friend_since: A unix timestamp of when the friend was added to the list.
+
 
 ### Dota2 Api
 ----------------------------

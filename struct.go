@@ -120,3 +120,15 @@ type Hero struct {
 	LocalizedName string `json:"localized_name"`
 	Name          string `json:"name"`
 }
+
+type FriendList struct {
+	Friendslist struct {
+		Friends []Friend `json:"friends"`
+	} `json:"friendslist"`
+}
+
+type Friend struct {
+	SteamId      string `json:"steamid"`
+	Relationship string `json:"relationship"`
+	FriendSince  int64  `json:"friend_since"`
+}

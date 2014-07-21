@@ -133,8 +133,8 @@ func (d *Dota2) GetPlayerSummaries(steamIds []int64) ([]Player, error) {
 
 //Get all heroes
 func (d *Dota2) GetHeroes() ([]Hero, error) {
-	var heroes Heros
-	var hero []Hero
+	var heroList Heroes
+	var heroes []Hero
 
 	param := map[string]interface{}{
 		"key": SteamApiKey,
@@ -142,21 +142,50 @@ func (d *Dota2) GetHeroes() ([]Hero, error) {
 	url, err := parseUrl(getHeroesUrl(), param)
 
 	if err != nil {
-		return hero, err
+		return heroes, err
 	}
 	resp, err := Get(url)
 	if err != nil {
-		return hero, err
+		return heroes, err
 	}
 
-	err = json.Unmarshal(resp, &heroes)
+	err = json.Unmarshal(resp, &heroList)
 	if err != nil {
-		return hero, err
+		return heroes, err
 	}
 
-	hero = heroes.Result.Heroes
+	heroes = heroList.Result.Heroes
 
-	return hero, nil
+	return heroes, nil
+}
+
+//Get friend list
+func (d *Dota2) GetFriendList(steamid int64) ([]Friend, error) {
+	var friendList FriendList
+	var friends []Friend
+
+	param := map[string]interface{}{
+		"key":     SteamApiKey,
+		"steamid": steamid,
+	}
+	url, err := parseUrl(getFriendListUrl(), param)
+
+	if err != nil {
+		return friends, err
+	}
+	resp, err := Get(url)
+	if err != nil {
+		return friends, err
+	}
+
+	err = json.Unmarshal(resp, &friendList)
+	if err != nil {
+		return friends, err
+	}
+
+	friends = friendList.Friendslist.Friends
+
+	return friends, nil
 }
 
 func (d *Dota2) GetLeagueListing() {

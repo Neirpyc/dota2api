@@ -49,4 +49,10 @@ func main() {
 	}
 	fmt.Println(heroes)
 
+	friends, err := dota2.GetFriendList(76561198090402335)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(friends)
+
 }
