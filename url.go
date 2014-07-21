@@ -23,3 +23,8 @@ func getPlayerSummariesUrl() string {
 
 	return fmt.Sprintf("%s/%s/%s/", SteamUserUrl, "GetPlayerSummaries", SteamApiVersion)
 }
+
+func getHeroesUrl() string {
+
+	return fmt.Sprintf("%s/%s/%s/", Dota2EconUrl, "GetHeroes", Dota2ApiVersion)
+}

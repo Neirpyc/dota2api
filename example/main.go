@@ -34,4 +34,19 @@ func main() {
 	}
 	fmt.Println(matchDetails)
 
+	steamIds := []int64{
+		76561198058479208,
+	}
+	players, err := dota2.GetPlayerSummaries(steamIds)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(players)
+
+	heroes, err := dota2.GetHeroes()
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(heroes)
+
 }

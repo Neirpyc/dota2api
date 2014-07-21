@@ -56,3 +56,13 @@ func parseUrl(u string, param map[string]interface{}) (string, error) {
 	ur.RawQuery = q.Encode()
 	return ur.String(), nil
 }
+
+func ArrayIntToStr(arr []int64) []string {
+	strArr := []string{}
+
+	for _, v := range arr {
+		strArr = append(strArr, fmt.Sprintf("%d", v))
+	}
+
+	return strArr
+}

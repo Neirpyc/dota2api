@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 type Dota2 struct {
@@ -102,23 +103,75 @@ func (d *Dota2) GetMatchDetails(matchId int64) (MatchDetails, error) {
 	return matchDetails, nil
 }
 
-func (d *Dota2) GetPlayerSummaries(steamIds []int64) {
+//Get player summaries
+func (d *Dota2) GetPlayerSummaries(steamIds []int64) ([]Player, error) {
+	var playerSummaries PlayerSummaries
+	var players []Player
 
-	fmt.Println()
+	param := map[string]interface{}{
+		"key":      SteamApiKey,
+		"steamids": strings.Join(ArrayIntToStr(steamIds), ","),
+	}
+	url, err := parseUrl(getPlayerSummariesUrl(), param)
+
+	if err != nil {
+		return players, err
+	}
+	resp, err := Get(url)
+	if err != nil {
+		return players, err
+	}
+
+	err = json.Unmarshal(resp, &playerSummaries)
+	if err != nil {
+		return players, err
+	}
+
+	players = playerSummaries.Response.Players.Player
+	return players, nil
 }
 
-func (d *Dota2) GetLeagueListing() {}
+//Get all heroes
+func (d *Dota2) GetHeroes() ([]Hero, error) {
+	var heroes Heros
+	var hero []Hero
+
+	param := map[string]interface{}{
+		"key": SteamApiKey,
+	}
+	url, err := parseUrl(getHeroesUrl(), param)
+
+	if err != nil {
+		return hero, err
+	}
+	resp, err := Get(url)
+	if err != nil {
+		return hero, err
+	}
+
+	err = json.Unmarshal(resp, &heroes)
+	if err != nil {
+		return hero, err
+	}
+
+	hero = heroes.Result.Heroes
+
+	return hero, nil
+}
+
+func (d *Dota2) GetLeagueListing() {
+	fmt.Println()
+}
 
 func (d *Dota2) GetLiveLeagueGames() {}
 
 func (d *Dota2) GetTeamInfoByTeamID() {}
 
-func (d *Dota2) GetHeroes() {}
-
 func (d *Dota2) GetTournamentPrizePool() {}
 
 func (d *Dota2) GetGameItems() {}
 
+//Convert 64-bit steamId to 32-bit steamId
 func (d *Dota2) GetAccountId(steamId int64) int64 {
 	return steamId - ConvertInt
 }

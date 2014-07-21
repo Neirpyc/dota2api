@@ -76,10 +76,47 @@ type Player struct {
 	Level           int              `json:"level"`
 	TowerDamage     int              `json:"tower_damage"`
 	XpPerMin        int              `json:"xp_per_min"`
+
+	Avatar                   string `json:"avatar"`
+	Avatarfull               string `json:"avatarfull"`
+	Avatarmedium             string `json:"avatarmedium"`
+	Communityvisibilitystate int    `json:"communityvisibilitystate"`
+	Lastlogoff               int64  `json:"lastlogoff"`
+	Personaname              string `json:"personaname"`
+	Personastate             int    `json:"personastate"`
+	Personastateflags        int    `json:"personastateflags"`
+	Primaryclanid            string `json:"primaryclanid"`
+	Profilestate             int    `json:"profilestate"`
+	Profileurl               string `json:"profileurl"`
+	Realname                 string `json:"realname"`
+	Steamid                  string `json:"steamid"`
+	Timecreated              int64  `json:"timecreated"`
 }
 
 type AbilityUpgrade struct {
 	Ability int `json:"ability"`
 	Level   int `json:"level"`
 	Time    int `json:"time"`
+}
+
+type PlayerSummaries struct {
+	Response struct {
+		Players struct {
+			Player []Player `json:"player"`
+		} `json:"players"`
+	} `json:"response"`
+}
+
+type Heroes struct {
+	Result struct {
+		Count  int    `json:"count"`
+		Heroes []Hero `json:"heroes"`
+		Status int    `json:"status"`
+	} `json:"result"`
+}
+
+type Hero struct {
+	ID            int    `json:"id"`
+	LocalizedName string `json:"localized_name"`
+	Name          string `json:"name"`
 }
