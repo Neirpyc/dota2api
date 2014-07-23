@@ -33,3 +33,8 @@ func getFriendListUrl() string {
 
 	return fmt.Sprintf("%s/%s/%s/", SteamUserUrl, "GetFriendList", SteamApiVersion)
 }
+
+func getTeamInfoByTeamID() string {
+
+	return fmt.Sprintf("%s/%s/%s/", Dota2MatchUrl, "GetTeamInfoByTeamID", Dota2ApiVersion)
+}

@@ -132,3 +132,29 @@ type Friend struct {
 	Relationship string `json:"relationship"`
 	FriendSince  int64  `json:"friend_since"`
 }
+type TeamInfo struct {
+	Result struct {
+		Status float64 `json:"status"`
+		Teams  []Team  `json:"teams"`
+	} `json:"result"`
+}
+
+type Team struct {
+	AdminAccountID               int64  `json:"admin_account_id"`
+	CountryCode                  string `json:"country_code"`
+	GamesPlayedWithCurrentRoster int    `json:"games_played_with_current_roster"`
+	Logo                         int64  `json:"logo"`
+	LogoSponsor                  int    `json:"logo_sponsor"`
+	Name                         string `json:"name"`
+	Player0AccountID             int64  `json:"player_0_account_id"`
+	Player1AccountID             int64  `json:"player_1_account_id"`
+	Player2AccountID             int64  `json:"player_2_account_id"`
+	Player3AccountID             int64  `json:"player_3_account_id"`
+	Player4AccountID             int64  `json:"player_4_account_id"`
+	Player5AccountID             int64  `json:"player_5_account_id"`
+	Rating                       string `json:"rating"`
+	Tag                          string `json:"tag"`
+	TeamID                       int64  `json:"team_id"`
+	TimeCreated                  int64  `json:"time_created"`
+	URL                          string `json:"url"`
+}

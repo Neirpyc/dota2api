@@ -194,7 +194,39 @@ func (d *Dota2) GetLeagueListing() {
 
 func (d *Dota2) GetLiveLeagueGames() {}
 
-func (d *Dota2) GetTeamInfoByTeamID() {}
+//Get team info by teamId
+func (d *Dota2) GetTeamInfoByTeamID(teamId int64) (Team, error) {
+	var teamInfo TeamInfo
+	var team Team
+
+	param := map[string]interface{}{
+		"key": SteamApiKey,
+		"start_at_team_id=1753464": teamId,
+		"teams_requested":          1,
+	}
+	url, err := parseUrl(getTeamInfoByTeamID(), param)
+
+	if err != nil {
+		return team, err
+	}
+	resp, err := Get(url)
+	if err != nil {
+		return team, err
+	}
+
+	err = json.Unmarshal(resp, &teamInfo)
+	if err != nil {
+		return team, err
+	}
+
+	if len(teamInfo.Result.Teams) > 0 {
+		team = teamInfo.Result.Teams[0]
+	} else {
+		return team, errors.New("Teams > 1")
+	}
+
+	return team, nil
+}
 
 func (d *Dota2) GetTournamentPrizePool() {}
 
