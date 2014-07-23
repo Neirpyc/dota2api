@@ -219,11 +219,43 @@ func (d *Dota2) GetTeamInfoByTeamID(teamId int64) (Team, error) {
 		return team, err
 	}
 
+	if teamInfo.Result.Status != 1 {
+		return team, errors.New(string(resp))
+	}
+
 	if len(teamInfo.Result.Teams) > 0 {
 		team = teamInfo.Result.Teams[0]
 	} else {
 		return team, errors.New("Teams > 1")
 	}
+
+	return team, nil
+}
+
+//Get all team info
+func (d *Dota2) GetAllTeamInfo() ([]Team, error) {
+	var teamInfo TeamInfo
+	var team []Team
+
+	param := map[string]interface{}{
+		"key": SteamApiKey,
+	}
+	url, err := parseUrl(getTeamInfoByTeamID(), param)
+
+	if err != nil {
+		return team, err
+	}
+	resp, err := Get(url)
+	if err != nil {
+		return team, err
+	}
+
+	err = json.Unmarshal(resp, &teamInfo)
+	if err != nil {
+		return team, err
+	}
+
+	team = teamInfo.Result.Teams
 
 	return team, nil
 }
