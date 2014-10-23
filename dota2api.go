@@ -72,6 +72,32 @@ func (d *Dota2) GetMatchHistory(param map[string]interface{}) (MatchHistory, err
 	return matchHistory, nil
 }
 
+//Get match history by sequence num
+func (d *Dota2) GetMatchHistoryBySequenceNum(param map[string]interface{}) (MatchHistory, error) {
+	var matchHistory MatchHistory
+
+	param["key"] = SteamApiKey
+
+	url, err := parseUrl(getMatchHistoryBySequenceNumUrl(), param)
+	if err != nil {
+		return matchHistory, err
+	}
+	resp, err := Get(url)
+	if err != nil {
+		return matchHistory, err
+	}
+
+	err = json.Unmarshal(resp, &matchHistory)
+	if err != nil {
+		return matchHistory, err
+	}
+	if matchHistory.Result.Status != 1 {
+		return matchHistory, errors.New(string(resp))
+	}
+
+	return matchHistory, nil
+}
+
 //Get match details
 func (d *Dota2) GetMatchDetails(matchId int64) (MatchDetails, error) {
 

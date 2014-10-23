@@ -14,6 +14,11 @@ func getMatchHistoryUrl() string {
 	return fmt.Sprintf("%s/%s/%s/", Dota2MatchUrl, "GetMatchHistory", Dota2ApiVersion)
 }
 
+func getMatchHistoryBySequenceNumUrl() string {
+
+	return fmt.Sprintf("%s/%s/%s/", Dota2MatchUrl, "GetMatchHistoryBySequenceNum", Dota2ApiVersion)
+}
+
 func getMatchDetailsUrl() string {
 
 	return fmt.Sprintf("%s/%s/%s/", Dota2MatchUrl, "GetMatchDetails", Dota2ApiVersion)
