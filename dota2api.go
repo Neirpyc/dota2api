@@ -79,7 +79,6 @@ func (d *Dota2) GetMatchHistoryBySequenceNum(param map[string]interface{}) (Matc
 	param["key"] = SteamApiKey
 
 	url, err := parseUrl(getMatchHistoryBySequenceNumUrl(), param)
-	fmt.Println(url)
 	if err != nil {
 		return matchHistory, err
 	}

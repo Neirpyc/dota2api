@@ -13,7 +13,7 @@ import (
 func Get(u string) ([]byte, error) {
 	var body []byte
 
-	timeout := time.Duration(10) * time.Second
+	timeout := time.Duration(20) * time.Second
 
 	transport := &http.Transport{
 		ResponseHeaderTimeout: timeout,
