@@ -9,6 +9,32 @@ import (
 )
 
 type Dota2 struct {
+	// steam api url
+	SteamApi string
+	// steam api key: http://steamcommunity.com/dev/apikey
+	SteamApiKey string
+	//Steam User
+	SteamUser string
+	// api version
+	SteamApiVersion string
+
+	// dota2 name in api
+	Dota2Match string
+	Dota2Econ  string
+
+	// api version
+	Dota2ApiVersion string
+
+	// convert 64-bit steamID to 32-bit steamID
+	// STEAMID64 - 76561197960265728 = STEAMID32
+	ConvertInt int64
+
+	// http request timeout
+	Timeout int
+
+	Dota2MatchUrl string
+	Dota2EconUrl  string
+	SteamUserUrl  string
 }
 
 //Get steamId by username
@@ -16,10 +42,10 @@ func (d *Dota2) ResolveVanityUrl(vanityurl string) (int64, error) {
 	var steamId int64
 
 	param := map[string]interface{}{
-		"key":       SteamApiKey,
+		"key":       d.SteamApiKey,
 		"vanityurl": vanityurl,
 	}
-	url, err := parseUrl(getResolveVanityUrl(), param)
+	url, err := parseUrl(getResolveVanityUrl(d), param)
 	if err != nil {
 		return steamId, err
 	}
@@ -50,9 +76,10 @@ func (d *Dota2) ResolveVanityUrl(vanityurl string) (int64, error) {
 func (d *Dota2) GetMatchHistory(param map[string]interface{}) (MatchHistory, error) {
 	var matchHistory MatchHistory
 
-	param["key"] = SteamApiKey
+	param["key"] = d.SteamApiKey
 
-	url, err := parseUrl(getMatchHistoryUrl(), param)
+	url, err := parseUrl(getMatchHistoryUrl(d), param)
+	fmt.Println(url)
 	if err != nil {
 		return matchHistory, err
 	}
@@ -76,9 +103,9 @@ func (d *Dota2) GetMatchHistory(param map[string]interface{}) (MatchHistory, err
 func (d *Dota2) GetMatchHistoryBySequenceNum(param map[string]interface{}) (MatchHistory, error) {
 	var matchHistory MatchHistory
 
-	param["key"] = SteamApiKey
+	param["key"] = d.SteamApiKey
 
-	url, err := parseUrl(getMatchHistoryBySequenceNumUrl(), param)
+	url, err := parseUrl(getMatchHistoryBySequenceNumUrl(d), param)
 	if err != nil {
 		return matchHistory, err
 	}
@@ -104,10 +131,10 @@ func (d *Dota2) GetMatchDetails(matchId int64) (MatchDetails, error) {
 	var matchDetails MatchDetails
 
 	param := map[string]interface{}{
-		"key":      SteamApiKey,
+		"key":      d.SteamApiKey,
 		"match_id": matchId,
 	}
-	url, err := parseUrl(getMatchDetailsUrl(), param)
+	url, err := parseUrl(getMatchDetailsUrl(d), param)
 
 	if err != nil {
 		return matchDetails, err
@@ -135,10 +162,10 @@ func (d *Dota2) GetPlayerSummaries(steamIds []int64) ([]Player, error) {
 	var players []Player
 
 	param := map[string]interface{}{
-		"key":      SteamApiKey,
+		"key":      d.SteamApiKey,
 		"steamids": strings.Join(ArrayIntToStr(steamIds), ","),
 	}
-	url, err := parseUrl(getPlayerSummariesUrl(), param)
+	url, err := parseUrl(getPlayerSummariesUrl(d), param)
 
 	if err != nil {
 		return players, err
@@ -163,9 +190,9 @@ func (d *Dota2) GetHeroes() ([]Hero, error) {
 	var heroes []Hero
 
 	param := map[string]interface{}{
-		"key": SteamApiKey,
+		"key": d.SteamApiKey,
 	}
-	url, err := parseUrl(getHeroesUrl(), param)
+	url, err := parseUrl(getHeroesUrl(d), param)
 
 	if err != nil {
 		return heroes, err
@@ -191,10 +218,10 @@ func (d *Dota2) GetFriendList(steamid int64) ([]Friend, error) {
 	var friends []Friend
 
 	param := map[string]interface{}{
-		"key":     SteamApiKey,
+		"key":     d.SteamApiKey,
 		"steamid": steamid,
 	}
-	url, err := parseUrl(getFriendListUrl(), param)
+	url, err := parseUrl(getFriendListUrl(d), param)
 
 	if err != nil {
 		return friends, err
@@ -226,11 +253,11 @@ func (d *Dota2) GetTeamInfoByTeamID(teamId int64) (Team, error) {
 	var team Team
 
 	param := map[string]interface{}{
-		"key": SteamApiKey,
+		"key": d.SteamApiKey,
 		"start_at_team_id=1753464": teamId,
 		"teams_requested":          1,
 	}
-	url, err := parseUrl(getTeamInfoByTeamID(), param)
+	url, err := parseUrl(getTeamInfoByTeamID(d), param)
 
 	if err != nil {
 		return team, err
@@ -264,9 +291,9 @@ func (d *Dota2) GetAllTeamInfo() ([]Team, error) {
 	var team []Team
 
 	param := map[string]interface{}{
-		"key": SteamApiKey,
+		"key": d.SteamApiKey,
 	}
-	url, err := parseUrl(getTeamInfoByTeamID(), param)
+	url, err := parseUrl(getTeamInfoByTeamID(d), param)
 
 	if err != nil {
 		return team, err

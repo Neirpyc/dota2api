@@ -4,42 +4,41 @@ import (
 	"fmt"
 )
 
-func getResolveVanityUrl() string {
-
-	return fmt.Sprintf("%s/%s/%s/", SteamUserUrl, "ResolveVanityURL", SteamApiVersion)
+func getResolveVanityUrl(dota2 *Dota2) string {
+	return fmt.Sprintf("%s/%s/%s/", dota2.SteamUserUrl, "ResolveVanityURL", dota2.SteamApiVersion)
 }
 
-func getMatchHistoryUrl() string {
+func getMatchHistoryUrl(dota2 *Dota2) string {
 
-	return fmt.Sprintf("%s/%s/%s/", Dota2MatchUrl, "GetMatchHistory", Dota2ApiVersion)
+	return fmt.Sprintf("%s/%s/%s/", dota2.Dota2MatchUrl, "GetMatchHistory", dota2.Dota2ApiVersion)
 }
 
-func getMatchHistoryBySequenceNumUrl() string {
+func getMatchHistoryBySequenceNumUrl(dota2 *Dota2) string {
 
-	return fmt.Sprintf("%s/%s/%s/", Dota2MatchUrl, "GetMatchHistoryBySequenceNum", Dota2ApiVersion)
+	return fmt.Sprintf("%s/%s/%s/", dota2.Dota2MatchUrl, "GetMatchHistoryBySequenceNum", dota2.Dota2ApiVersion)
 }
 
-func getMatchDetailsUrl() string {
+func getMatchDetailsUrl(dota2 *Dota2) string {
 
-	return fmt.Sprintf("%s/%s/%s/", Dota2MatchUrl, "GetMatchDetails", Dota2ApiVersion)
+	return fmt.Sprintf("%s/%s/%s/", dota2.Dota2MatchUrl, "GetMatchDetails", dota2.Dota2ApiVersion)
 }
 
-func getPlayerSummariesUrl() string {
+func getPlayerSummariesUrl(dota2 *Dota2) string {
 
-	return fmt.Sprintf("%s/%s/%s/", SteamUserUrl, "GetPlayerSummaries", SteamApiVersion)
+	return fmt.Sprintf("%s/%s/%s/", dota2.SteamUserUrl, "GetPlayerSummaries", dota2.SteamApiVersion)
 }
 
-func getHeroesUrl() string {
+func getHeroesUrl(dota2 *Dota2) string {
 
-	return fmt.Sprintf("%s/%s/%s/", Dota2EconUrl, "GetHeroes", Dota2ApiVersion)
+	return fmt.Sprintf("%s/%s/%s/", dota2.Dota2EconUrl, "GetHeroes", dota2.Dota2ApiVersion)
 }
 
-func getFriendListUrl() string {
+func getFriendListUrl(dota2 *Dota2) string {
 
-	return fmt.Sprintf("%s/%s/%s/", SteamUserUrl, "GetFriendList", SteamApiVersion)
+	return fmt.Sprintf("%s/%s/%s/", dota2.SteamUserUrl, "GetFriendList", dota2.SteamApiVersion)
 }
 
-func getTeamInfoByTeamID() string {
+func getTeamInfoByTeamID(dota2 *Dota2) string {
 
-	return fmt.Sprintf("%s/%s/%s/", Dota2MatchUrl, "GetTeamInfoByTeamID", Dota2ApiVersion)
+	return fmt.Sprintf("%s/%s/%s/", dota2.Dota2MatchUrl, "GetTeamInfoByTeamID", dota2.Dota2ApiVersion)
 }
