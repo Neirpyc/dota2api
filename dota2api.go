@@ -80,6 +80,7 @@ func (d *Dota2) GetMatchHistory(param map[string]interface{}) (MatchHistory, err
 
 	url, err := parseUrl(getMatchHistoryUrl(d), param)
 	fmt.Println(url)
+
 	if err != nil {
 		return matchHistory, err
 	}
