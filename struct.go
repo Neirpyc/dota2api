@@ -10,15 +10,33 @@ type VanityResp struct {
 }
 
 type MatchHistory struct {
-	Result MatchResult `json:"result"`
+	Result MatchHistoryResult `json:"result"`
 }
 
-type MatchResult struct {
-	Matches          []Match `json:"matches"`
-	NumResults       int     `bson:"num_results" json:"num_results"`
-	ResultsRemaining int     `bson:"results_remaining" json:"results_remaining"`
-	Status           int     `json:"status"`
-	TotalResults     int     `bson:"total_results" json:"total_results"`
+type MatchHistoryResult struct {
+	Status int `json:"status"`
+	NumResults int `json:"num_results"`
+	TotalResults int `json:"total_results"`
+	ResultsRemaining int `json:"results_remaining"`
+	Matches [] MatchSummary `json:"matches"`
+}
+
+type MatchSummary struct {
+	SeriesID int `json:"series_id"`
+	SeriesType int `json:"series_type"`
+	MatchID int64 `json:"match_id"`
+	MatchSeqNum int64 `json:"match_seq_num"`
+	StartTime int `json:"start_time"`
+	LobbyType int `json:"lobby_type"`
+	RadiantTeamID int `json:"radiant_team_id"`
+	DireTeamID int `json:"dire_team_id"`
+	Players [] PlayerSummary `json:"players"`
+}
+
+type PlayerSummary struct {
+	AccountID int `json:"account_id"`
+	PlayerSlot int `json:"player_slot"`
+	HeroID int `json:"hero_id"`
 }
 
 type MatchDetails struct {
@@ -26,71 +44,77 @@ type MatchDetails struct {
 }
 
 type Match struct {
-	DireTeamID            int64    `bson:"dire_team_id" json:"dire_team_id"`
-	LobbyType             int      `bson:"lobby_type" json:"lobby_type"`
-	MatchID               int64    `bson:"match_id" json:"match_id"`
-	MatchSeqNum           int64    `bson:"match_seq_num" json:"match_seq_num"`
-	Players               []Player `bson:"players" json:"players"`
-	RadiantTeamID         int64    `bson:"radiant_team_id" json:"radiant_team_id"`
-	StartTime             int64    `bson:"start_time" json:"start_time"`
-	BarracksStatusDire    int      `bson:"barracks_status_dire" json:"barracks_status_dire"`
-	BarracksStatusRadiant int      `bson:"barracks_status_radiant" json:"barracks_status_radiant"`
-	Cluster               int      `bson:"cluster" json:"cluster"`
-	DireCaptain           int64    `bson:"dire_captain" json:"dire_captain"`
-	Duration              int      `bson:"duration" json:"duration"`
-	FirstBloodTime        int      `bson:"first_blood_time" json:"first_blood_time"`
-	GameMode              int      `bson:"game_mode" json:"game_mode"`
-	HumanPlayers          int      `bson:"human_players" json:"human_players"`
-	Leagueid              int      `bson:"leagueid" json:"leagueid"`
-	NegativeVotes         int      `bson:"negative_votes" json:"negative_votes"`
-	PositiveVotes         int      `bson:"positive_votes" json:"positive_votes"`
-	RadiantCaptain        int64    `bson:"radiant_captain" json:"radiant_captain"`
-	RadiantWin            bool     `bson:"radiant_win" json:"radiant_win"`
-	TowerStatusDire       int      `bson:"tower_status_dire" json:"tower_status_dire"`
-	Tower_StatusRadiant   int      `bson:"tower_status_radiant" json:"tower_status_radiant"`
-	Error                 string   `bson:"error" json:"error"`
+	Error string `bson:"error" json:"error"`
+	Players [] Player `json:"players"`
+	RadiantWin bool `json:"radiant_win"`
+	Duration int `json:"duration"`
+	PreGameDuration int `json:"pre_game_duration"`
+	StartTime int `json:"start_time"`
+	MatchID int64 `json:"match_id"`
+	MatchSeqNum int64 `json:"match_seq_num"`
+	TowerStatusRadiant int `json:"tower_status_radiant"`
+	TowerStatusDire int `json:"tower_status_dire"`
+	BarracksStatusRadiant int `json:"barracks_status_radiant"`
+	BarracksStatusDire int `json:"barracks_status_dire"`
+	Cluster int `json:"cluster"`
+	FirstBloodTime int `json:"first_blood_time"`
+	LobbyType int `json:"lobby_type"`
+	HumanPlayers int `json:"human_players"`
+	Leagueid int `json:"leagueid"`
+	PositiveVotes int `json:"positive_votes"`
+	NegativeVotes int `json:"negative_votes"`
+	GameMode int `json:"game_mode"`
+	Flags int `json:"flags"`
+	Engine int `json:"engine"`
+	RadiantScore int `json:"radiant_score"`
+	DireScore int `json:"dire_score"`
+	TournamentID int `json:"tournament_id"`
+	TournamentRound int `json:"tournament_round"`
+	RadiantTeamID int `json:"radiant_team_id"`
+	RadiantName string `json:"radiant_name"`
+	RadiantLogo int `json:"radiant_logo"`
+	RadiantTeamComplete int `json:"radiant_team_complete"`
+	DireTeamID int `json:"dire_team_id"`
+	DireName string `json:"dire_name"`
+	DireLogo int `json:"dire_logo"`
+	DireTeamComplete int `json:"dire_team_complete"`
+	RadiantCaptain int `json:"radiant_captain"`
+	DireCaptain int `json:"dire_captain"`
+    PicksBans [] PicksBans `json:"picks_bans"`
+}
+
+type PicksBans struct {
+	IsPick bool `json:"is_pick"`
+	HeroID int `json:"hero_id"`
+	Team int `json:"team"`
+	Order int `json:"order"`
 }
 
 type Player struct {
-	AccountID       int64            `bson:"account_id" json:"account_id"`
-	HeroID          int              `bson:"hero_id" json:"hero_id"`
-	PlayerSlot      int              `bson:"player_slot" json:"player_slot"`
-	AbilityUpgrades []AbilityUpgrade `bson:"ability_upgrades" json:"ability_upgrades"`
-	Assists         int              `bson:"assists" json:"assists"`
-	Deaths          int              `bson:"deaths" json:"deaths"`
-	Denies          int              `bson:"denies" json:"denies"`
-	Gold            int              `bson:"gold" json:"gold"`
-	GoldPerMin      int              `bson:"gold_per_min" json:"gold_per_min"`
-	GoldSpent       int              `bson:"gold_spent" json:"gold_spent"`
-	HeroDamage      int              `bson:"hero_damage" json:"hero_damage"`
-	HeroHealing     int              `bson:"hero_healing" json:"hero_healing"`
-	Item0           int              `bson:"item_0" json:"item_0"`
-	Item1           int              `bson:"item_1" json:"item_1"`
-	Item2           int              `bson:"item_2" json:"item_2"`
-	Item3           int              `bson:"item_3" json:"item_3"`
-	Item4           int              `bson:"item_4" json:"item_4"`
-	Item5           int              `bson:"item_5" json:"item_5"`
-	Kills           int              `bson:"kills" json:"kills"`
-	LastHits        int              `bson:"last_hits" json:"last_hits"`
-	LeaverStatus    int              `bson:"leaver_status" json:"leaver_status"`
-	Level           int              `bson:"level" json:"level"`
-	TowerDamage     int              `bson:"tower_damage" json:"tower_damage"`
-	XpPerMin        int              `bson:"xp_per_min" json:"xp_per_min"`
-
-	Avatar                   string `bson:"avatar" json:"avatar"`
-	Avatarfull               string `bson:"avatarfull" json:"avatarfull"`
-	Avatarmedium             string `bson:"avatarmedium" json:"avatarmedium"`
-	Communityvisibilitystate int    `bson:"communityvisibilitystate" json:"communityvisibilitystate"`
-	Lastlogoff               int64  `bson:"lastlogoff" json:"lastlogoff"`
-	Personaname              string `bson:"personaname" json:"personaname"`
-	Personastate             int    `bson:"personastate" json:"personastate"`
-	Personastateflags        int    `bson:"personastateflags" json:"personastateflags"`
-	Primaryclanid            string `bson:"primaryclanid" json:"primaryclanid"`
-	Profilestate             int    `bson:"profilestate" json:"profilestate"`
-	Profileurl               string `bson:"profileurl" json:"profileurl"`
-	Realname                 string `bson:"realname" json:"realname"`
-	Steamid                  string `bson:"steamid" json:"steamid"`
-	Timecreated              int64  `bson:"timecreated" json:"timecreated"`
+	AccountID int `json:"account_id"`
+	PlayerSlot int `json:"player_slot"`
+	HeroID int `json:"hero_id"`
+	Item0 int `json:"item_0"`
+	Item1 int `json:"item_1"`
+	Item2 int `json:"item_2"`
+	Item3 int `json:"item_3"`
+	Item4 int `json:"item_4"`
+	Item5 int `json:"item_5"`
+	Kills int `json:"kills"`
+	Deaths int `json:"deaths"`
+	Assists int `json:"assists"`
+	LeaverStatus int `json:"leaver_status"`
+	LastHits int `json:"last_hits"`
+	Denies int `json:"denies"`
+	GoldPerMin int `json:"gold_per_min"`
+	XpPerMin int `json:"xp_per_min"`
+	Level int `json:"level"`
+	Gold int `json:"gold"`
+	GoldSpent int `json:"gold_spent"`
+	HeroDamage int `json:"hero_damage"`
+	TowerDamage int `json:"tower_damage"`
+	HeroHealing int `json:"hero_healing"`
+	AbilityUpgrades [] AbilityUpgrade `json:"ability_upgrades"`
 }
 
 type AbilityUpgrade struct {
@@ -101,11 +125,32 @@ type AbilityUpgrade struct {
 
 type PlayerSummaries struct {
 	Response struct {
-		Players struct {
-			Player []Player `json:"player"`
-		} `json:"players"`
-	} `json:"response"`
+		 Players [] PlayerAccount `json:"players"`
+	 } `json:"response"`
 }
+
+
+type PlayerAccount struct {
+	Steamid string `json:"steamid"`
+	Communityvisibilitystate int `json:"communityvisibilitystate"`
+	Profilestate int `json:"profilestate"`
+	Personaname string `json:"personaname"`
+	Lastlogoff int `json:"lastlogoff"`
+	Profileurl string `json:"profileurl"`
+	Avatar string `json:"avatar"`
+	Avatarmedium string `json:"avatarmedium"`
+	Avatarfull string `json:"avatarfull"`
+	Personastate int `json:"personastate"`
+	Realname string `json:"realname"`
+	Primaryclanid string `json:"primaryclanid"`
+	Timecreated int `json:"timecreated"`
+	Personastateflags int `json:"personastateflags"`
+	Gameextrainfo string `json:"gameextrainfo"`
+	Gameid string `json:"gameid"`
+	Loccountrycode string `json:"loccountrycode"`
+	Locstatecode string `json:"locstatecode"`
+}
+
 
 type Heroes struct {
 	Result struct {
@@ -117,7 +162,6 @@ type Heroes struct {
 
 type Hero struct {
 	ID            int    `json:"id"`
-	LocalizedName string `bson:"localized_name" json:"localized_name"`
 	Name          string `json:"name"`
 }
 
@@ -132,29 +176,145 @@ type Friend struct {
 	Relationship string `json:"relationship"`
 	FriendSince  int64  `bson:"friend_since" json:"friend_since"`
 }
-type TeamInfo struct {
+
+type LeagueList struct {
 	Result struct {
-		Status float64 `json:"status"`
-		Teams  []Team  `json:"teams"`
-	} `json:"result"`
+	   Leagues []struct {
+		   Name string `json:"name"`
+		   Leagueid int `json:"leagueid"`
+		   Description string `json:"description"`
+		   TournamentURL string `json:"tournament_url"`
+		   Itemdef int `json:"itemdef"`
+	   } `json:"leagues"`
+   	} `json:"result"`
 }
 
-type Team struct {
-	AdminAccountID               int64  `bson:"admin_account_id" json:"admin_account_id"`
-	CountryCode                  string `bson:"country_code" json:"country_code"`
-	GamesPlayedWithCurrentRoster int    `bson:"games_played_with_current_roster" json:"games_played_with_current_roster"`
-	Logo                         int64  `json:"logo"`
-	LogoSponsor                  int    `bson:"logo_sponsor" json:"logo_sponsor"`
-	Name                         string `json:"name"`
-	Player0AccountID             int64  `bson:"player_0_account_id" json:"player_0_account_id"`
-	Player1AccountID             int64  `bson:"player_1_account_id" json:"player_1_account_id"`
-	Player2AccountID             int64  `bson:"player_2_account_id" json:"player_2_account_id"`
-	Player3AccountID             int64  `bson:"player_3_account_id" json:"player_3_account_id"`
-	Player4AccountID             int64  `bson:"player_4_account_id" json:"player_4_account_id"`
-	Player5AccountID             int64  `bson:"player_5_account_id" json:"player_5_account_id"`
-	Rating                       string `json:"rating"`
-	Tag                          string `json:"tag"`
-	TeamID                       int64  `bson:"team_id" json:"team_id"`
-	TimeCreated                  int64  `bson:"time_created" json:"time_created"`
-	URL                          string `json:"url"`
+type LiveGames struct {
+	Result struct {
+			   Games []struct {
+				   Players []struct {
+					   AccountID int `json:"account_id"`
+					   Name string `json:"name"`
+					   HeroID int `json:"hero_id"`
+					   Team int `json:"team"`
+				   } `json:"players"`
+				   LobbyID int64 `json:"lobby_id"`
+				   MatchID int64 `json:"match_id"`
+				   Spectators int `json:"spectators"`
+				   SeriesID int `json:"series_id"`
+				   GameNumber int `json:"game_number"`
+				   LeagueID int `json:"league_id"`
+				   StreamDelayS int `json:"stream_delay_s"`
+				   RadiantSeriesWins int `json:"radiant_series_wins"`
+				   DireSeriesWins int `json:"dire_series_wins"`
+				   SeriesType int `json:"series_type"`
+				   LeagueSeriesID int `json:"league_series_id"`
+				   LeagueGameID int `json:"league_game_id"`
+				   StageName string `json:"stage_name"`
+				   LeagueTier int `json:"league_tier"`
+				   Scoreboard struct {
+							   Duration float64 `json:"duration"`
+							   RoshanRespawnTimer int `json:"roshan_respawn_timer"`
+							   Radiant struct {
+											Score int `json:"score"`
+											TowerState int `json:"tower_state"`
+											BarracksState int `json:"barracks_state"`
+											Picks []struct {
+												HeroID int `json:"hero_id"`
+											} `json:"picks"`
+											Bans []struct {
+												HeroID int `json:"hero_id"`
+											} `json:"bans"`
+											Players []struct {
+												PlayerSlot int `json:"player_slot"`
+												AccountID int `json:"account_id"`
+												HeroID int `json:"hero_id"`
+												Kills int `json:"kills"`
+												Death int `json:"death"`
+												Assists int `json:"assists"`
+												LastHits int `json:"last_hits"`
+												Denies int `json:"denies"`
+												Gold int `json:"gold"`
+												Level int `json:"level"`
+												GoldPerMin int `json:"gold_per_min"`
+												XpPerMin int `json:"xp_per_min"`
+												UltimateState int `json:"ultimate_state"`
+												UltimateCooldown int `json:"ultimate_cooldown"`
+												Item0 int `json:"item0"`
+												Item1 int `json:"item1"`
+												Item2 int `json:"item2"`
+												Item3 int `json:"item3"`
+												Item4 int `json:"item4"`
+												Item5 int `json:"item5"`
+												RespawnTimer int `json:"respawn_timer"`
+												PositionX float64 `json:"position_x"`
+												PositionY float64 `json:"position_y"`
+												NetWorth int `json:"net_worth"`
+											} `json:"players"`
+											Abilities []struct {
+												AbilityID int `json:"ability_id"`
+												AbilityLevel int `json:"ability_level"`
+											} `json:"abilities"`
+										} `json:"radiant"`
+							   Dire struct {
+											Score int `json:"score"`
+											TowerState int `json:"tower_state"`
+											BarracksState int `json:"barracks_state"`
+											Picks []struct {
+												HeroID int `json:"hero_id"`
+											} `json:"picks"`
+											Bans []struct {
+												HeroID int `json:"hero_id"`
+											} `json:"bans"`
+											Players []struct {
+												PlayerSlot int `json:"player_slot"`
+												AccountID int `json:"account_id"`
+												HeroID int `json:"hero_id"`
+												Kills int `json:"kills"`
+												Death int `json:"death"`
+												Assists int `json:"assists"`
+												LastHits int `json:"last_hits"`
+												Denies int `json:"denies"`
+												Gold int `json:"gold"`
+												Level int `json:"level"`
+												GoldPerMin int `json:"gold_per_min"`
+												XpPerMin int `json:"xp_per_min"`
+												UltimateState int `json:"ultimate_state"`
+												UltimateCooldown int `json:"ultimate_cooldown"`
+												Item0 int `json:"item0"`
+												Item1 int `json:"item1"`
+												Item2 int `json:"item2"`
+												Item3 int `json:"item3"`
+												Item4 int `json:"item4"`
+												Item5 int `json:"item5"`
+												RespawnTimer int `json:"respawn_timer"`
+												PositionX float64 `json:"position_x"`
+												PositionY float64 `json:"position_y"`
+												NetWorth int `json:"net_worth"`
+											} `json:"players"`
+											Abilities []struct {
+												AbilityID int `json:"ability_id"`
+												AbilityLevel int `json:"ability_level"`
+											} `json:"abilities"`
+										} `json:"dire"`
+						   } `json:"scoreboard"`
+				   DireTeam struct {
+							   TeamName string `json:"team_name"`
+							   TeamID int `json:"team_id"`
+							   TeamLogo int64 `json:"team_logo"`
+							   Complete bool `json:"complete"`
+						   } `json:"dire_team,omitempty"`
+				   RadiantTeam struct {
+							   TeamName string `json:"team_name"`
+							   TeamID int `json:"team_id"`
+							   TeamLogo int64 `json:"team_logo"`
+							   Complete bool `json:"complete"`
+						   } `json:"radiant_team,omitempty"`
+			   } `json:"games"`
+			   Status int `json:"status"`
+		   } `json:"result"`
 }
+
+
+
+

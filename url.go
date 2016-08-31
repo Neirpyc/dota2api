@@ -25,7 +25,7 @@ func getMatchDetailsUrl(dota2 *Dota2) string {
 
 func getPlayerSummariesUrl(dota2 *Dota2) string {
 
-	return fmt.Sprintf("%s/%s/%s/", dota2.SteamUserUrl, "GetPlayerSummaries", dota2.SteamApiVersion)
+	return fmt.Sprintf("%s/%s/%s/", dota2.SteamUserUrl, "GetPlayerSummaries", "V002")
 }
 
 func getHeroesUrl(dota2 *Dota2) string {
@@ -38,7 +38,12 @@ func getFriendListUrl(dota2 *Dota2) string {
 	return fmt.Sprintf("%s/%s/%s/", dota2.SteamUserUrl, "GetFriendList", dota2.SteamApiVersion)
 }
 
-func getTeamInfoByTeamID(dota2 *Dota2) string {
-
-	return fmt.Sprintf("%s/%s/%s/", dota2.Dota2MatchUrl, "GetTeamInfoByTeamID", dota2.Dota2ApiVersion)
+func getLeagueListUrl(dota2 *Dota2) string {
+	return fmt.Sprintf("%s/%s/%s/", dota2.Dota2MatchUrl, "GetLeagueListing", dota2.SteamApiVersion)
 }
+
+func getLiveGamesUrl(dota2 *Dota2) string {
+	return fmt.Sprintf("%s/%s/%s/", dota2.Dota2MatchUrl, "GetLiveLeagueGames", dota2.SteamApiVersion)
+}
+
+
