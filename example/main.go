@@ -45,8 +45,8 @@ func main() {
 	fmt.Println("#### Match History ####")
 	fmt.Println()
 
-	res2B, _ := json.Marshal(matchHistory)
-	fmt.Println(string(res2B))
+	matchHistoryObject, _ := json.Marshal(matchHistory)
+	fmt.Println(string(matchHistoryObject))
 
 	matchDetails, err := dota2.GetMatchDetails(2606807053)
 	if err != nil {
@@ -71,8 +71,9 @@ func main() {
 	fmt.Println()
 	fmt.Println("#### Player Summaries ####")
 	fmt.Println()
-	res2, _ := json.Marshal(players)
-	fmt.Println(string(res2))
+
+	playerSymmaryObject, _ := json.Marshal(players)
+	fmt.Println(string(playerSymmaryObject))
 	//
 	heroes, err := dota2.GetHeroes()
 	if err != nil {
@@ -95,8 +96,8 @@ func main() {
 	fmt.Println("#### Friend List ####")
 	fmt.Println()
 
-	res1, _ := json.Marshal(friends)
-	fmt.Println(string(res1))
+	friendObject, _ := json.Marshal(friends)
+	fmt.Println(string(friendObject))
 
 
 	leagueList, err := dota2.GetLeagueListing()
@@ -107,10 +108,10 @@ func main() {
 	fmt.Println()
 	fmt.Println("#### League Listing ####")
 	fmt.Println()
-	resLeagueList, _ := json.Marshal(leagueList)
-	fmt.Println(string(resLeagueList))
+	leagueListObject, _ := json.Marshal(leagueList)
+	fmt.Println(string(leagueListObject))
 
-	livegames, err := dota2.GetLiveLeagueGames()
+	liveGames, err := dota2.GetLiveLeagueGames()
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -118,10 +119,7 @@ func main() {
 	fmt.Println()
 	fmt.Println("#### Live Games ####")
 	fmt.Println()
-	resLivegames, _ := json.Marshal(livegames.Result.Games)
-	fmt.Println(string(resLivegames))
-
-
-
+	liveGameObject, _ := json.Marshal(liveGames.Result.Games)
+	fmt.Println(string(liveGameObject))
 
 }
