@@ -3,9 +3,9 @@ package dota2api
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"strconv"
 	"strings"
+	"fmt"
 )
 
 type Dota2 struct {
@@ -156,9 +156,9 @@ func (d *Dota2) GetMatchDetails(matchId int64) (MatchDetails, error) {
 }
 
 //Get player summaries
-func (d *Dota2) GetPlayerSummaries(steamIds []int64) ([]Player, error) {
+func (d *Dota2) GetPlayerSummaries(steamIds []int64) (PlayerSummaries, error) {
 	var playerSummaries PlayerSummaries
-	var players []Player
+	var players PlayerSummaries
 
 	param := map[string]interface{}{
 		"key":      d.SteamApiKey,
@@ -179,7 +179,7 @@ func (d *Dota2) GetPlayerSummaries(steamIds []int64) ([]Player, error) {
 		return players, err
 	}
 
-	players = playerSummaries.Response.Players.Player
+	players = playerSummaries
 	return players, nil
 }
 
@@ -240,81 +240,52 @@ func (d *Dota2) GetFriendList(steamid int64) ([]Friend, error) {
 	return friends, nil
 }
 
-func (d *Dota2) GetLeagueListing() {
-	fmt.Println()
-}
-
-func (d *Dota2) GetLiveLeagueGames() {}
-
-//Get team info by teamId
-func (d *Dota2) GetTeamInfoByTeamID(teamId int64) (Team, error) {
-	var teamInfo TeamInfo
-	var team Team
-
+func (d *Dota2) GetLeagueListing() (LeagueList, error) {
+	var leagueList LeagueList
 	param := map[string]interface{}{
-		"key": d.SteamApiKey,
-		"start_at_team_id=1753464": teamId,
-		"teams_requested":          1,
+		"key":     d.SteamApiKey,
 	}
-	url, err := parseUrl(getTeamInfoByTeamID(d), param)
 
+	url, err := parseUrl(getLeagueListUrl(d), param)
+	fmt.Println(url)
 	if err != nil {
-		return team, err
+		return leagueList, err
 	}
 	resp, err := Get(url)
 	if err != nil {
-		return team, err
+		return leagueList, err
 	}
 
-	err = json.Unmarshal(resp, &teamInfo)
+	err = json.Unmarshal(resp, &leagueList)
 	if err != nil {
-		return team, err
+		return leagueList, err
 	}
-
-	if teamInfo.Result.Status != 1 {
-		return team, errors.New(string(resp))
-	}
-
-	if len(teamInfo.Result.Teams) > 0 {
-		team = teamInfo.Result.Teams[0]
-	} else {
-		return team, errors.New("Teams > 1")
-	}
-
-	return team, nil
+	return leagueList, nil
 }
 
-//Get all team info
-func (d *Dota2) GetAllTeamInfo() ([]Team, error) {
-	var teamInfo TeamInfo
-	var team []Team
-
+func (d *Dota2) GetLiveLeagueGames() (LiveGames, error) {
+	var liveGames LiveGames
 	param := map[string]interface{}{
-		"key": d.SteamApiKey,
+		"key":     d.SteamApiKey,
 	}
-	url, err := parseUrl(getTeamInfoByTeamID(d), param)
 
+	url, err := parseUrl(getLiveGamesUrl(d), param)
+	fmt.Println(url)
 	if err != nil {
-		return team, err
+		return liveGames, err
 	}
 	resp, err := Get(url)
 	if err != nil {
-		return team, err
+		return liveGames, err
 	}
 
-	err = json.Unmarshal(resp, &teamInfo)
+	err = json.Unmarshal(resp, &liveGames)
 	if err != nil {
-		return team, err
+		return liveGames, err
 	}
-
-	team = teamInfo.Result.Teams
-
-	return team, nil
+	return liveGames, nil
 }
 
-func (d *Dota2) GetTournamentPrizePool() {}
-
-func (d *Dota2) GetGameItems() {}
 
 //Convert 64-bit steamId to 32-bit steamId
 func (d *Dota2) GetAccountId(steamId int64) int64 {
