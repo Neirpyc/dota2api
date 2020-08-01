@@ -33,6 +33,11 @@ func getHeroesUrl(dota2 *Dota2) string {
 	return fmt.Sprintf("%s/%s/%s/", dota2.Dota2EconUrl, "GetHeroes", dota2.Dota2ApiVersion)
 }
 
+func getItemsUrl(dota2 *Dota2) string {
+
+	return fmt.Sprintf("%s/%s/%s/", dota2.Dota2EconUrl, "GetGameItems", dota2.Dota2ApiVersion)
+}
+
 func getFriendListUrl(dota2 *Dota2) string {
 
 	return fmt.Sprintf("%s/%s/%s/", dota2.SteamUserUrl, "GetFriendList", dota2.SteamApiVersion)
@@ -45,5 +50,3 @@ func getLeagueListUrl(dota2 *Dota2) string {
 func getLiveGamesUrl(dota2 *Dota2) string {
 	return fmt.Sprintf("%s/%s/%s/", dota2.Dota2MatchUrl, "GetLiveLeagueGames", dota2.SteamApiVersion)
 }
-
-

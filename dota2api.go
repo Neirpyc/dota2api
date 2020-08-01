@@ -3,9 +3,9 @@ package dota2api
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
-	"fmt"
 )
 
 type Dota2 struct {
@@ -211,6 +211,34 @@ func (d *Dota2) GetHeroes() ([]Hero, error) {
 	return heroes, nil
 }
 
+//Get all items
+func (d *Dota2) GetItems() ([]Item, error) {
+	var itemList Items
+	var items []Item
+
+	param := map[string]interface{}{
+		"key": d.SteamApiKey,
+	}
+	url, err := parseUrl(getItemsUrl(d), param)
+
+	if err != nil {
+		return items, err
+	}
+	resp, err := Get(url)
+	if err != nil {
+		return items, err
+	}
+
+	err = json.Unmarshal(resp, &itemList)
+	if err != nil {
+		return items, err
+	}
+
+	items = itemList.Result.Items
+
+	return items, nil
+}
+
 //Get friend list
 func (d *Dota2) GetFriendList(steamid int64) ([]Friend, error) {
 	var friendList FriendList
@@ -243,7 +271,7 @@ func (d *Dota2) GetFriendList(steamid int64) ([]Friend, error) {
 func (d *Dota2) GetLeagueListing() (LeagueList, error) {
 	var leagueList LeagueList
 	param := map[string]interface{}{
-		"key":     d.SteamApiKey,
+		"key": d.SteamApiKey,
 	}
 
 	url, err := parseUrl(getLeagueListUrl(d), param)
@@ -266,7 +294,7 @@ func (d *Dota2) GetLeagueListing() (LeagueList, error) {
 func (d *Dota2) GetLiveLeagueGames() (LiveGames, error) {
 	var liveGames LiveGames
 	param := map[string]interface{}{
-		"key":     d.SteamApiKey,
+		"key": d.SteamApiKey,
 	}
 
 	url, err := parseUrl(getLiveGamesUrl(d), param)
@@ -285,7 +313,6 @@ func (d *Dota2) GetLiveLeagueGames() (LiveGames, error) {
 	}
 	return liveGames, nil
 }
-
 
 //Convert 64-bit steamId to 32-bit steamId
 func (d *Dota2) GetAccountId(steamId int64) int64 {
