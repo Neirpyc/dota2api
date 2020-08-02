@@ -50,7 +50,7 @@ func LoadConfig(file string) (Dota2, error) {
 	dota2.dota2Match = applyDefaultValue(conf.Dota2Match, "IDOTA2Match_570")
 	dota2.dota2Econ = applyDefaultValue(conf.Dota2Econ, "IEconDOTA2_570")
 	dota2.dota2ApiVersion = applyDefaultValue(conf.Dota2ApiVersion, "V001")
-	dota2.dota2CDN = applyDefaultValue(conf.Dota2CDN, "http://cdn.dota2.com/apps/dota2/images/")
+	dota2.dota2CDN = applyDefaultValue(conf.Dota2CDN, "http://cdn.dota2.com/apps/dota2/images")
 	dota2.timeout = conf.Timeout
 	if dota2.timeout == 0 {
 		dota2.timeout = 10
