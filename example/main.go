@@ -80,7 +80,7 @@ func main() {
 		return
 	}
 	fmt.Println()
-	fmt.Println("#### Heroes ####")
+	fmt.Println("#### Items ####")
 	fmt.Println()
 	fmt.Println(heroes)
 

@@ -21,7 +21,7 @@ func TestGetHeroes(t *testing.T) {
 			heroes, _ := api.GetHeroes()
 			g.Assert(len(heroes.heroes) > 0).IsTrue()
 		})
-		g.It("Should work with concurent usage", func() {
+		g.It("Should work with concurrent usage", func() {
 			api, _ := LoadConfig("config.ini")
 			var wg sync.WaitGroup
 			wg.Add(10)
@@ -49,7 +49,7 @@ func TestHeroes_GetById(t *testing.T) {
 	g := Goblin(t)
 	api, _ := LoadConfig("config.ini")
 	heroes, _ := api.GetHeroes()
-	g.Describe("Heroes.GetById", func() {
+	g.Describe("Items.GetById", func() {
 		g.It("Should return the correct hero when ID is found", func() {
 			for _, hero := range heroes.heroes {
 				h, found := heroes.GetById(hero.ID)
@@ -77,6 +77,7 @@ func BenchmarkHeroes_GetById(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		ids[i] = heroes.heroes[rand.Int()%len(heroes.heroes)].ID
 	}
+	b.StartTimer()
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		heroes.GetById(ids[i])
@@ -87,7 +88,7 @@ func TestHeroes_GetByName(t *testing.T) {
 	g := Goblin(t)
 	api, _ := LoadConfig("config.ini")
 	heroes, _ := api.GetHeroes()
-	g.Describe("Heroes.GetById", func() {
+	g.Describe("Items.GetById", func() {
 		g.It("Should return the correct hero when Name is found", func() {
 			for _, hero := range heroes.heroes {
 				h, found := heroes.GetByName(hero.Name)
@@ -111,6 +112,7 @@ func BenchmarkHeroes_GetByName(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		names[i] = heroes.heroes[rand.Int()%len(heroes.heroes)].Name
 	}
+	b.StartTimer()
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		heroes.GetByName(names[i])

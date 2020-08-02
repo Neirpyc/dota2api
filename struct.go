@@ -151,22 +151,6 @@ type PlayerAccount struct {
 	Locstatecode             string `json:"locstatecode"`
 }
 
-type Items struct {
-	Result struct {
-		Items  []Item `json:"items" bson:"items"`
-		Status int    `json:"status" bson:"status"`
-	}
-}
-
-type Item struct {
-	Id         int    `json:"id" bson:"id"`
-	Name       string `json:"name" bson:"name"`
-	Cost       int    `json:"cost" bson:"cost"`
-	SecretShop int    `json:"secret_shop" bson:"secret_shop"`
-	SideShop   int    `json:"side_shop" bson:"side_shop"`
-	Recipe     int    `json:"recipe" bson:"recipe"`
-}
-
 type FriendList struct {
 	Friendslist struct {
 		Friends []Friend `json:"friends"`

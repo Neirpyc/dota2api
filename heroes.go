@@ -24,7 +24,7 @@ type Heroes struct {
 	heroes []Hero
 }
 
-func (h *Heroes) GetById(id int) (hero Hero, found bool) {
+func (h Heroes) GetById(id int) (hero Hero, found bool) {
 	if id < len(h.heroes)-1 {
 		if h.heroes[id-1].ID == id {
 			return h.heroes[id-1], true
@@ -45,7 +45,7 @@ func (h *Heroes) GetById(id int) (hero Hero, found bool) {
 	return Hero{}, false
 }
 
-func (h *Heroes) GetByName(name string) (hero Hero, found bool) {
+func (h Heroes) GetByName(name string) (hero Hero, found bool) {
 	for _, currentHero := range h.heroes {
 		if currentHero.Name == name {
 			return currentHero, true
@@ -60,33 +60,33 @@ type Hero struct {
 }
 
 type getHeroesCache struct {
-	heroes          *Heroes
-	heroesFromCache uint32
-	getHeroesMutex  sync.Mutex
+	heroes    Heroes
+	fromCache uint32
+	mutex     sync.Mutex
 }
 
 func newGetHeroesCache() *getHeroesCache {
 	ret := getHeroesCache{
-		heroesFromCache: 0,
+		fromCache: 0,
 	}
 	return &ret
 }
 
 //Get all heroes
-func (d *Dota2) GetHeroes() (*Heroes, error) {
+func (d *Dota2) GetHeroes() (Heroes, error) {
 	var err error
-	if atomic.LoadUint32(&d.heroesCache.heroesFromCache) == 0 {
+	if atomic.LoadUint32(&d.heroesCache.fromCache) == 0 {
 		if d.heroesCache.heroes, err = d.getHeroesFromAPI(); err == nil {
-			atomic.StoreUint32(&d.heroesCache.heroesFromCache, 1)
+			atomic.StoreUint32(&d.heroesCache.fromCache, 1)
 		}
 	}
 	return d.heroesCache.heroes, err
 }
 
-func (d *Dota2) getHeroesFromAPI() (*Heroes, error) {
-	d.heroesCache.getHeroesMutex.Lock()
-	defer d.heroesCache.getHeroesMutex.Unlock()
-	if d.heroesCache.heroesFromCache == 0 {
+func (d *Dota2) getHeroesFromAPI() (Heroes, error) {
+	d.heroesCache.mutex.Lock()
+	defer d.heroesCache.mutex.Unlock()
+	if d.heroesCache.fromCache == 0 {
 		var heroesListJson heroesJSON
 		var heroes Heroes
 
@@ -96,16 +96,16 @@ func (d *Dota2) getHeroesFromAPI() (*Heroes, error) {
 		url, err := parseUrl(getHeroesUrl(d), param)
 
 		if err != nil {
-			return nil, err
+			return heroes, err
 		}
 		resp, err := Get(url)
 		if err != nil {
-			return nil, err
+			return heroes, err
 		}
 
 		err = json.Unmarshal(resp, &heroesListJson)
 		if err != nil {
-			return nil, err
+			return heroes, err
 		}
 
 		heroes.heroes = heroesListJson.Result.Heroes
@@ -114,11 +114,11 @@ func (d *Dota2) getHeroesFromAPI() (*Heroes, error) {
 			return heroes.heroes[i].ID < heroes.heroes[j].ID
 		})
 
-		return &heroes, nil
+		return heroes, nil
 	}
 	return d.getHeroesFromCache()
 }
 
-func (d *Dota2) getHeroesFromCache() (*Heroes, error) {
+func (d *Dota2) getHeroesFromCache() (Heroes, error) {
 	return d.heroesCache.heroes, nil
 }

@@ -38,6 +38,7 @@ type Dota2 struct {
 
 	//Caching
 	heroesCache *getHeroesCache
+	itemsCache  *getItemsCache
 }
 
 //Get steamId by username
@@ -184,34 +185,6 @@ func (d *Dota2) GetPlayerSummaries(steamIds []int64) (PlayerSummaries, error) {
 
 	players = playerSummaries
 	return players, nil
-}
-
-//Get all items
-func (d *Dota2) GetItems() ([]Item, error) {
-	var itemList Items
-	var items []Item
-
-	param := map[string]interface{}{
-		"key": d.SteamApiKey,
-	}
-	url, err := parseUrl(getItemsUrl(d), param)
-
-	if err != nil {
-		return items, err
-	}
-	resp, err := Get(url)
-	if err != nil {
-		return items, err
-	}
-
-	err = json.Unmarshal(resp, &itemList)
-	if err != nil {
-		return items, err
-	}
-
-	items = itemList.Result.Items
-
-	return items, nil
 }
 
 //Get friend list
