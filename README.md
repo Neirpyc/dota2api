@@ -14,7 +14,7 @@ go get github.com/Neirpyc/dota2api
 Reads settings from the file `config.ini`.
 
 Here is an example:
-```ini
+```yaml
 ---
 Timeout: 10
 SteamApiKey:  "<Your Steam API Key>"
