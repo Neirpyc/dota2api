@@ -8,24 +8,53 @@ import (
 	"sync/atomic"
 )
 
+const itemPrefix = "item_"
+
 func getItemsUrl(dota2 *Dota2) string {
 	return fmt.Sprintf("%s/%s/%s/", dota2.dota2EconUrl, "GetGameItems", dota2.dota2ApiVersion)
 }
 
 type itemsJSON struct {
 	Result struct {
-		Items  []Item `json:"items" bson:"items"`
-		Status int    `json:"status" bson:"status"`
+		Items  []ItemJSON `json:"items" bson:"items"`
+		Status int        `json:"status" bson:"status"`
 	}
 }
 
-type Item struct {
+type ItemJSON struct {
 	ID         int    `json:"id" bson:"id"`
 	Name       string `json:"name" bson:"name"`
 	Cost       int    `json:"cost" bson:"cost"`
 	SecretShop int    `json:"secret_shop" bson:"secret_shop"`
 	SideShop   int    `json:"side_shop" bson:"side_shop"`
 	Recipe     int    `json:"recipe" bson:"recipe"`
+}
+
+type itemName struct {
+	name   string
+	prefix string
+	full   string
+}
+
+func (iN itemName) GetName() string {
+	return iN.name
+}
+
+func (iN itemName) GetFullName() string {
+	return iN.full
+}
+
+func (iN itemName) GetPrefix() string {
+	return iN.prefix
+}
+
+type Item struct {
+	ID         int
+	Name       itemName
+	Cost       int
+	SecretShop bool
+	SideShop   bool
+	Recipe     bool
 }
 
 type Items struct {
@@ -64,7 +93,7 @@ func (i Items) GetById(id int) (item Item, found bool) {
 // Runs a linear search
 func (i Items) GetByName(name string) (item Item, found bool) {
 	for _, currentItem := range i.items {
-		if currentItem.Name == name {
+		if currentItem.Name.full == name {
 			return currentItem, true
 		}
 	}
@@ -115,7 +144,21 @@ func (d *Dota2) getItemsFromAPI() (Items, error) {
 			return items, err
 		}
 
-		items.items = itemsListJson.Result.Items
+		items.items = make([]Item, len(itemsListJson.Result.Items))
+		for i, src := range itemsListJson.Result.Items {
+			items.items[i] = Item{
+				ID: src.ID,
+				Name: itemName{
+					name:   src.Name[len(itemPrefix):],
+					prefix: itemPrefix,
+					full:   src.Name,
+				},
+				Cost:       0,
+				SecretShop: src.SecretShop == 1,
+				SideShop:   src.SideShop == 1,
+				Recipe:     src.Recipe == 1,
+			}
+		}
 
 		sort.Slice(items.items, func(i, j int) bool {
 			return items.items[i].ID < items.items[j].ID

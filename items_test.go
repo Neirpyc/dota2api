@@ -51,11 +51,11 @@ func TestItems_GetById(t *testing.T) {
 	items, _ := api.GetItems()
 	g.Describe("Items.GetById", func() {
 		g.It("Should return the correct hero when ID is found", func() {
-			for _, hero := range items.items {
-				h, found := items.GetById(hero.ID)
+			for _, item := range items.items {
+				i, found := items.GetById(item.ID)
 				g.Assert(found).IsTrue()
-				g.Assert(h.ID).Equal(hero.ID)
-				g.Assert(h.Name).Equal(hero.Name)
+				g.Assert(i.ID).Equal(item.ID)
+				g.Assert(i.Name).Equal(item.Name)
 			}
 		})
 		g.It("Should return Error when ID is not found", func() {
@@ -90,11 +90,11 @@ func TestItems_GetByName(t *testing.T) {
 	items, _ := api.GetItems()
 	g.Describe("Items.GetById", func() {
 		g.It("Should return the correct hero when Name is found", func() {
-			for _, hero := range items.items {
-				h, found := items.GetByName(hero.Name)
+			for _, item := range items.items {
+				i, found := items.GetByName(item.Name.GetFullName())
 				g.Assert(found).IsTrue()
-				g.Assert(h.ID).Equal(hero.ID)
-				g.Assert(h.Name).Equal(hero.Name)
+				g.Assert(i.ID).Equal(item.ID)
+				g.Assert(i.Name).Equal(item.Name)
 			}
 		})
 		g.It("Should return Error when Name is not found", func() {
@@ -110,7 +110,7 @@ func BenchmarkItems_GetByName(b *testing.B) {
 	names := make([]string, b.N)
 	rand.Seed(time.Now().Unix())
 	for i := 0; i < b.N; i++ {
-		names[i] = items.items[rand.Int()%len(items.items)].Name
+		names[i] = items.items[rand.Int()%len(items.items)].Name.GetFullName()
 	}
 	b.ReportAllocs()
 	b.StartTimer()

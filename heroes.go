@@ -8,15 +8,17 @@ import (
 	"sync/atomic"
 )
 
+const heroPrefix = "npc_dota_hero_"
+
 func getHeroesUrl(dota2 *Dota2) string {
 	return fmt.Sprintf("%s/%s/%s/", dota2.dota2EconUrl, "GetHeroes", dota2.dota2ApiVersion)
 }
 
 type heroesJSON struct {
 	Result struct {
-		Count  int    `json:"count" bson:"count"`
-		Heroes []Hero `json:"heroes" bson:"heroes"`
-		Status int    `json:"status" bson:"status"`
+		Count  int        `json:"count" bson:"count"`
+		Heroes []heroJSON `json:"heroes" bson:"heroes"`
+		Status int        `json:"status" bson:"status"`
 	} `json:"result" bson:"result"`
 }
 
@@ -56,16 +58,39 @@ func (h Heroes) GetById(id int) (hero Hero, found bool) {
 // Runs a linear search
 func (h Heroes) GetByName(name string) (hero Hero, found bool) {
 	for _, currentHero := range h.heroes {
-		if currentHero.Name == name {
+		if currentHero.Name.full == name {
 			return currentHero, true
 		}
 	}
 	return Hero{}, false
 }
 
+type heroName struct {
+	name   string
+	prefix string
+	full   string
+}
+
+func (hN heroName) GetName() string {
+	return hN.name
+}
+
+func (hN heroName) GetFullName() string {
+	return hN.full
+}
+
+func (hN heroName) GetPrefix() string {
+	return hN.prefix
+}
+
 type Hero struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
+	ID   int
+	Name heroName
+}
+
+type heroJSON struct {
+	ID   int
+	Name string
 }
 
 type getHeroesCache struct {
@@ -113,7 +138,17 @@ func (d *Dota2) getHeroesFromAPI() (Heroes, error) {
 			return heroes, err
 		}
 
-		heroes.heroes = heroesListJson.Result.Heroes
+		heroes.heroes = make([]Hero, len(heroesListJson.Result.Heroes))
+		for i, src := range heroesListJson.Result.Heroes {
+			heroes.heroes[i] = Hero{
+				ID: src.ID,
+				Name: heroName{
+					name:   src.Name[len(heroPrefix):],
+					prefix: heroPrefix,
+					full:   src.Name,
+				},
+			}
+		}
 
 		sort.Slice(heroes.heroes, func(i, j int) bool {
 			return heroes.heroes[i].ID < heroes.heroes[j].ID

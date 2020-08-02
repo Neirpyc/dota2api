@@ -91,7 +91,7 @@ func TestHeroes_GetByName(t *testing.T) {
 	g.Describe("Items.GetById", func() {
 		g.It("Should return the correct hero when Name is found", func() {
 			for _, hero := range heroes.heroes {
-				h, found := heroes.GetByName(hero.Name)
+				h, found := heroes.GetByName(hero.Name.GetFullName())
 				g.Assert(found).IsTrue()
 				g.Assert(h.ID).Equal(hero.ID)
 				g.Assert(h.Name).Equal(hero.Name)
@@ -110,7 +110,7 @@ func BenchmarkHeroes_GetByName(b *testing.B) {
 	names := make([]string, b.N)
 	rand.Seed(time.Now().Unix())
 	for i := 0; i < b.N; i++ {
-		names[i] = heroes.heroes[rand.Int()%len(heroes.heroes)].Name
+		names[i] = heroes.heroes[rand.Int()%len(heroes.heroes)].Name.GetFullName()
 	}
 	b.StartTimer()
 	b.ReportAllocs()
