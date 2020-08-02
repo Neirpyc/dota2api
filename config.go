@@ -69,8 +69,8 @@ func LoadConfig(file string) (Dota2, error) {
 	dota2.Dota2EconUrl = fmt.Sprintf("%s/%s", dota2.SteamApi, dota2.Dota2Econ)
 	dota2.SteamUserUrl = fmt.Sprintf("%s/%s", dota2.SteamApi, dota2.SteamUser)
 
-	dota2.heroesCache = newGetHeroesCache()
-	dota2.itemsCache = newGetItemsCache()
+	dota2.heroesCache = &getHeroesCache{}
+	dota2.itemsCache = &getItemsCache{}
 
 	return dota2, nil
 }

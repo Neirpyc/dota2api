@@ -32,6 +32,11 @@ type Items struct {
 	items []Item
 }
 
+// Returns the item which has the given id
+// If no matching item is found, found = false, otherwise, found = true
+//
+// First tries with the index [id-1] which sometimes works, and is very fast to test
+// If it doesn't work, it then run a dichotomy search.
 func (i Items) GetById(id int) (item Item, found bool) {
 	if id < len(i.items)-1 {
 		if i.items[id-1].ID == id {
@@ -53,6 +58,10 @@ func (i Items) GetById(id int) (item Item, found bool) {
 	return Item{}, false
 }
 
+// Returns the item which has the given name
+// If no matching item is found, found = false, otherwise, found = true
+//
+// Runs a linear search
 func (i Items) GetByName(name string) (item Item, found bool) {
 	for _, currentItem := range i.items {
 		if currentItem.Name == name {
@@ -68,14 +77,9 @@ type getItemsCache struct {
 	mutex     sync.Mutex
 }
 
-func newGetItemsCache() *getItemsCache {
-	ret := getItemsCache{
-		fromCache: 0,
-	}
-	return &ret
-}
-
-//Get all items
+// This function calls the API to get the list of the items
+// Once a call has succeeded, the result is stored, and no further API call is made
+// Instead, it returns a copy of the cached result
 func (d *Dota2) GetItems() (Items, error) {
 	var err error
 	if atomic.LoadUint32(&d.itemsCache.fromCache) == 0 {

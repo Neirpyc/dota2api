@@ -24,6 +24,11 @@ type Heroes struct {
 	heroes []Hero
 }
 
+// Returns the hero which has the given id
+// If no matching hero is found, found = false, otherwise, found = true
+//
+// First tries with the index [id-1] which sometimes works, and is very fast to test
+// If it doesn't work, it then run a dichotomy search.
 func (h Heroes) GetById(id int) (hero Hero, found bool) {
 	if id < len(h.heroes)-1 {
 		if h.heroes[id-1].ID == id {
@@ -45,6 +50,10 @@ func (h Heroes) GetById(id int) (hero Hero, found bool) {
 	return Hero{}, false
 }
 
+// Returns the hero which has the given name
+// If no matching hero is found, found = false, otherwise, found = true
+//
+// Runs a linear search
 func (h Heroes) GetByName(name string) (hero Hero, found bool) {
 	for _, currentHero := range h.heroes {
 		if currentHero.Name == name {
@@ -65,16 +74,12 @@ type getHeroesCache struct {
 	mutex     sync.Mutex
 }
 
-func newGetHeroesCache() *getHeroesCache {
-	ret := getHeroesCache{
-		fromCache: 0,
-	}
-	return &ret
-}
-
-//Get all heroes
+// This function calls the API to get the list of the heroes
+// Once a call has succeeded, the result is stored, and no further API call is made
+// Instead, it returns a copy of the cached result
 func (d *Dota2) GetHeroes() (Heroes, error) {
 	var err error
+
 	if atomic.LoadUint32(&d.heroesCache.fromCache) == 0 {
 		if d.heroesCache.heroes, err = d.getHeroesFromAPI(); err == nil {
 			atomic.StoreUint32(&d.heroesCache.fromCache, 1)
