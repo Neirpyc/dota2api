@@ -1,14 +1,29 @@
 package dota2api
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"image"
+	"image/jpeg"
+	"image/png"
 	"sort"
 	"sync"
 	"sync/atomic"
 )
 
-const heroPrefix = "npc_dota_hero_"
+var sizes = []string{"lg", "sb", "full", "vert"}
+
+const (
+	heroPrefix = "npc_dota_hero_"
+)
+
+const (
+	SizeLg = iota
+	SizeSb
+	SizeFull
+	SizeVert
+)
 
 func getHeroesUrl(dota2 *Dota2) string {
 	return fmt.Sprintf("%s/%s/%s/", dota2.dota2EconUrl, "GetHeroes", dota2.dota2ApiVersion)
@@ -180,4 +195,23 @@ func (h Heroes) GoForEach(f func(hero Hero, wg *sync.WaitGroup)) {
 		go f(hero, &wg)
 	}
 	wg.Wait()
+}
+
+func (d Dota2) GetHeroImage(hero Hero, size int) (image.Image, error) {
+	ext := "png"
+	if size == SizeVert {
+		ext = "jpg"
+	}
+	url := fmt.Sprintf("%s/heroes/%s_%s.%s", d.dota2CDN, hero.Name.name, sizes[size], ext)
+	res, err := Get(url)
+	if err != nil {
+		return nil, err
+	}
+	var img image.Image
+	if size == SizeVert {
+		img, err = jpeg.Decode(bytes.NewReader(res))
+	} else {
+		img, err = png.Decode(bytes.NewReader(res))
+	}
+	return img, nil
 }

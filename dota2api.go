@@ -22,6 +22,9 @@ type Dota2 struct {
 	dota2Match string
 	dota2Econ  string
 
+	// dota2 cdn
+	dota2CDN string `yaml:"Dota2CDN"`
+
 	// api version
 	dota2ApiVersion string
 

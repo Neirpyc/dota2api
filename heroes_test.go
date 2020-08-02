@@ -3,6 +3,7 @@ package dota2api
 import (
 	. "github.com/franela/goblin"
 	"math/rand"
+	"regexp"
 	"sync"
 	"testing"
 	"time"
@@ -35,12 +36,159 @@ func TestGetHeroes(t *testing.T) {
 			}
 			wg.Wait()
 		})
+		g.It("Should have the correct count", func() {
+			api, _ := LoadConfig("config.yaml")
+			heroes, _ := api.GetHeroes()
+			g.Assert(len(heroes.heroes)).Equal(heroes.Count())
+		})
 		g.It("Should fill cache", func() {
 			api, _ := LoadConfig("config.yaml")
 			_, _ = api.GetHeroes()
 			heroes, err := api.getHeroesFromCache()
 			g.Assert(err).Equal(nil)
 			g.Assert(len(heroes.heroes) > 0).IsTrue()
+		})
+	})
+}
+
+func TestHeroes_Name(t *testing.T) {
+	g := Goblin(t)
+	api, _ := LoadConfig("config.yaml")
+	heroes, _ := api.GetHeroes()
+	g.Describe("Heroes Names", func() {
+		g.It("Should return the correct full name", func() {
+			match, _ := regexp.Match("^"+heroPrefix, []byte(heroes.heroes[0].Name.GetFullName()))
+			g.Assert(match).IsTrue()
+		})
+		g.It("Should return the correct prefix", func() {
+			match, _ := regexp.Match(heroPrefix+"$", []byte(heroes.heroes[0].Name.GetPrefix()))
+			g.Assert(match).IsTrue()
+		})
+		g.It("Should return the correct name", func() {
+			match, _ := regexp.Match("^"+heroPrefix, []byte(heroes.heroes[0].Name.GetName()))
+			g.Assert(match).IsFalse()
+		})
+	})
+}
+
+func TestHeroes_ForEach(t *testing.T) {
+	g := Goblin(t)
+	api, _ := LoadConfig("config.yaml")
+	heroes, _ := api.GetHeroes()
+	g.Describe("Hero.ForEach", func() {
+		g.It("Should work on synchronous request", func() {
+			c := 0
+			heroes.ForEach(func(hero Hero) {
+				if hero.ID == 0 && hero.Name.GetName() == "" {
+					g.Fail("Empty element in for each")
+				}
+				c++
+			})
+			if c != heroes.Count() {
+				g.Fail("Skipped element in for each")
+			}
+		})
+		g.It("Should work on asynchronous request", func() {
+			c := make(chan int, heroes.Count())
+			heroes.ForEach(func(hero Hero) {
+				if hero.ID == 0 && hero.Name.GetName() == "" {
+					g.Fail("Empty element in for each")
+				}
+				c <- 1
+			})
+			for i := 0; i < heroes.Count(); i++ {
+				select {
+				case <-c:
+					continue
+				default:
+					g.Fail("Skipped element in for each")
+				}
+			}
+		})
+	})
+}
+
+func TestDota2_GetHeroImage(t *testing.T) {
+	g := Goblin(t)
+	//g.Timeout(10 * time.Second)
+	api, _ := LoadConfig("config.yaml")
+	heroes, _ := api.GetHeroes()
+	g.Describe("api.GetHeroImage", func() {
+		g.It("Should return lg Images", func(done Done) {
+			var wg sync.WaitGroup
+			for i := 0; i < heroes.Count(); i += heroes.Count() / 10 {
+				if i > heroes.Count() {
+					continue
+				}
+				wg.Add(1)
+				i := i
+				go func() {
+					img, err := api.GetHeroImage(heroes.heroes[i], SizeLg)
+					g.Assert(err).Equal(nil)
+					g.Assert(img == nil).IsFalse()
+					g.Assert(img.Bounds().Dx() > 0).IsTrue()
+					wg.Done()
+				}()
+			}
+			wg.Wait()
+			done()
+		})
+		g.It("Should return sb Images", func(done Done) {
+			var wg sync.WaitGroup
+			for i := 0; i < heroes.Count(); i += heroes.Count() / 10 {
+				if i > heroes.Count() {
+					continue
+				}
+				wg.Add(1)
+				i := i
+				go func() {
+					img, err := api.GetHeroImage(heroes.heroes[i], SizeSb)
+					g.Assert(err).Equal(nil)
+					g.Assert(img == nil).IsFalse()
+					g.Assert(img.Bounds().Dx() > 0).IsTrue()
+					wg.Done()
+				}()
+			}
+			wg.Wait()
+			done()
+		})
+		g.It("Should return full Images", func(done Done) {
+			var wg sync.WaitGroup
+			for i := 0; i < heroes.Count(); i += heroes.Count() / 10 {
+				if i > heroes.Count() {
+					continue
+				}
+				wg.Add(1)
+				i := i
+				go func() {
+					img, err := api.GetHeroImage(heroes.heroes[i], SizeFull)
+					g.Assert(err).Equal(nil)
+					g.Assert(img == nil).IsFalse()
+					g.Assert(img.Bounds().Dx() > 0).IsTrue()
+					wg.Done()
+				}()
+			}
+			wg.Wait()
+			done()
+		})
+		g.It("Should return vert Images", func(done Done) {
+			var wg sync.WaitGroup
+			for i := 0; i < heroes.Count(); i += heroes.Count() / 10 {
+				if i > heroes.Count() {
+					continue
+				}
+				wg.Add(1)
+				i := i
+				go func() {
+					img, err := api.GetHeroImage(heroes.heroes[i], SizeVert)
+					g.Assert(err).Equal(nil)
+					g.Assert(img == nil).IsFalse()
+					g.Assert(img.Bounds().Dx() > 0).IsTrue()
+					wg.Done()
+				}()
+			}
+			wg.Wait()
+			done()
 		})
 	})
 }

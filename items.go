@@ -1,8 +1,11 @@
 package dota2api
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"image"
+	"image/png"
 	"sort"
 	"sync"
 	"sync/atomic"
@@ -190,4 +193,15 @@ func (i Items) GoForEach(f func(item Item, wg *sync.WaitGroup)) {
 		go f(hero, &wg)
 	}
 	wg.Wait()
+}
+
+func (d Dota2) GetItemImage(item Item) (image.Image, error) {
+	url := fmt.Sprintf("%s/items/%s_lg.png", d.dota2CDN, item.Name.name)
+	res, err := Get(url)
+	if err != nil {
+		return nil, err
+	}
+	var img image.Image
+	img, err = png.Decode(bytes.NewReader(res))
+	return img, nil
 }
