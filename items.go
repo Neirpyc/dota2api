@@ -182,3 +182,12 @@ func (i Items) ForEach(f func(item Item)) {
 		f(item)
 	}
 }
+
+func (i Items) GoForEach(f func(item Item, wg *sync.WaitGroup)) {
+	var wg sync.WaitGroup
+	wg.Add(len(i.items))
+	for _, hero := range i.items {
+		go f(hero, &wg)
+	}
+	wg.Wait()
+}
