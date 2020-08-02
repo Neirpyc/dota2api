@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
-	"github.com/credondocr/dota2api"
 	"encoding/json"
+	"fmt"
+	"github.com/Neirpyc/dota2api"
 )
 
 func main() {
@@ -39,7 +39,6 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-
 
 	fmt.Println()
 	fmt.Println("#### Match History ####")
@@ -98,7 +97,6 @@ func main() {
 
 	friendObject, _ := json.Marshal(friends)
 	fmt.Println(string(friendObject))
-
 
 	leagueList, err := dota2.GetLeagueListing()
 	if err != nil {

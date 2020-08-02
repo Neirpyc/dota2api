@@ -151,19 +151,6 @@ type PlayerAccount struct {
 	Locstatecode             string `json:"locstatecode"`
 }
 
-type Heroes struct {
-	Result struct {
-		Count  int    `json:"count" bson:"count"`
-		Heroes []Hero `json:"heroes" bson:"heroes"`
-		Status int    `json:"status" bson:"status"`
-	} `json:"result" bson:"result"`
-}
-
-type Hero struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-}
-
 type Items struct {
 	Result struct {
 		Items  []Item `json:"items" bson:"items"`

@@ -43,11 +43,11 @@ func (c *Conf) IntDefault(section string, option string, defaultValue int) int {
 
 func LoadConfig(file string) (Dota2, error) {
 	dota2 := Dota2{}
-	config, err := config.ReadDefault(file)
+	configFile, err := config.ReadDefault(file)
 	if err != nil {
 		return dota2, err
 	}
-	conf := &Conf{config}
+	conf := &Conf{configFile}
 
 	dota2.SteamApiKey, err = conf.String("steam", "steamApiKey")
 	if err != nil {
@@ -68,6 +68,8 @@ func LoadConfig(file string) (Dota2, error) {
 	dota2.Dota2MatchUrl = fmt.Sprintf("%s/%s", dota2.SteamApi, dota2.Dota2Match)
 	dota2.Dota2EconUrl = fmt.Sprintf("%s/%s", dota2.SteamApi, dota2.Dota2Econ)
 	dota2.SteamUserUrl = fmt.Sprintf("%s/%s", dota2.SteamApi, dota2.SteamUser)
+
+	dota2.heroesCache = newGetHeroesCache()
 
 	return dota2, nil
 }
