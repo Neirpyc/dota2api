@@ -12,17 +12,17 @@ func TestGetHeroes(t *testing.T) {
 	g := Goblin(t)
 	g.Describe("GetHeroes", func() {
 		g.It("Should return no error", func() {
-			api, _ := LoadConfig("config.ini")
+			api, _ := LoadConfig("config.yaml")
 			_, err := api.GetHeroes()
 			g.Assert(err).Equal(nil)
 		})
 		g.It("Should return at least one hero", func() {
-			api, _ := LoadConfig("config.ini")
+			api, _ := LoadConfig("config.yaml")
 			heroes, _ := api.GetHeroes()
 			g.Assert(len(heroes.heroes) > 0).IsTrue()
 		})
 		g.It("Should work with concurrent usage", func() {
-			api, _ := LoadConfig("config.ini")
+			api, _ := LoadConfig("config.yaml")
 			var wg sync.WaitGroup
 			wg.Add(10)
 			for i := 0; i < 10; i++ {
@@ -36,7 +36,7 @@ func TestGetHeroes(t *testing.T) {
 			wg.Wait()
 		})
 		g.It("Should fill cache", func() {
-			api, _ := LoadConfig("config.ini")
+			api, _ := LoadConfig("config.yaml")
 			_, _ = api.GetHeroes()
 			heroes, err := api.getHeroesFromCache()
 			g.Assert(err).Equal(nil)
@@ -47,7 +47,7 @@ func TestGetHeroes(t *testing.T) {
 
 func TestHeroes_GetById(t *testing.T) {
 	g := Goblin(t)
-	api, _ := LoadConfig("config.ini")
+	api, _ := LoadConfig("config.yaml")
 	heroes, _ := api.GetHeroes()
 	g.Describe("Items.GetById", func() {
 		g.It("Should return the correct hero when ID is found", func() {
@@ -70,7 +70,7 @@ func TestHeroes_GetById(t *testing.T) {
 }
 
 func BenchmarkHeroes_GetById(b *testing.B) {
-	api, _ := LoadConfig("config.ini")
+	api, _ := LoadConfig("config.yaml")
 	heroes, _ := api.GetHeroes()
 	ids := make([]int, b.N)
 	rand.Seed(time.Now().Unix())
@@ -86,7 +86,7 @@ func BenchmarkHeroes_GetById(b *testing.B) {
 
 func TestHeroes_GetByName(t *testing.T) {
 	g := Goblin(t)
-	api, _ := LoadConfig("config.ini")
+	api, _ := LoadConfig("config.yaml")
 	heroes, _ := api.GetHeroes()
 	g.Describe("Items.GetById", func() {
 		g.It("Should return the correct hero when Name is found", func() {
@@ -105,7 +105,7 @@ func TestHeroes_GetByName(t *testing.T) {
 }
 
 func BenchmarkHeroes_GetByName(b *testing.B) {
-	api, _ := LoadConfig("config.ini")
+	api, _ := LoadConfig("config.yaml")
 	heroes, _ := api.GetHeroes()
 	names := make([]string, b.N)
 	rand.Seed(time.Now().Unix())

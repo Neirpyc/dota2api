@@ -9,7 +9,7 @@ func TestLoadConfig(t *testing.T) {
 	g := Goblin(t)
 	g.Describe("LoadConfig", func() {
 		g.It("Should load without error", func() {
-			_, err := LoadConfig("config.ini")
+			_, err := LoadConfig("config.yaml")
 			g.Assert(err).Equal(nil)
 		})
 	})

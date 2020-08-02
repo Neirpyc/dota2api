@@ -10,31 +10,31 @@ import (
 
 type Dota2 struct {
 	// steam api url
-	SteamApi string
+	steamApi string
 	// steam api key: http://steamcommunity.com/dev/apikey
-	SteamApiKey string
+	steamApiKey string
 	//Steam User
-	SteamUser string
+	steamUser string
 	// api version
-	SteamApiVersion string
+	steamApiVersion string
 
 	// dota2 name in api
-	Dota2Match string
-	Dota2Econ  string
+	dota2Match string
+	dota2Econ  string
 
 	// api version
-	Dota2ApiVersion string
+	dota2ApiVersion string
 
 	// convert 64-bit steamID to 32-bit steamID
 	// STEAMID64 - 76561197960265728 = STEAMID32
-	ConvertInt int64
+	convertInt int64
 
 	// http request timeout
-	Timeout int
+	timeout int
 
-	Dota2MatchUrl string
-	Dota2EconUrl  string
-	SteamUserUrl  string
+	dota2MatchUrl string
+	dota2EconUrl  string
+	steamUserUrl  string
 
 	//Caching
 	heroesCache *getHeroesCache
@@ -46,7 +46,7 @@ func (d *Dota2) ResolveVanityUrl(vanityurl string) (int64, error) {
 	var steamId int64
 
 	param := map[string]interface{}{
-		"key":       d.SteamApiKey,
+		"key":       d.steamApiKey,
 		"vanityurl": vanityurl,
 	}
 	url, err := parseUrl(getResolveVanityUrl(d), param)
@@ -80,7 +80,7 @@ func (d *Dota2) ResolveVanityUrl(vanityurl string) (int64, error) {
 func (d *Dota2) GetMatchHistory(param map[string]interface{}) (MatchHistory, error) {
 	var matchHistory MatchHistory
 
-	param["key"] = d.SteamApiKey
+	param["key"] = d.steamApiKey
 
 	url, err := parseUrl(getMatchHistoryUrl(d), param)
 	if err != nil {
@@ -106,7 +106,7 @@ func (d *Dota2) GetMatchHistory(param map[string]interface{}) (MatchHistory, err
 func (d *Dota2) GetMatchHistoryBySequenceNum(param map[string]interface{}) (MatchHistory, error) {
 	var matchHistory MatchHistory
 
-	param["key"] = d.SteamApiKey
+	param["key"] = d.steamApiKey
 
 	url, err := parseUrl(getMatchHistoryBySequenceNumUrl(d), param)
 	if err != nil {
@@ -134,7 +134,7 @@ func (d *Dota2) GetMatchDetails(matchId int64) (MatchDetails, error) {
 	var matchDetails MatchDetails
 
 	param := map[string]interface{}{
-		"key":      d.SteamApiKey,
+		"key":      d.steamApiKey,
 		"match_id": matchId,
 	}
 	url, err := parseUrl(getMatchDetailsUrl(d), param)
@@ -165,7 +165,7 @@ func (d *Dota2) GetPlayerSummaries(steamIds []int64) (PlayerSummaries, error) {
 	var players PlayerSummaries
 
 	param := map[string]interface{}{
-		"key":      d.SteamApiKey,
+		"key":      d.steamApiKey,
 		"steamids": strings.Join(ArrayIntToStr(steamIds), ","),
 	}
 	url, err := parseUrl(getPlayerSummariesUrl(d), param)
@@ -193,7 +193,7 @@ func (d *Dota2) GetFriendList(steamid int64) ([]Friend, error) {
 	var friends []Friend
 
 	param := map[string]interface{}{
-		"key":     d.SteamApiKey,
+		"key":     d.steamApiKey,
 		"steamid": steamid,
 	}
 	url, err := parseUrl(getFriendListUrl(d), param)
@@ -219,7 +219,7 @@ func (d *Dota2) GetFriendList(steamid int64) ([]Friend, error) {
 func (d *Dota2) GetLeagueListing() (LeagueList, error) {
 	var leagueList LeagueList
 	param := map[string]interface{}{
-		"key": d.SteamApiKey,
+		"key": d.steamApiKey,
 	}
 
 	url, err := parseUrl(getLeagueListUrl(d), param)
@@ -242,7 +242,7 @@ func (d *Dota2) GetLeagueListing() (LeagueList, error) {
 func (d *Dota2) GetLiveLeagueGames() (LiveGames, error) {
 	var liveGames LiveGames
 	param := map[string]interface{}{
-		"key": d.SteamApiKey,
+		"key": d.steamApiKey,
 	}
 
 	url, err := parseUrl(getLiveGamesUrl(d), param)
@@ -260,9 +260,4 @@ func (d *Dota2) GetLiveLeagueGames() (LiveGames, error) {
 		return liveGames, err
 	}
 	return liveGames, nil
-}
-
-//Convert 64-bit steamId to 32-bit steamId
-func (d *Dota2) GetAccountId(steamId int64) int64 {
-	return steamId - ConvertInt
 }

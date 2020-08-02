@@ -3,71 +3,59 @@ package dota2api
 import (
 	"errors"
 	"fmt"
-
-	"github.com/revel/config"
+	"gopkg.in/yaml.v2"
+	"io/ioutil"
 )
 
-var (
-	// convert 64-bit steamID to 32-bit steamID
-	// STEAMID64 - 76561197960265728 = STEAMID32
-	ConvertInt int64 = 76561197960265728
-)
-
-type Conf struct {
-	config *config.Config
+type Config struct {
+	Timeout         int    `yaml:"Timeout"`
+	SteamApiKey     string `yaml:"SteamApiKey"`
+	SteamApi        string `yaml:"SteamApi"`
+	SteamUser       string `yaml:"SteamUser"`
+	SteamApiVersion string `yaml:"SteamApiVersion"`
+	Dota2Match      string `yaml:"Dota2match"`
+	Dota2Econ       string `yaml:"Dota2Econ"`
+	Dota2ApiVersion string `yaml:"Dota2ApiVersion"`
 }
 
-func (c *Conf) String(section string, option string) (string, error) {
-	return c.config.String(section, option)
-}
-
-func (c *Conf) StringDefault(section string, option string, defaultValue string) string {
-	v, err := c.config.String(section, option)
-	if err == nil {
-		return v
+func applyDefaultValue(value string, def string) string {
+	if value == "" {
+		return def
 	}
-	return defaultValue
-}
-
-func (c *Conf) Int(section string, option string) (int, error) {
-	return c.config.Int(section, option)
-}
-
-func (c *Conf) IntDefault(section string, option string, defaultValue int) int {
-	v, err := c.config.Int(section, option)
-	if err == nil {
-		return v
-	}
-	return defaultValue
+	return value
 }
 
 func LoadConfig(file string) (Dota2, error) {
 	dota2 := Dota2{}
-	configFile, err := config.ReadDefault(file)
-	if err != nil {
-		return dota2, err
-	}
-	conf := &Conf{configFile}
 
-	dota2.SteamApiKey, err = conf.String("steam", "steamApiKey")
+	settingFile, err := ioutil.ReadFile(file)
 	if err != nil {
 		return dota2, err
 	}
-	if dota2.SteamApiKey == "" {
+	conf := Config{}
+	err = yaml.Unmarshal(settingFile, &conf)
+	if err != nil {
+		return dota2, err
+	}
+
+	dota2.steamApiKey = conf.SteamApiKey
+	if dota2.steamApiKey == "" {
 		return dota2, errors.New("SteamApiKey is empty.[http://steamcommunity.com/dev/apikey]")
 	}
 
-	dota2.SteamApi = conf.StringDefault("steam", "steamApi", "https://api.steampowered.com")
-	dota2.SteamUser = conf.StringDefault("steam", "steamUser", "SteamUser")
-	dota2.SteamApiVersion = conf.StringDefault("steam", "steamApiVersion", "V001")
-	dota2.Dota2Match = conf.StringDefault("dota2", "dota2Match", "IDOTA2Match_570")
-	dota2.Dota2Econ = conf.StringDefault("dota2", "dota2Econ", "IEconDOTA2_570")
-	dota2.Dota2ApiVersion = conf.StringDefault("dota2", "dota2ApiVersion", "V001")
-	dota2.Timeout = conf.IntDefault("", "timeout", 10)
-
-	dota2.Dota2MatchUrl = fmt.Sprintf("%s/%s", dota2.SteamApi, dota2.Dota2Match)
-	dota2.Dota2EconUrl = fmt.Sprintf("%s/%s", dota2.SteamApi, dota2.Dota2Econ)
-	dota2.SteamUserUrl = fmt.Sprintf("%s/%s", dota2.SteamApi, dota2.SteamUser)
+	dota2.steamApi = applyDefaultValue(conf.SteamApi, "https://api.steampowered.com")
+	dota2.steamApiVersion = applyDefaultValue(conf.SteamApiVersion, "V001")
+	dota2.steamUser = applyDefaultValue(conf.SteamUser, "SteamUser")
+	dota2.dota2Match = applyDefaultValue(conf.Dota2Match, "IDOTA2Match_570")
+	dota2.dota2Econ = applyDefaultValue(conf.Dota2Econ, "IEconDOTA2_570")
+	dota2.dota2ApiVersion = applyDefaultValue(conf.Dota2ApiVersion, "V001")
+	dota2.timeout = conf.Timeout
+	if dota2.timeout == 0 {
+		dota2.timeout = 10
+	}
+	dota2.dota2MatchUrl = fmt.Sprintf("%s/%s", dota2.steamApi, dota2.dota2Match)
+	dota2.dota2EconUrl = fmt.Sprintf("%s/%s", dota2.steamApi, dota2.dota2Econ)
+	dota2.steamUserUrl = fmt.Sprintf("%s/%s", dota2.steamApi, dota2.steamUser)
 
 	dota2.heroesCache = &getHeroesCache{}
 	dota2.itemsCache = &getItemsCache{}

@@ -9,7 +9,7 @@ import (
 )
 
 func getHeroesUrl(dota2 *Dota2) string {
-	return fmt.Sprintf("%s/%s/%s/", dota2.Dota2EconUrl, "GetHeroes", dota2.Dota2ApiVersion)
+	return fmt.Sprintf("%s/%s/%s/", dota2.dota2EconUrl, "GetHeroes", dota2.dota2ApiVersion)
 }
 
 type heroesJSON struct {
@@ -96,7 +96,7 @@ func (d *Dota2) getHeroesFromAPI() (Heroes, error) {
 		var heroes Heroes
 
 		param := map[string]interface{}{
-			"key": d.SteamApiKey,
+			"key": d.steamApiKey,
 		}
 		url, err := parseUrl(getHeroesUrl(d), param)
 

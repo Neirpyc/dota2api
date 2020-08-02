@@ -9,7 +9,7 @@ import (
 )
 
 func getItemsUrl(dota2 *Dota2) string {
-	return fmt.Sprintf("%s/%s/%s/", dota2.Dota2EconUrl, "GetGameItems", dota2.Dota2ApiVersion)
+	return fmt.Sprintf("%s/%s/%s/", dota2.dota2EconUrl, "GetGameItems", dota2.dota2ApiVersion)
 }
 
 type itemsJSON struct {
@@ -98,7 +98,7 @@ func (d *Dota2) getItemsFromAPI() (Items, error) {
 		var items Items
 
 		param := map[string]interface{}{
-			"key": d.SteamApiKey,
+			"key": d.steamApiKey,
 		}
 		url, err := parseUrl(getItemsUrl(d), param)
 

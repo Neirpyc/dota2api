@@ -12,17 +12,17 @@ func TestGetItems(t *testing.T) {
 	g := Goblin(t)
 	g.Describe("GetItems", func() {
 		g.It("Should return no error", func() {
-			api, _ := LoadConfig("config.ini")
+			api, _ := LoadConfig("config.yaml")
 			_, err := api.GetItems()
 			g.Assert(err).Equal(nil)
 		})
 		g.It("Should return at least one hero", func() {
-			api, _ := LoadConfig("config.ini")
+			api, _ := LoadConfig("config.yaml")
 			items, _ := api.GetItems()
 			g.Assert(len(items.items) > 0).IsTrue()
 		})
 		g.It("Should work with concurrent usage", func() {
-			api, _ := LoadConfig("config.ini")
+			api, _ := LoadConfig("config.yaml")
 			var wg sync.WaitGroup
 			wg.Add(10)
 			for i := 0; i < 10; i++ {
@@ -36,7 +36,7 @@ func TestGetItems(t *testing.T) {
 			wg.Wait()
 		})
 		g.It("Should fill cache", func() {
-			api, _ := LoadConfig("config.ini")
+			api, _ := LoadConfig("config.yaml")
 			_, _ = api.GetItems()
 			items, err := api.getItemsFromCache()
 			g.Assert(err).Equal(nil)
@@ -47,7 +47,7 @@ func TestGetItems(t *testing.T) {
 
 func TestItems_GetById(t *testing.T) {
 	g := Goblin(t)
-	api, _ := LoadConfig("config.ini")
+	api, _ := LoadConfig("config.yaml")
 	items, _ := api.GetItems()
 	g.Describe("Items.GetById", func() {
 		g.It("Should return the correct hero when ID is found", func() {
@@ -70,7 +70,7 @@ func TestItems_GetById(t *testing.T) {
 }
 
 func BenchmarkItems_GetById(b *testing.B) {
-	api, _ := LoadConfig("config.ini")
+	api, _ := LoadConfig("config.yaml")
 	items, _ := api.GetItems()
 	ids := make([]int, b.N)
 	rand.Seed(time.Now().Unix())
@@ -86,7 +86,7 @@ func BenchmarkItems_GetById(b *testing.B) {
 
 func TestItems_GetByName(t *testing.T) {
 	g := Goblin(t)
-	api, _ := LoadConfig("config.ini")
+	api, _ := LoadConfig("config.yaml")
 	items, _ := api.GetItems()
 	g.Describe("Items.GetById", func() {
 		g.It("Should return the correct hero when Name is found", func() {
@@ -105,7 +105,7 @@ func TestItems_GetByName(t *testing.T) {
 }
 
 func BenchmarkItems_GetByName(b *testing.B) {
-	api, _ := LoadConfig("config.ini")
+	api, _ := LoadConfig("config.yaml")
 	items, _ := api.GetItems()
 	names := make([]string, b.N)
 	rand.Seed(time.Now().Unix())
