@@ -3,6 +3,7 @@ package dota2api
 import (
 	. "github.com/franela/goblin"
 	"math/rand"
+	"regexp"
 	"sync"
 	"testing"
 	"time"
@@ -11,36 +12,131 @@ import (
 func TestGetItems(t *testing.T) {
 	g := Goblin(t)
 	g.Describe("GetItems", func() {
-		g.It("Should return no error", func() {
-			api, _ := LoadConfig("config.yaml")
-			_, err := api.GetItems()
-			g.Assert(err).Equal(nil)
+		g.It("Should return no error", func(done Done) {
+			go func() {
+				api, _ := LoadConfig("config.yaml")
+				_, err := api.GetItems()
+				g.Assert(err).Equal(nil)
+				done()
+			}()
 		})
-		g.It("Should return at least one hero", func() {
-			api, _ := LoadConfig("config.yaml")
-			items, _ := api.GetItems()
-			g.Assert(len(items.items) > 0).IsTrue()
+		g.It("Should return at least one hero", func(done Done) {
+			go func() {
+				api, _ := LoadConfig("config.yaml")
+				items, _ := api.GetItems()
+				g.Assert(len(items.items) > 0).IsTrue()
+				done()
+			}()
 		})
-		g.It("Should work with concurrent usage", func() {
-			api, _ := LoadConfig("config.yaml")
-			var wg sync.WaitGroup
-			wg.Add(10)
-			for i := 0; i < 10; i++ {
+		g.It("Should work with concurrent usage", func(done Done) {
+			go func() {
+				api, _ := LoadConfig("config.yaml")
+				var wg sync.WaitGroup
+				wg.Add(10)
+				for i := 0; i < 10; i++ {
+					go func() {
+						items, err := api.GetItems()
+						g.Assert(err).Equal(nil)
+						g.Assert(len(items.items) > 0).IsTrue()
+						wg.Done()
+					}()
+				}
+				wg.Wait()
+				done()
+			}()
+		})
+		g.It("Should fill cache", func(done Done) {
+			go func() {
+				api, _ := LoadConfig("config.yaml")
+				_, _ = api.GetItems()
+				items, err := api.getItemsFromCache()
+				g.Assert(err).Equal(nil)
+				g.Assert(len(items.items) > 0).IsTrue()
+				done()
+			}()
+		})
+	})
+}
+
+func TestItems_Name(t *testing.T) {
+	g := Goblin(t)
+	api, _ := LoadConfig("config.yaml")
+	items, _ := api.GetItems()
+	g.Describe("Items Names", func() {
+		g.It("Should return the correct full name", func() {
+			match, _ := regexp.Match("^"+itemPrefix, []byte(items.items[0].Name.GetFullName()))
+			g.Assert(match).IsTrue()
+		})
+		g.It("Should return the correct prefix", func() {
+			match, _ := regexp.Match(itemPrefix+"$", []byte(items.items[0].Name.GetPrefix()))
+			g.Assert(match).IsTrue()
+		})
+		g.It("Should return the correct name", func() {
+			match, _ := regexp.Match("^"+itemPrefix, []byte(items.items[0].Name.GetName()))
+			g.Assert(match).IsFalse()
+		})
+	})
+}
+
+func TestDota2_GetItemImage(t *testing.T) {
+	g := Goblin(t)
+	var wg sync.WaitGroup
+	api, _ := LoadConfig("config.yaml")
+	items, _ := api.GetItems()
+	g.Describe("api.GetHeroImage", func() {
+		g.It("Should return lg Images", func() {
+			for i := 0; i < items.Count(); i += items.Count() / 10 {
+				if i > items.Count() {
+					continue
+				}
+				wg.Add(1)
+				i := i
 				go func() {
-					items, err := api.GetItems()
+					img, err := api.GetItemImage(items.items[i])
 					g.Assert(err).Equal(nil)
-					g.Assert(len(items.items) > 0).IsTrue()
+					g.Assert(img == nil).IsFalse()
+					g.Assert(img.Bounds().Dx() > 0).IsTrue()
 					wg.Done()
 				}()
 			}
-			wg.Wait()
 		})
-		g.It("Should fill cache", func() {
-			api, _ := LoadConfig("config.yaml")
-			_, _ = api.GetItems()
-			items, err := api.getItemsFromCache()
-			g.Assert(err).Equal(nil)
-			g.Assert(len(items.items) > 0).IsTrue()
+	})
+}
+
+func TestItems_ForEach(t *testing.T) {
+	g := Goblin(t)
+	api, _ := LoadConfig("config.yaml")
+	items, _ := api.GetItems()
+	g.Describe("Item.ForEach", func() {
+		g.It("Should work on synchronous request", func() {
+			c := 0
+			items.ForEach(func(item Item) {
+				if item.ID == 0 && item.Name.GetName() == "" {
+					g.Fail("Empty element in for each")
+				}
+				c++
+			})
+			if c != items.Count() {
+				g.Fail("Skipped element in for each")
+			}
+		})
+		g.It("Should work on asynchronous request", func() {
+			c := make(chan int, items.Count())
+			items.GoForEach(func(item Item, wg *sync.WaitGroup) {
+				if item.ID == 0 && item.Name.GetName() == "" {
+					g.Fail("Empty element in for each")
+				}
+				c <- 1
+				wg.Done()
+			})
+			for i := 0; i < items.Count(); i++ {
+				select {
+				case <-c:
+					continue
+				default:
+					g.Fail("Skipped element in for each")
+				}
+			}
 		})
 	})
 }

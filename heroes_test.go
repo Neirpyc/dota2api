@@ -12,41 +12,56 @@ import (
 func TestGetHeroes(t *testing.T) {
 	g := Goblin(t)
 	g.Describe("GetHeroes", func() {
-		g.It("Should return no error", func() {
-			api, _ := LoadConfig("config.yaml")
-			_, err := api.GetHeroes()
-			g.Assert(err).Equal(nil)
+		g.It("Should return no error", func(done Done) {
+			go func() {
+				api, _ := LoadConfig("config.yaml")
+				_, err := api.GetHeroes()
+				g.Assert(err).Equal(nil)
+				done()
+			}()
 		})
-		g.It("Should return at least one hero", func() {
-			api, _ := LoadConfig("config.yaml")
-			heroes, _ := api.GetHeroes()
-			g.Assert(len(heroes.heroes) > 0).IsTrue()
+		g.It("Should return at least one hero", func(done Done) {
+			go func() {
+				api, _ := LoadConfig("config.yaml")
+				heroes, _ := api.GetHeroes()
+				g.Assert(len(heroes.heroes) > 0).IsTrue()
+				done()
+			}()
 		})
-		g.It("Should work with concurrent usage", func() {
-			api, _ := LoadConfig("config.yaml")
-			var wg sync.WaitGroup
-			wg.Add(10)
-			for i := 0; i < 10; i++ {
-				go func() {
-					heroes, err := api.GetHeroes()
-					g.Assert(err).Equal(nil)
-					g.Assert(len(heroes.heroes) > 0).IsTrue()
-					wg.Done()
-				}()
-			}
-			wg.Wait()
+		g.It("Should work with concurrent usage", func(done Done) {
+			go func() {
+				api, _ := LoadConfig("config.yaml")
+				var wg sync.WaitGroup
+				wg.Add(10)
+				for i := 0; i < 10; i++ {
+					go func() {
+						heroes, err := api.GetHeroes()
+						g.Assert(err).Equal(nil)
+						g.Assert(len(heroes.heroes) > 0).IsTrue()
+						wg.Done()
+					}()
+				}
+				wg.Wait()
+				done()
+			}()
 		})
-		g.It("Should have the correct count", func() {
-			api, _ := LoadConfig("config.yaml")
-			heroes, _ := api.GetHeroes()
-			g.Assert(len(heroes.heroes)).Equal(heroes.Count())
+		g.It("Should have the correct count", func(done Done) {
+			go func() {
+				api, _ := LoadConfig("config.yaml")
+				heroes, _ := api.GetHeroes()
+				g.Assert(len(heroes.heroes)).Equal(heroes.Count())
+				done()
+			}()
 		})
-		g.It("Should fill cache", func() {
-			api, _ := LoadConfig("config.yaml")
-			_, _ = api.GetHeroes()
-			heroes, err := api.getHeroesFromCache()
-			g.Assert(err).Equal(nil)
-			g.Assert(len(heroes.heroes) > 0).IsTrue()
+		g.It("Should fill cache", func(done Done) {
+			go func() {
+				api, _ := LoadConfig("config.yaml")
+				_, _ = api.GetHeroes()
+				heroes, err := api.getHeroesFromCache()
+				g.Assert(err).Equal(nil)
+				g.Assert(len(heroes.heroes) > 0).IsTrue()
+				done()
+			}()
 		})
 	})
 }
@@ -90,11 +105,12 @@ func TestHeroes_ForEach(t *testing.T) {
 		})
 		g.It("Should work on asynchronous request", func() {
 			c := make(chan int, heroes.Count())
-			heroes.ForEach(func(hero Hero) {
+			heroes.GoForEach(func(hero Hero, wg *sync.WaitGroup) {
 				if hero.ID == 0 && hero.Name.GetName() == "" {
 					g.Fail("Empty element in for each")
 				}
 				c <- 1
+				wg.Done()
 			})
 			for i := 0; i < heroes.Count(); i++ {
 				select {
@@ -110,84 +126,41 @@ func TestHeroes_ForEach(t *testing.T) {
 
 func TestDota2_GetHeroImage(t *testing.T) {
 	g := Goblin(t)
-	//g.Timeout(10 * time.Second)
+	var wg sync.WaitGroup
 	api, _ := LoadConfig("config.yaml")
 	heroes, _ := api.GetHeroes()
+	doTest := func(size int) {
+		for i := 0; i < heroes.Count(); i += heroes.Count() / 10 {
+			if i > heroes.Count() {
+				continue
+			}
+			wg.Add(1)
+			i := i
+			go func() {
+				img, err := api.GetHeroImage(heroes.heroes[i], size)
+				g.Assert(err).Equal(nil)
+				g.Assert(img == nil).IsFalse()
+				g.Assert(img.Bounds().Dx() > 0).IsTrue()
+				wg.Done()
+			}()
+		}
+		wg.Wait()
+	}
 	g.Describe("api.GetHeroImage", func() {
 		g.It("Should return lg Images", func(done Done) {
-			var wg sync.WaitGroup
-			for i := 0; i < heroes.Count(); i += heroes.Count() / 10 {
-				if i > heroes.Count() {
-					continue
-				}
-				wg.Add(1)
-				i := i
-				go func() {
-					img, err := api.GetHeroImage(heroes.heroes[i], SizeLg)
-					g.Assert(err).Equal(nil)
-					g.Assert(img == nil).IsFalse()
-					g.Assert(img.Bounds().Dx() > 0).IsTrue()
-					wg.Done()
-				}()
-			}
-			wg.Wait()
+			doTest(SizeLg)
 			done()
 		})
 		g.It("Should return sb Images", func(done Done) {
-			var wg sync.WaitGroup
-			for i := 0; i < heroes.Count(); i += heroes.Count() / 10 {
-				if i > heroes.Count() {
-					continue
-				}
-				wg.Add(1)
-				i := i
-				go func() {
-					img, err := api.GetHeroImage(heroes.heroes[i], SizeSb)
-					g.Assert(err).Equal(nil)
-					g.Assert(img == nil).IsFalse()
-					g.Assert(img.Bounds().Dx() > 0).IsTrue()
-					wg.Done()
-				}()
-			}
-			wg.Wait()
+			doTest(SizeSb)
 			done()
 		})
 		g.It("Should return full Images", func(done Done) {
-			var wg sync.WaitGroup
-			for i := 0; i < heroes.Count(); i += heroes.Count() / 10 {
-				if i > heroes.Count() {
-					continue
-				}
-				wg.Add(1)
-				i := i
-				go func() {
-					img, err := api.GetHeroImage(heroes.heroes[i], SizeFull)
-					g.Assert(err).Equal(nil)
-					g.Assert(img == nil).IsFalse()
-					g.Assert(img.Bounds().Dx() > 0).IsTrue()
-					wg.Done()
-				}()
-			}
-			wg.Wait()
+			doTest(SizeFull)
 			done()
 		})
 		g.It("Should return vert Images", func(done Done) {
-			var wg sync.WaitGroup
-			for i := 0; i < heroes.Count(); i += heroes.Count() / 10 {
-				if i > heroes.Count() {
-					continue
-				}
-				wg.Add(1)
-				i := i
-				go func() {
-					img, err := api.GetHeroImage(heroes.heroes[i], SizeVert)
-					g.Assert(err).Equal(nil)
-					g.Assert(img == nil).IsFalse()
-					g.Assert(img.Bounds().Dx() > 0).IsTrue()
-					wg.Done()
-				}()
-			}
-			wg.Wait()
+			doTest(SizeVert)
 			done()
 		})
 	})
