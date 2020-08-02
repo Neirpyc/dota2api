@@ -11,7 +11,7 @@ but provides higher level wrappers, so it is easier to use.
 go get github.com/Neirpyc/dota2api
 ```
 ## Setup
-Settings are read from the file `config.ini`.
+Reads settings from the file `config.ini`.
 
 Here is an example:
 ```ini

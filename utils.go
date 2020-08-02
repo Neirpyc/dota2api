@@ -1,6 +1,7 @@
 package dota2api
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"net"
@@ -17,7 +18,7 @@ func Get(u string) ([]byte, error) {
 
 	transport := &http.Transport{
 		ResponseHeaderTimeout: timeout,
-		Dial: func(network, addr string) (net.Conn, error) {
+		DialContext: func(_ context.Context, network, addr string) (net.Conn, error) {
 			return net.DialTimeout(network, addr, timeout)
 		},
 		DisableKeepAlives: true,
@@ -31,7 +32,7 @@ func Get(u string) ([]byte, error) {
 	if err != nil {
 		return body, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	body, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -58,7 +59,7 @@ func parseUrl(u string, param map[string]interface{}) (string, error) {
 }
 
 func ArrayIntToStr(arr []int64) []string {
-	strArr := []string{}
+	var strArr []string
 
 	for _, v := range arr {
 		strArr = append(strArr, fmt.Sprintf("%d", v))
