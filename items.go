@@ -129,3 +129,13 @@ func (d *Dota2) getItemsFromAPI() (Items, error) {
 func (d *Dota2) getItemsFromCache() (Items, error) {
 	return d.itemsCache.items, nil
 }
+
+func (i Items) Count() int {
+	return len(i.items)
+}
+
+func (i Items) ForEach(f func(item Item)) {
+	for _, item := range i.items {
+		f(item)
+	}
+}

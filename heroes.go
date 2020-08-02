@@ -127,3 +127,13 @@ func (d *Dota2) getHeroesFromAPI() (Heroes, error) {
 func (d *Dota2) getHeroesFromCache() (Heroes, error) {
 	return d.heroesCache.heroes, nil
 }
+
+func (h Heroes) Count() int {
+	return len(h.heroes)
+}
+
+func (h Heroes) ForEach(f func(hero Hero)) {
+	for _, hero := range h.heroes {
+		f(hero)
+	}
+}
