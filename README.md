@@ -56,12 +56,12 @@ h, found := heroes.GetById(10)
 if !found{
     panic("ID not found")
 }
-fmt.Printf("Name: %s, ID: %d\n", h.Name, h.ID)
+fmt.Printf("Name: %s, ID: %d\n", h.Name.GetFullName(), h.ID)
 h, found = heroes.GetByName("npc_dota_hero_antimage")
 if !found{
     panic("Name not found")
 }
-fmt.Printf("Name: %s, ID: %d\n", h.Name, h.ID)
+fmt.Printf("Name: %s, ID: %d\n", h.Name.GetFullName(), h.ID)
 ```
 
 #### Items
@@ -74,10 +74,10 @@ i, found := items.GetById(10)
 if !found{
     panic("ID not found")
 }
-fmt.Printf("Name: %s, ID: %d, Cost:%d\n", i.Name, i.ID, i.Cost)
+fmt.Printf("Name: %s, ID: %d, Cost:%d\n", i.Name.GetFullName(), i.ID, i.Cost)
 i, found = items.GetByName("item_blink")
 if !found{
     panic("Name not found")
 }
-fmt.Printf("Name: %s, ID: %d, Cost:%d\n", i.Name, i.ID, i.Cost)
+fmt.Printf("Name: %s, ID: %d, Cost:%d\n", i.Name.GetFullName(), i.ID, i.Cost)
 ```
