@@ -59,9 +59,9 @@ func TestDota2_GetMatchHistory(t *testing.T) {
 		g.It("Should work with matchesRequested parameter", func() {
 			g.Assert(matches.Count() == 42).IsTrue()
 		})
-		g.It("Should work with accountId and heroId parameter", func() {
+		g.It("Should work with accountId, minPlayers and heroId parameter", func() {
 			id := int64(76561198067618887)
-			matches, err := api.GetMatchHistory(AccountId(id), HeroId(42), MatchesRequested(100))
+			matches, err := api.GetMatchHistory(AccountId(id), HeroId(42), MatchesRequested(100), MinPlayers(10))
 			g.Assert(err == nil).IsTrue()
 			if err != nil {
 				return
@@ -69,6 +69,7 @@ func TestDota2_GetMatchHistory(t *testing.T) {
 			g.Assert(matches.Count() <= 100).IsTrue()
 		topLoop:
 			for _, match := range matches.Matches {
+				g.Assert(match.PlayerCount() >= 10).IsTrue()
 				flag := 0
 				for i := 0; ; i++ {
 					if p, found := match.GetPlayer(i); found {

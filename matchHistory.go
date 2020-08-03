@@ -84,6 +84,10 @@ func (m MatchSummary) GetByHero(hero Hero) (Player, bool) {
 	return m.GetByHeroId(hero.ID)
 }
 
+func (m MatchSummary) PlayerCount() int {
+	return m.Radiant.Count() + m.Dire.Count()
+}
+
 func (m MatchSummary) GetByHeroId(id int) (Player, bool) {
 	if p, found := m.Radiant.GetByHeroId(id); found {
 		return p, true
@@ -134,6 +138,7 @@ func (l LobbyType) GetId() int {
 	return int(l)
 }
 
+//todo update
 func (l LobbyType) GetName() string {
 	switch int(l) {
 	case LobbyInvalid:
@@ -293,6 +298,13 @@ func AccountId(id int64) ParameterInt {
 func StartAtMatchId(id int64) ParameterInt64 {
 	return ParameterInt64{
 		k: "start_at_match_id",
+		v: id,
+	}
+}
+
+func MinPlayers(id int) ParameterInt {
+	return ParameterInt{
+		k: "min_players",
 		v: id,
 	}
 }
