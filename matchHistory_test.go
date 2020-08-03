@@ -43,6 +43,11 @@ func TestDota2_GetMatchHistory(t *testing.T) {
 			}
 		})
 	})
+}
+
+func TestDota2_GetMatchHistory_Parameters(t *testing.T) {
+	g := Goblin(t)
+	api, _ := LoadConfig("config.yaml")
 	g.Describe("api.GetMatchHistory parameters", func() {
 		g.It("Should refuse invalid parameters", func() {
 			_, err := api.GetMatchHistory(42, 37)
@@ -103,6 +108,11 @@ func TestDota2_GetMatchHistory(t *testing.T) {
 			}
 		})
 	})
+}
+
+func TestDota2_GetMatchHistory_Cursor(t *testing.T) {
+	g := Goblin(t)
+	api, _ := LoadConfig("config.yaml")
 	g.Describe("api.GetMatchHistory cursor", func() {
 		c := NewCursor()
 		matches, err := api.GetMatchHistory(c, MatchesRequested(50))
