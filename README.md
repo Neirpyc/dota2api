@@ -24,8 +24,8 @@ SteamUser: "ISteamUser"
 SteamApiVersion: "V001"
 Dota2Match: "IDOTA2Match_570"
 Dota2Econ: "IEconDOTA2_570"
+Dota2CDN: "http://cdn.dota2.com/apps/dota2/images"
 Dota2ApiVersion: "V001"
-
 ```
 
 ## Usage
@@ -71,3 +71,6 @@ if !found{
 }
 fmt.Printf("Name: %s, ID: %d, Cost:%d\n", i.Name.GetFullName(), i.ID, i.Cost)
 ```
+
+#### More
+See the test files to learn more, Documentation will be done once the project will be less often updated
