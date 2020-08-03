@@ -80,8 +80,8 @@ func (d *Dota2) ResolveVanityUrl(vanityurl string) (int64, error) {
 }
 
 //Get match history by sequence num
-func (d *Dota2) GetMatchHistoryBySequenceNum(param map[string]interface{}) (matchHistoryJSON, error) {
-	var matchHistory matchHistoryJSON
+func (d *Dota2) GetMatchHistoryBySequenceNum(param map[string]interface{}) (MatchHistoryJSON, error) {
+	var matchHistory MatchHistoryJSON
 
 	param["key"] = d.steamApiKey
 

@@ -8,10 +8,179 @@ import (
 func TestDota2_GetMatchHistory(t *testing.T) {
 	g := Goblin(t)
 	api, _ := LoadConfig("config.yaml")
-	_, err := api.GetMatchHistory()
-	g.Describe("api.GetMatchHistory", func() {
+	g.Describe("api.GetMatchHistory base", func() {
+		hist, err := api.GetMatchHistory()
 		g.It("Should return no error", func() {
 			g.Assert(err == nil).IsTrue()
+		})
+		g.It("Should return at least one result", func() {
+			g.Assert(hist.Count() > 0).IsTrue()
+		})
+		g.It("Should return a match seq num for each result", func() {
+			for _, match := range hist.Matches {
+				g.Assert(match.MatchSeqNum != 0).IsTrue()
+			}
+		})
+		g.It("Should return a match ID for each result", func() {
+			for _, match := range hist.Matches {
+				g.Assert(match.MatchId != 0).IsTrue()
+			}
+		})
+		g.It("Should return a start time for each result", func() {
+			for _, match := range hist.Matches {
+				g.Assert(match.StartTime.Unix() != 0).IsTrue()
+			}
+		})
+		g.It("Should return a team for each result", func() {
+			for _, match := range hist.Matches {
+				g.Assert(match.Radiant.players != nil || match.Dire.players != nil).IsTrue()
+			}
+		})
+	})
+	g.Describe("api.GetMatchHistory parameters", func() {
+		g.It("Should refuse invalid parameters", func() {
+			_, err := api.GetMatchHistory(42, 37)
+			g.Assert(err != nil).IsTrue()
+		})
+		g.It("Should refuse even one invalid parameter", func() {
+			_, err := api.GetMatchHistory(MatchesRequested(52), 37)
+			g.Assert(err != nil).IsTrue()
+		})
+		matches, err := api.GetMatchHistory(MatchesRequested(42))
+		g.It("Should accept a valid parameter", func() {
+			g.Assert(err == nil).IsTrue()
+		})
+		g.It("Should work with matchesRequested parameter", func() {
+			g.Assert(matches.Count() == 42).IsTrue()
+		})
+		g.It("Should work with accountId parameter", func() {
+			id := int64(76561198067618887)
+			matches, err := api.GetMatchHistory(AccountId(id))
+			g.Assert(err == nil).IsTrue()
+			if err != nil {
+				return
+			}
+		topLoop:
+			for _, match := range matches.Matches {
+				for i := 0; ; i++ {
+					if p, found := match.GetPlayer(i); found {
+						if p.AccountId == int(int32(id)) {
+							continue topLoop
+						}
+					} else {
+						break
+					}
+				}
+				g.Fail("Could not find requested accountId")
+			}
+		})
+		g.It("Should work with startAtMatchId parameter", func() {
+			id := matches.Matches[matches.Count()/2].MatchId
+			matches, err := api.GetMatchHistory(StartAtMatchId(id))
+			g.Assert(err == nil).IsTrue()
+			if err != nil {
+				return
+			}
+			for _, match := range matches.Matches {
+				if match.MatchId > id {
+					g.Fail("Match with previous ID returned")
+				}
+			}
+		})
+	})
+}
+
+func TestDota2_GetMatchHistory_Teams(t *testing.T) {
+	g := Goblin(t)
+	api, _ := LoadConfig("config.yaml")
+	matches, _ := api.GetMatchHistory(MatchesRequested(100))
+	check := func(player Player, p Player, f bool, checkAccountId bool) {
+		g.Assert(f).IsTrue()
+		if checkAccountId {
+			g.Assert(p.AccountId == player.AccountId).IsTrue()
+		}
+		g.Assert(p.Hero.ID == player.Hero.ID).IsTrue()
+	}
+	g.Describe("Teams", func() {
+		g.It("Should return found=false on non found pos", func() {
+			for _, match := range matches.Matches {
+				_, f := match.GetPlayer(match.Radiant.Count() + match.Dire.Count() + 1)
+				g.Assert(f).IsFalse()
+			}
+		})
+		heroes, _ := api.GetHeroes()
+		nonPlayedHero := func(match MatchSummary) Hero {
+		heroLoop:
+			for _, hero := range heroes.heroes {
+				for _, player := range match.Radiant.players {
+					if player.Hero.ID == hero.ID {
+						continue heroLoop
+					}
+				}
+				for _, player := range match.Dire.players {
+					if player.Hero.ID == hero.ID {
+						continue heroLoop
+					}
+				}
+				return hero
+			}
+			return Hero{}
+		}
+		g.It("Should return found=false on non hero", func() {
+			for _, match := range matches.Matches {
+				_, f := match.GetByHero(nonPlayedHero(match))
+				g.Assert(f).IsFalse()
+			}
+		})
+		g.It("Should return found=false on non heroId", func() {
+			for _, match := range matches.Matches {
+				_, f := match.GetByHeroId(nonPlayedHero(match).ID)
+				g.Assert(f).IsFalse()
+			}
+		})
+		g.It("Should find player by pos", func() {
+			for _, match := range matches.Matches {
+				c := 0
+				loopF := func(player Player) {
+					p, f := match.GetPlayer(c)
+					check(player, p, f, true)
+					c++
+				}
+				for _, player := range match.Radiant.players {
+					loopF(player)
+				}
+				for _, player := range match.Dire.players {
+					loopF(player)
+				}
+			}
+		})
+		g.It("Should find player by Hero", func() {
+			for _, match := range matches.Matches {
+				loopF := func(player Player) {
+					p, f := match.GetByHero(player.Hero)
+					check(player, p, f, false)
+				}
+				for _, player := range match.Radiant.players {
+					loopF(player)
+				}
+				for _, player := range match.Dire.players {
+					loopF(player)
+				}
+			}
+		})
+		g.It("Should find player by HeroId", func() {
+			for _, match := range matches.Matches {
+				loopF := func(player Player) {
+					p, f := match.GetByHeroId(player.Hero.ID)
+					check(player, p, f, false)
+				}
+				for _, player := range match.Radiant.players {
+					loopF(player)
+				}
+				for _, player := range match.Dire.players {
+					loopF(player)
+				}
+			}
 		})
 	})
 }

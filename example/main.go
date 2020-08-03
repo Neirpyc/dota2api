@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	dota2, err := dota2api.LoadConfig("../config.ini")
+	dota2, err := dota2api.LoadConfig("../config.yaml")
 
 	if err != nil {
 		fmt.Println(err)
@@ -28,13 +28,8 @@ func main() {
 	fmt.Println()
 	fmt.Println("#### Account id ####")
 	fmt.Println()
-	accountId := dota2.GetAccountId(steamId)
-	fmt.Println(accountId)
 
-	param := map[string]interface{}{
-		"league_id": 3681,
-	}
-	matchHistory, err := dota2.GetMatchHistory(param)
+	matchHistory, err := dota2.GetMatchHistory(dota2api.HeroId(42), dota2api.MatchesRequested(1))
 	if err != nil {
 		fmt.Println(err)
 		return

@@ -14,7 +14,7 @@ func (p ParameterInt) key() string {
 	return p.k
 }
 
-func (p ParameterInt) value() int {
+func (p ParameterInt) value() interface{} {
 	return p.v
 }
 
@@ -27,6 +27,6 @@ func (p ParameterInt64) key() string {
 	return p.k
 }
 
-func (p ParameterInt64) value() int64 {
+func (p ParameterInt64) value() interface{} {
 	return p.v
 }

@@ -25,7 +25,7 @@ func getMatchHistoryUrl(dota2 *Dota2) string {
 	return fmt.Sprintf("%s/%s/%s/", dota2.dota2MatchUrl, "GetMatchHistory", dota2.dota2ApiVersion)
 }
 
-type matchHistoryJSON struct {
+type MatchHistoryJSON struct {
 	Result matchHistoryResultJSON `json:"result"`
 }
 
@@ -63,7 +63,7 @@ func (m MatchHistory) Count() int {
 
 type MatchSummary struct {
 	MatchId     int64
-	MatchSeqNum int
+	MatchSeqNum int64
 	StartTime   time.Time
 	LobbyType   LobbyType
 	Radiant     Team
@@ -179,37 +179,8 @@ func (c Cursor) GetRemaining() int {
 	return c.c.remaining
 }
 
-func HeroId(id int) ParameterInt {
-	return ParameterInt{
-		k: "hero_id",
-		v: id,
-	}
-}
-
-func MatchesRequested(num int) ParameterInt {
-	return ParameterInt{
-		k: "matches_requested",
-		v: num,
-	}
-}
-
-func AccountId(id int64) ParameterInt64 {
-	return ParameterInt64{
-		k: "account_id",
-		v: id,
-	}
-}
-
-func StartAtMatchId(id int64) ParameterInt64 {
-	return ParameterInt64{
-		k: "start_at_match_id",
-		v: id,
-	}
-}
-
-//Get match history
 func (d *Dota2) GetMatchHistory(params ...interface{}) (MatchHistory, error) {
-	var matchHistory matchHistoryJSON
+	var matchHistory MatchHistoryJSON
 	var res MatchHistory
 	var c Cursor
 	param := make(map[string]interface{})
@@ -219,6 +190,8 @@ func (d *Dota2) GetMatchHistory(params ...interface{}) (MatchHistory, error) {
 			c = p.(Cursor)
 		} else if v, ok := p.(Parameter); ok {
 			param[v.key()] = v.value()
+		} else {
+			return res, errors.New("invalid parameter")
 		}
 	}
 	if c.c != nil {
@@ -253,6 +226,7 @@ func (d *Dota2) GetMatchHistory(params ...interface{}) (MatchHistory, error) {
 		res.Matches[i].LobbyType = LobbyType(src.LobbyType)
 		res.Matches[i].StartTime = time.Unix(src.StartTime, 0)
 		res.Matches[i].MatchId = src.MatchID
+		res.Matches[i].MatchSeqNum = src.MatchSeqNum
 		res.Matches[i].Radiant = Team{
 			Id: src.RadiantTeamID,
 		}
@@ -277,12 +251,39 @@ func (d *Dota2) GetMatchHistory(params ...interface{}) (MatchHistory, error) {
 			}
 			if p.PlayerSlot&128 > 0 {
 				res.Matches[i].Dire.players = append(res.Matches[i].Dire.players, player)
-			}
-			if p.PlayerSlot&128 > 0 {
-				res.Matches[i].Dire.players = append(res.Matches[i].Dire.players, player)
+			} else {
+				res.Matches[i].Radiant.players = append(res.Matches[i].Radiant.players, player)
 			}
 		}
 	}
 
 	return res, nil
+}
+
+func HeroId(id int) ParameterInt {
+	return ParameterInt{
+		k: "hero_id",
+		v: id,
+	}
+}
+
+func MatchesRequested(num int) ParameterInt {
+	return ParameterInt{
+		k: "matches_requested",
+		v: num,
+	}
+}
+
+func AccountId(id int64) ParameterInt {
+	return ParameterInt{
+		k: "account_id",
+		v: int(int32(id)),
+	}
+}
+
+func StartAtMatchId(id int64) ParameterInt64 {
+	return ParameterInt64{
+		k: "start_at_match_id",
+		v: id,
+	}
 }
