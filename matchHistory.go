@@ -168,11 +168,18 @@ type Cursor struct {
 	}
 }
 
-func (c Cursor) GetCurrentMatchID() int64 {
-	if c.c.currentMatchID == 0 {
-		return -1
-	}
-	return c.c.currentMatchID
+func NewCursor() Cursor {
+	return Cursor{c: &struct {
+		currentMatchID int64
+		remaining      int
+	}{
+		currentMatchID: -1,
+		remaining:      -1,
+	}}
+}
+
+func (c Cursor) GetLastReceivedMatch() int64 {
+	return c.c.currentMatchID + 1
 }
 
 func (c Cursor) GetRemaining() int {
@@ -217,7 +224,9 @@ func (d *Dota2) GetMatchHistory(params ...interface{}) (MatchHistory, error) {
 		return res, errors.New(string(resp))
 	}
 	if c.c != nil {
-		c.c.currentMatchID = matchHistory.Result.Matches[matchHistory.Result.NumResults-1].MatchID
+		if matchHistory.Result.NumResults > 0 {
+			c.c.currentMatchID = matchHistory.Result.Matches[matchHistory.Result.NumResults-1].MatchID - 1
+		}
 		c.c.remaining = matchHistory.Result.ResultsRemaining
 	}
 
