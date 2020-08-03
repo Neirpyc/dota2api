@@ -1,3 +1,4 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/Neirpyc/dota2api)](https://goreportcard.com/report/github.com/Neirpyc/dota2api)
 # Dota2-API
 
 ## Introduction
