@@ -79,35 +79,9 @@ func (d *Dota2) ResolveVanityUrl(vanityurl string) (int64, error) {
 	return steamId, nil
 }
 
-//Get match history
-func (d *Dota2) GetMatchHistory(param map[string]interface{}) (MatchHistory, error) {
-	var matchHistory MatchHistory
-
-	param["key"] = d.steamApiKey
-
-	url, err := parseUrl(getMatchHistoryUrl(d), param)
-	if err != nil {
-		return matchHistory, err
-	}
-	resp, err := Get(url)
-	if err != nil {
-		return matchHistory, err
-	}
-
-	err = json.Unmarshal(resp, &matchHistory)
-	if err != nil {
-		return matchHistory, err
-	}
-	if matchHistory.Result.Status != 1 {
-		return matchHistory, errors.New(string(resp))
-	}
-
-	return matchHistory, nil
-}
-
 //Get match history by sequence num
-func (d *Dota2) GetMatchHistoryBySequenceNum(param map[string]interface{}) (MatchHistory, error) {
-	var matchHistory MatchHistory
+func (d *Dota2) GetMatchHistoryBySequenceNum(param map[string]interface{}) (matchHistoryJSON, error) {
+	var matchHistory matchHistoryJSON
 
 	param["key"] = d.steamApiKey
 

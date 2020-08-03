@@ -203,5 +203,5 @@ func (d Dota2) GetItemImage(item Item) (image.Image, error) {
 	}
 	var img image.Image
 	img, err = png.Decode(bytes.NewReader(res))
-	return img, nil
+	return img, err
 }

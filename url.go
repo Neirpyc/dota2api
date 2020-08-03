@@ -8,11 +8,6 @@ func getResolveVanityUrl(dota2 *Dota2) string {
 	return fmt.Sprintf("%s/%s/%s/", dota2.steamUserUrl, "ResolveVanityURL", dota2.steamApiVersion)
 }
 
-func getMatchHistoryUrl(dota2 *Dota2) string {
-
-	return fmt.Sprintf("%s/%s/%s/", dota2.dota2MatchUrl, "GetMatchHistory", dota2.dota2ApiVersion)
-}
-
 func getMatchHistoryBySequenceNumUrl(dota2 *Dota2) string {
 
 	return fmt.Sprintf("%s/%s/%s/", dota2.dota2MatchUrl, "GetMatchHistoryBySequenceNum", dota2.dota2ApiVersion)

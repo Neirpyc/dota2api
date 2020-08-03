@@ -47,7 +47,7 @@ type Heroes struct {
 // First tries with the index [id-1] which sometimes works, and is very fast to test
 // If it doesn't work, it then run a dichotomy search.
 func (h Heroes) GetById(id int) (hero Hero, found bool) {
-	if id < len(h.heroes)-1 {
+	if id < len(h.heroes) && id > 0 {
 		if h.heroes[id-1].ID == id {
 			return h.heroes[id-1], true
 		}
