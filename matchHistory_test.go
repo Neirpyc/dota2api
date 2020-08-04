@@ -53,6 +53,10 @@ func TestDota2_GetMatchHistory_Parameters(t *testing.T) {
 			_, err := api.GetMatchHistory(42, 37)
 			g.Assert(err != nil).IsTrue()
 		})
+		g.It("Should refuse forbidden parameters", func() {
+			_, err := api.GetMatchHistory(MatchId(0))
+			g.Assert(err != nil).IsTrue()
+		})
 		g.It("Should refuse even one invalid parameter", func() {
 			_, err := api.GetMatchHistory(MatchesRequested(52), 37)
 			g.Assert(err != nil).IsTrue()
@@ -135,13 +139,12 @@ func TestDota2_GetMatchHistory_Cursor(t *testing.T) {
 				g.Assert(match.MatchId < old).IsTrue()
 			}
 		})
-		g.It("Should error when no match is remaining", func() {
+		g.It("Should not error when no match is remaining", func() {
 			for c.GetRemaining() > 0 {
 				_, _ = api.GetMatchHistory(c, MatchesRequested(200))
 			}
 			matches, err = api.GetMatchHistory(c, MatchesRequested(200))
 			g.Assert(err == nil).IsTrue()
-			g.Assert(matches.Count() == 0).IsTrue()
 		})
 	})
 }

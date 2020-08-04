@@ -9,90 +9,6 @@ type VanityResp struct {
 	Success int    `json:"success"`
 }
 
-type MatchDetails struct {
-	Result Match `json:"result"`
-}
-
-type Match struct {
-	Error                 string       `bson:"error" json:"error" bson:"error"`
-	Players               []PlayerJSON `json:"players" bson:"players"`
-	RadiantWin            bool         `json:"radiant_win" bson:"radiant_win"`
-	Duration              int          `json:"duration" bson:"duration"`
-	PreGameDuration       int          `json:"pre_game_duration" bson:"pre_game_duration"`
-	StartTime             int          `json:"start_time" bson:"start_time"`
-	MatchID               int64        `json:"match_id" bson:"match_id"`
-	MatchSeqNum           int64        `json:"match_seq_num" bson:"match_seq_num"`
-	TowerStatusRadiant    int          `json:"tower_status_radiant" bson:"tower_status_radiant"`
-	TowerStatusDire       int          `json:"tower_status_dire" bson:"tower_status_dire"`
-	BarracksStatusRadiant int          `json:"barracks_status_radiant" bson:"barracks_status_radiant"`
-	BarracksStatusDire    int          `json:"barracks_status_dire" bson:"barracks_status_dire"`
-	Cluster               int          `json:"cluster" bson:"cluster"`
-	FirstBloodTime        int          `json:"first_blood_time" bson:"first_blood_time"`
-	LobbyType             int          `json:"lobby_type" bson:"lobby_type"`
-	HumanPlayers          int          `json:"human_players" bson:"human_players"`
-	Leagueid              int          `json:"league_id" bson:"league_id"`
-	PositiveVotes         int          `json:"positive_votes" bson:"positive_votes"`
-	NegativeVotes         int          `json:"negative_votes" bson:"negative_votes"`
-	GameMode              int          `json:"game_mode" bson:"game_mode"`
-	Flags                 int          `json:"flags" bson:"flags"`
-	Engine                int          `json:"engine" bson:"engine"`
-	RadiantScore          int          `json:"radiant_score" bson:"radiant_score"`
-	DireScore             int          `json:"dire_score" bson:"dire_score"`
-	TournamentID          int          `json:"tournament_id" bson:"tournament_id"`
-	TournamentRound       int          `json:"tournament_round" bson:"tournament_round"`
-	RadiantTeamID         int          `json:"radiant_team_id" bson:"radiant_team_id"`
-	RadiantName           string       `json:"radiant_name" bson:"radiant_name"`
-	RadiantLogo           int          `json:"radiant_logo" bson:"radiant_logo"`
-	RadiantTeamComplete   int          `json:"radiant_team_complete" bson:"radiant_team_complete"`
-	DireTeamID            int          `json:"dire_team_id" bson:"dire_team_id"`
-	DireName              string       `json:"dire_name" bson:"dire_name"`
-	DireLogo              int          `json:"dire_logo" bson:"dire_logo"`
-	DireTeamComplete      int          `json:"dire_team_complete" bson:"dire_team_complete"`
-	RadiantCaptain        int          `json:"radiant_captain" bson:"radian_captain"`
-	DireCaptain           int          `json:"dire_captain" bson:"dire_captain"`
-	PicksBans             []PicksBans  `json:"picks_bans" bson:"picks_bans"`
-}
-
-type PicksBans struct {
-	IsPick bool `json:"is_pick" bson:"is_pick"`
-	HeroID int  `json:"hero_id" bson:"hero_id"`
-	Team   int  `json:"team" bson:"team"`
-	Order  int  `json:"order" bson:"order"`
-}
-
-type PlayerJSON struct {
-	AccountID       int              `json:"account_id" bson:"account_id"`
-	PlayerSlot      int              `json:"player_slot" bson:"player_slot"`
-	HeroID          int              `json:"hero_id" bson:"hero_id"`
-	Item0           int              `json:"item_0" bson:"item_0"`
-	Item1           int              `json:"item_1" bson:"item_1"`
-	Item2           int              `json:"item_2" bson:"item_2"`
-	Item3           int              `json:"item_3" bson:"item_3"`
-	Item4           int              `json:"item_4" bson:"item_4"`
-	Item5           int              `json:"item_5" bson:"item_5"`
-	Kills           int              `json:"kills" bson:"kills"`
-	Deaths          int              `json:"deaths" bson:"deaths"`
-	Assists         int              `json:"assists" bson:"assists"`
-	LeaverStatus    int              `json:"leaver_status" bson:"lever_status"`
-	LastHits        int              `json:"last_hits" bson:"last_hits"`
-	Denies          int              `json:"denies" bson:"denies"`
-	GoldPerMin      int              `json:"gold_per_min" bson:"gold_per_min"`
-	XpPerMin        int              `json:"xp_per_min" bson:"xp_per_min"`
-	Level           int              `json:"level" bson:"level"`
-	Gold            int              `json:"gold" bson:"gold"`
-	GoldSpent       int              `json:"gold_spent" bson:"gold_spent"`
-	HeroDamage      int              `json:"hero_damage" bson:"hero_damage"`
-	TowerDamage     int              `json:"tower_damage" bson:"tower_damage"`
-	HeroHealing     int              `json:"hero_healing" bson:"hero_healing"`
-	AbilityUpgrades []AbilityUpgrade `json:"ability_upgrades" bson:"ability_upgrades"`
-}
-
-type AbilityUpgrade struct {
-	Ability int `json:"ability" bson:"ability"`
-	Level   int `json:"level" bson:"level"`
-	Time    int `json:"time" bson:"time"`
-}
-
 type PlayerSummaries struct {
 	Response struct {
 		Players []PlayerAccount `json:"players" bson:"players"`
@@ -185,13 +101,13 @@ type PlayersTeam struct {
 }
 
 type Scoreboard struct {
-	Duration           float64 `json:"duration" bson:"duration"`
-	RoshanRespawnTimer int     `json:"roshan_respawn_timer" bson:"roshan_respawn"`
-	Radiant            Radiant `json:"radiant" bson:"radiant"`
-	Dire               Dire    `json:"dire" bson:"dire"`
+	Duration           float64     `json:"duration" bson:"duration"`
+	RoshanRespawnTimer int         `json:"roshan_respawn_timer" bson:"roshan_respawn"`
+	Radiant            RadiantJSON `json:"radiant" bson:"radiant"`
+	Dire               DireJSON    `json:"dire" bson:"dire"`
 }
 
-type Radiant struct {
+type RadiantJSON struct {
 	Score         int `json:"score" bson:"score"`
 	TowerState    int `json:"tower_state" bson:"tower_state"`
 	BarracksState int `json:"barracks_state" bson:"barracks_state"`
@@ -208,7 +124,7 @@ type Radiant struct {
 	} `json:"abilities" bson:"abilities"`
 }
 
-type Dire struct {
+type DireJSON struct {
 	Score         int `json:"score" bson:"score"`
 	TowerState    int `json:"tower_state" bson:"tower_state"`
 	BarracksState int `json:"barracks_state" bson:"barracks_state"`
@@ -235,7 +151,7 @@ type LivePlayer struct {
 	LastHits         int     `json:"last_hits" bson:"last_hits"`
 	Denies           int     `json:"denies" bson:"denies"`
 	Gold             int     `json:"gold" bson:"gold"`
-	Level            int     `json:"level" bson:"level"`
+	Level            int     `json:"Level" bson:"Level"`
 	GoldPerMin       int     `json:"gold_per_min" bson:"gold_per_min"`
 	XpPerMin         int     `json:"xp_per_min" bson:"xp_per_min"`
 	UltimateState    int     `json:"ultimate_state" bson:"ultimate_state"`

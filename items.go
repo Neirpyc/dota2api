@@ -70,7 +70,7 @@ type Items struct {
 // First tries with the index [id-1] which sometimes works, and is very fast to test
 // If it doesn't work, it then run a dichotomy search.
 func (i Items) GetById(id int) (item Item, found bool) {
-	if id < len(i.items)-1 {
+	if id < len(i.items) && id > 0 {
 		if i.items[id-1].ID == id {
 			return i.items[id-1], true
 		}

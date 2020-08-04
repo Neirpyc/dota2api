@@ -195,16 +195,26 @@ func (d *Dota2) GetMatchHistory(params ...interface{}) (MatchHistory, error) {
 	var matchHistory MatchHistoryJSON
 	var res MatchHistory
 	var c Cursor
-	param := make(map[string]interface{})
+
+	parameters := make([]Parameter, 0)
 
 	for _, p := range params {
 		if reflect.TypeOf(p) == reflect.TypeOf(Cursor{}) {
 			c = p.(Cursor)
 		} else if v, ok := p.(Parameter); ok {
-			param[v.key()] = v.value()
+			parameters = append(parameters, v)
 		} else {
 			return res, errors.New("invalid parameter")
 		}
+	}
+	param, err := getParameterMap(nil, []int{
+		parameterKindHeroId,
+		parameterKindMatchesRequested,
+		parameterKindAccountId,
+		parameterKindStartAtMatchId,
+		parameterKindMinPlayers}, parameters)
+	if err != nil {
+		return res, err
 	}
 	if c.c != nil {
 		if _, f := param["start_at_match_id"]; !f {
@@ -276,35 +286,40 @@ func (d *Dota2) GetMatchHistory(params ...interface{}) (MatchHistory, error) {
 
 func HeroId(id int) ParameterInt {
 	return ParameterInt{
-		k: "hero_id",
-		v: id,
+		k:       "hero_id",
+		v:       id,
+		kindInt: parameterKindHeroId,
 	}
 }
 
 func MatchesRequested(num int) ParameterInt {
 	return ParameterInt{
-		k: "matches_requested",
-		v: num,
+		k:       "matches_requested",
+		v:       num,
+		kindInt: parameterKindMatchesRequested,
 	}
 }
 
 func AccountId(id int64) ParameterInt {
 	return ParameterInt{
-		k: "account_id",
-		v: int(int32(id)),
+		k:       "account_id",
+		v:       int(int32(id)),
+		kindInt: parameterKindAccountId,
 	}
 }
 
 func StartAtMatchId(id int64) ParameterInt64 {
 	return ParameterInt64{
-		k: "start_at_match_id",
-		v: id,
+		k:       "start_at_match_id",
+		v:       id,
+		kindInt: parameterKindStartAtMatchId,
 	}
 }
 
 func MinPlayers(id int) ParameterInt {
 	return ParameterInt{
-		k: "min_players",
-		v: id,
+		k:       "min_players",
+		v:       id,
+		kindInt: parameterKindMinPlayers,
 	}
 }
