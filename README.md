@@ -1,5 +1,4 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/Neirpyc/dota2api)](https://goreportcard.com/report/github.com/Neirpyc/dota2api)
-[![Coverage Status](https://coveralls.io/repos/github/Neirpyc/dota2api/badge.svg?branch=master)](https://coveralls.io/github/Neirpyc/dota2api?branch=master)
 # Dota2-API
 
 ## Introduction
