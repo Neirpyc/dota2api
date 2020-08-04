@@ -187,6 +187,18 @@ func TestDota2_GetMatchDetails2(t *testing.T) {
 				g.Assert(p.Stats.HeroHealing.ScalingFactor()).Equal(float64(p.Stats.HeroHealing.Scaled()) / float64(p.Stats.HeroHealing.Raw()))
 			})
 		})
+		g.It("Should return the correct items for player 0", func() {
+			g.Assert(details.Radiant[0].Items.Item0.ID == 63).IsTrue()
+			g.Assert(details.Radiant[0].Items.Item1.ID == 77).IsTrue()
+			g.Assert(details.Radiant[0].Items.Item2.ID == 236).IsTrue()
+			g.Assert(details.Radiant[0].Items.Item3.ID == 77).IsTrue()
+			g.Assert(details.Radiant[0].Items.Item4.ID == 485).IsTrue()
+			g.Assert(details.Radiant[0].Items.Item5.ID == 7).IsTrue()
+			g.Assert(details.Radiant[0].Items.BackpackItem0.ID == 0).IsTrue()
+			g.Assert(details.Radiant[0].Items.BackpackItem1.ID == 0).IsTrue()
+			g.Assert(details.Radiant[0].Items.BackpackItem2.ID == 0).IsTrue()
+			g.Assert(details.Radiant[0].Items.ItemNeutral.ID == 357).IsTrue()
+		})
 		g.It("Should return the correct AbilityBuild for player 0", func() {
 			g.Assert(details.Radiant[0].AbilityUpgrades.Count()).Equal(18)
 			aU, f := details.Radiant[0].AbilityUpgrades.GetByOrder(4)
