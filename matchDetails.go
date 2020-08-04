@@ -389,16 +389,16 @@ const (
 )
 
 type PlayersItems struct {
-	Item0          Item
-	Item1          Item
-	Item2          Item
-	Item3          Item
-	Item4          Item
-	Item5          Item
-	ItemNeutral    Item
-	BackpackItem0  Item
-	BackpackItem1  Item
-	BackpackItem25 Item
+	Item0         Item
+	Item1         Item
+	Item2         Item
+	Item3         Item
+	Item4         Item
+	Item5         Item
+	ItemNeutral   Item
+	BackpackItem0 Item
+	BackpackItem1 Item
+	BackpackItem2 Item
 }
 
 type KDA struct {
@@ -652,16 +652,16 @@ func (d *Dota2) GetMatchDetails(params ...Parameter) (Match, error) {
 			AccountId: player.AccountID,
 			Hero:      h,
 			Items: PlayersItems{
-				Item0:          i0,
-				Item1:          i1,
-				Item2:          i2,
-				Item3:          i3,
-				Item4:          i4,
-				Item5:          i5,
-				ItemNeutral:    iN,
-				BackpackItem0:  iB0,
-				BackpackItem1:  iB1,
-				BackpackItem25: iB2,
+				Item0:         i0,
+				Item1:         i1,
+				Item2:         i2,
+				Item3:         i3,
+				Item4:         i4,
+				Item5:         i5,
+				ItemNeutral:   iN,
+				BackpackItem0: iB0,
+				BackpackItem1: iB1,
+				BackpackItem2: iB2,
 			},
 			KDA: KDA{
 				Kills:   player.Kills,
