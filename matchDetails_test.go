@@ -3,6 +3,7 @@ package dota2api
 import (
 	"fmt"
 	. "github.com/franela/goblin"
+	"sync"
 	"testing"
 	"time"
 )
@@ -48,12 +49,14 @@ func TestDota2_GetMatchDetails2(t *testing.T) {
 			g.Assert(details.HumanPlayers).Equal(10)
 			g.Assert(details.Radiant.Count()).Equal(5)
 			g.Assert(details.Dire.Count()).Equal(5)
-			for _, p := range details.Dire {
+			details.Dire.GoForEach(func(p PlayerDetails, wg *sync.WaitGroup) {
 				g.Assert(p.LeaverStatus == LeaverStatusNone).IsTrue()
-			}
-			for _, p := range details.Radiant {
+				wg.Done()
+			})
+			details.GoForEachPlayer(func(p PlayerDetails, wg *sync.WaitGroup) {
 				g.Assert(p.LeaverStatus == LeaverStatusNone).IsTrue()
-			}
+				wg.Done()
+			})
 		})
 		g.It("Should return Source2 as engine", func() {
 			g.Assert(details.Engine == EngineSource2).IsTrue()
@@ -177,18 +180,12 @@ func TestDota2_GetMatchDetails2(t *testing.T) {
 			g.Assert(details.Radiant[1].Stats.Gold.Current().ToString()).Equal("331")
 		})
 		g.It("Should return working stats", func() {
-			for _, p := range details.Dire {
+			details.ForEachPlayer(func(p PlayerDetails) {
 				g.Assert(p.Stats.Gold.NetWorth()).Equal(p.Stats.Gold.Current() + p.Stats.Gold.Spent())
 				g.Assert(p.Stats.HeroDamage.ScalingFactor()).Equal(float64(p.Stats.HeroDamage.Scaled()) / float64(p.Stats.HeroDamage.Raw()))
 				g.Assert(p.Stats.TowerDamage.ScalingFactor()).Equal(float64(p.Stats.TowerDamage.Scaled()) / float64(p.Stats.TowerDamage.Raw()))
 				g.Assert(p.Stats.HeroHealing.ScalingFactor()).Equal(float64(p.Stats.HeroHealing.Scaled()) / float64(p.Stats.HeroHealing.Raw()))
-			}
-			for _, p := range details.Radiant {
-				g.Assert(p.Stats.Gold.NetWorth()).Equal(p.Stats.Gold.Current() + p.Stats.Gold.Spent())
-				g.Assert(p.Stats.HeroDamage.ScalingFactor()).Equal(float64(p.Stats.HeroDamage.Scaled()) / float64(p.Stats.HeroDamage.Raw()))
-				g.Assert(p.Stats.TowerDamage.ScalingFactor()).Equal(float64(p.Stats.TowerDamage.Scaled()) / float64(p.Stats.TowerDamage.Raw()))
-				g.Assert(p.Stats.HeroHealing.ScalingFactor()).Equal(float64(p.Stats.HeroHealing.Scaled()) / float64(p.Stats.HeroHealing.Raw()))
-			}
+			})
 		})
 		g.It("Should return the correct AbilityBuild for player 0", func() {
 			g.Assert(details.Radiant[0].AbilityUpgrades.Count()).Equal(18)
@@ -213,7 +210,7 @@ func TestDota2_GetMatchDetails2(t *testing.T) {
 			}
 		})
 		g.It("Should return working Abilities", func() {
-			for _, p := range details.Dire {
+			details.Dire.ForEach(func(p PlayerDetails) {
 				for i, a := range p.AbilityUpgrades {
 					for _, aU := range p.AbilityUpgrades.GetByAbility(a.Ability) {
 						if aU.Ability == a.Ability {
@@ -229,7 +226,7 @@ func TestDota2_GetMatchDetails2(t *testing.T) {
 					g.Assert(f).IsTrue()
 					g.Assert(aU).Equal(a)
 				}
-			}
+			})
 		})
 	})
 }
