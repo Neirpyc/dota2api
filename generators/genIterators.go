@@ -26,48 +26,73 @@ const testHeaderImport = `import (
 const iteratorHeaderImport = `import "sync"
 `
 
-const iteratorForEach = `
-func ({{ReceiverName}} {{ReceiverType}}) ForEach{{MethodNameExtension}}(f func({{FuncParameterName}} {{FuncParameterType}})) {
+const iteratorAll = `
+func ({{ReceiverName}} {{ReceiverType}}) ForEach{{MethodNameExtension}}I(f func({{FuncParameterName}} {{FuncParameterType}}, index int)) {
+	index := 0
 	iter := func({{IterParamName}} []{{FuncParameterType}}) {
 		for _, {{ForVarName}} := range {{IterParamName}} {
-			f({{ForVarName}})
+			f({{ForVarName}}, index)
+			index++
 		}
 	}
 {{Iterators}}
 }
-`
 
-const iteratorForEachAsync = `
-func ({{ReceiverName}} {{ReceiverType}}) ForEach{{MethodNameExtension}}Async(f func({{FuncParameterName}} {{FuncParameterType}})) {
+func ({{ReceiverName}} {{ReceiverType}}) ForEach{{MethodNameExtension}}AsyncI(f func({{FuncParameterName}} {{FuncParameterType}}, index int)) {
 	var wg sync.WaitGroup
+	index := 0
 	iter := func({{IterParamName}} []{{FuncParameterType}}) {
 		wg.Add(len({{IterParamName}}))
 		for _, {{ForVarName}} := range {{IterParamName}} {
-			f({{ForVarName}})
-			wg.Done()
+			go func(){
+				f({{ForVarName}}, index)
+				wg.Done()
+			}()
+			index++
 		}
 	}
 {{Iterators}}
 	wg.Wait()
 }
-`
 
-const iteratorGoForEach = `
-func ({{ReceiverName}} {{ReceiverType}}) GoForEach{{MethodNameExtension}}(f func({{FuncParameterName}} {{FuncParameterType}})) func() {
+func ({{ReceiverName}} {{ReceiverType}}) GoForEach{{MethodNameExtension}}I(f func({{FuncParameterName}} {{FuncParameterType}}, index int)) func() {
 	var wg sync.WaitGroup
+	index := 0
 	iter := func({{IterParamName}} []{{FuncParameterType}}) {
 		wg.Add(len({{IterParamName}}))
 		for _, {{ForVarName}} := range {{IterParamName}} {
-			f({{ForVarName}})
-			wg.Done()
+			go func(){
+				f({{ForVarName}}, index)
+				wg.Done()
+			}()
+			index++
 		}
 	}
 {{Iterators}}
 	return wg.Wait
 }
+
+func ({{ReceiverName}} {{ReceiverType}}) ForEach{{MethodNameExtension}}(f func({{FuncParameterName}} {{FuncParameterType}})) {
+	{{ReceiverName}}.ForEach{{MethodNameExtension}}I(func({{FuncParameterName}} {{FuncParameterType}}, index int) {
+		f({{FuncParameterName}})
+	})
+}
+
+func ({{ReceiverName}} {{ReceiverType}}) ForEach{{MethodNameExtension}}Async(f func({{FuncParameterName}} {{FuncParameterType}})) {
+	{{ReceiverName}}.ForEach{{MethodNameExtension}}AsyncI(func({{FuncParameterName}} {{FuncParameterType}}, index int) {
+		f({{FuncParameterName}})
+	})
+}
+
+func ({{ReceiverName}} {{ReceiverType}}) GoForEach{{MethodNameExtension}}(f func({{FuncParameterName}} {{FuncParameterType}})) func() {
+	return {{ReceiverName}}.GoForEach{{MethodNameExtension}}I(func({{FuncParameterName}} {{FuncParameterType}}, index int) {
+		f({{FuncParameterName}})
+	})
+}
 `
 
-const testAll3 = `func Test{{ReceiverType}}{{MethodNameExtension}}_Iterators(t *testing.T) {
+//todo test the indices
+const testAll = `func Test{{ReceiverType}}{{MethodNameExtension}}_Iterators(t *testing.T) {
     g := Goblin(t)
     g.Describe("Test{{ReceiverType}}_Iterators", func() {
 		g.It("Have a working ForEach method", func() {
@@ -114,8 +139,6 @@ const testAll3 = `func Test{{ReceiverType}}{{MethodNameExtension}}_Iterators(t *
 	})
 }
 `
-
-var allThree = iteratorForEach + iteratorForEachAsync + iteratorGoForEach
 
 const iterator = `	iter({{CastBegin}}{{ReceiverName}}{{FieldToIterate}}{{CastEnd}})
 `
@@ -207,11 +230,11 @@ func (i IteratorGenerationInstructions) getFunction(in int) string {
 		"IterParamName":       func() string { return i.List[in].IterParamName },
 		"ForVarName":          func() string { return i.List[in].ForVarName },
 		"Iterators":           func() string { return i.getIterators(in) },
-	}).Parse(allThree)
+	}).Parse(iteratorAll)
 	if err != nil {
 		panic(err)
 	}
-	err = t.Execute(buf, allThree)
+	err = t.Execute(buf, iteratorAll)
 	if err != nil {
 		panic(err)
 	}
@@ -237,11 +260,11 @@ func (i IteratorGenerationInstructions) getTestFunction(in int) string {
 			return i.List[in].TestCount
 		},
 		"Iterators": func() string { return i.getTestIterators(in) },
-	}).Parse(testAll3)
+	}).Parse(testAll)
 	if err != nil {
 		panic(err)
 	}
-	err = t.Execute(buf, testAll3)
+	err = t.Execute(buf, testAll)
 	if err != nil {
 		panic(err)
 	}

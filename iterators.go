@@ -4,23 +4,29 @@ package dota2api
 
 import "sync"
 
-func (h Heroes) ForEach(f func(hero Hero)) {
+func (h Heroes) ForEachI(f func(hero Hero, index int)) {
+	index := 0
 	iter := func(heroes []Hero) {
 		for _, hero := range heroes {
-			f(hero)
+			f(hero, index)
+			index++
 		}
 	}
 	iter(h.heroes)
 
 }
 
-func (h Heroes) ForEachAsync(f func(hero Hero)) {
+func (h Heroes) ForEachAsyncI(f func(hero Hero, index int)) {
 	var wg sync.WaitGroup
+	index := 0
 	iter := func(heroes []Hero) {
 		wg.Add(len(heroes))
 		for _, hero := range heroes {
-			f(hero)
-			wg.Done()
+			go func() {
+				f(hero, index)
+				wg.Done()
+			}()
+			index++
 		}
 	}
 	iter(h.heroes)
@@ -28,247 +34,437 @@ func (h Heroes) ForEachAsync(f func(hero Hero)) {
 	wg.Wait()
 }
 
-func (h Heroes) GoForEach(f func(hero Hero)) func() {
+func (h Heroes) GoForEachI(f func(hero Hero, index int)) func() {
 	var wg sync.WaitGroup
+	index := 0
 	iter := func(heroes []Hero) {
 		wg.Add(len(heroes))
 		for _, hero := range heroes {
-			f(hero)
-			wg.Done()
+			go func() {
+				f(hero, index)
+				wg.Done()
+			}()
+			index++
 		}
 	}
 	iter(h.heroes)
+
+	return wg.Wait
+}
+
+func (h Heroes) ForEach(f func(hero Hero)) {
+	h.ForEachI(func(hero Hero, index int) {
+		f(hero)
+	})
+}
+
+func (h Heroes) ForEachAsync(f func(hero Hero)) {
+	h.ForEachAsyncI(func(hero Hero, index int) {
+		f(hero)
+	})
+}
+
+func (h Heroes) GoForEach(f func(hero Hero)) func() {
+	return h.GoForEachI(func(hero Hero, index int) {
+		f(hero)
+	})
+}
+
+func (i Items) ForEachI(f func(item Item, index int)) {
+	index := 0
+	iter := func(items []Item) {
+		for _, item := range items {
+			f(item, index)
+			index++
+		}
+	}
+	iter(i.items)
+
+}
+
+func (i Items) ForEachAsyncI(f func(item Item, index int)) {
+	var wg sync.WaitGroup
+	index := 0
+	iter := func(items []Item) {
+		wg.Add(len(items))
+		for _, item := range items {
+			go func() {
+				f(item, index)
+				wg.Done()
+			}()
+			index++
+		}
+	}
+	iter(i.items)
+
+	wg.Wait()
+}
+
+func (i Items) GoForEachI(f func(item Item, index int)) func() {
+	var wg sync.WaitGroup
+	index := 0
+	iter := func(items []Item) {
+		wg.Add(len(items))
+		for _, item := range items {
+			go func() {
+				f(item, index)
+				wg.Done()
+			}()
+			index++
+		}
+	}
+	iter(i.items)
 
 	return wg.Wait
 }
 
 func (i Items) ForEach(f func(item Item)) {
-	iter := func(items []Item) {
-		for _, item := range items {
-			f(item)
-		}
-	}
-	iter(i.items)
-
+	i.ForEachI(func(item Item, index int) {
+		f(item)
+	})
 }
 
 func (i Items) ForEachAsync(f func(item Item)) {
-	var wg sync.WaitGroup
-	iter := func(items []Item) {
-		wg.Add(len(items))
-		for _, item := range items {
-			f(item)
-			wg.Done()
+	i.ForEachAsyncI(func(item Item, index int) {
+		f(item)
+	})
+}
+
+func (i Items) GoForEach(f func(item Item)) func() {
+	return i.GoForEachI(func(item Item, index int) {
+		f(item)
+	})
+}
+
+func (m Match) ForEachPlayerI(f func(player PlayerDetails, index int)) {
+	index := 0
+	iter := func(team []PlayerDetails) {
+		for _, p := range team {
+			f(p, index)
+			index++
 		}
 	}
-	iter(i.items)
+	iter(m.Radiant)
+	iter(m.Dire)
+
+}
+
+func (m Match) ForEachPlayerAsyncI(f func(player PlayerDetails, index int)) {
+	var wg sync.WaitGroup
+	index := 0
+	iter := func(team []PlayerDetails) {
+		wg.Add(len(team))
+		for _, p := range team {
+			go func() {
+				f(p, index)
+				wg.Done()
+			}()
+			index++
+		}
+	}
+	iter(m.Radiant)
+	iter(m.Dire)
 
 	wg.Wait()
 }
 
-func (i Items) GoForEach(f func(item Item)) func() {
+func (m Match) GoForEachPlayerI(f func(player PlayerDetails, index int)) func() {
 	var wg sync.WaitGroup
-	iter := func(items []Item) {
-		wg.Add(len(items))
-		for _, item := range items {
-			f(item)
-			wg.Done()
+	index := 0
+	iter := func(team []PlayerDetails) {
+		wg.Add(len(team))
+		for _, p := range team {
+			go func() {
+				f(p, index)
+				wg.Done()
+			}()
+			index++
 		}
 	}
-	iter(i.items)
+	iter(m.Radiant)
+	iter(m.Dire)
 
 	return wg.Wait
 }
 
 func (m Match) ForEachPlayer(f func(player PlayerDetails)) {
-	iter := func(team []PlayerDetails) {
-		for _, p := range team {
-			f(p)
-		}
-	}
-	iter(m.Radiant)
-	iter(m.Dire)
-
+	m.ForEachPlayerI(func(player PlayerDetails, index int) {
+		f(player)
+	})
 }
 
 func (m Match) ForEachPlayerAsync(f func(player PlayerDetails)) {
-	var wg sync.WaitGroup
-	iter := func(team []PlayerDetails) {
-		wg.Add(len(team))
+	m.ForEachPlayerAsyncI(func(player PlayerDetails, index int) {
+		f(player)
+	})
+}
+
+func (m Match) GoForEachPlayer(f func(player PlayerDetails)) func() {
+	return m.GoForEachPlayerI(func(player PlayerDetails, index int) {
+		f(player)
+	})
+}
+
+func (t Team) ForEachI(f func(player Player, index int)) {
+	index := 0
+	iter := func(team []Player) {
 		for _, p := range team {
-			f(p)
-			wg.Done()
+			f(p, index)
+			index++
 		}
 	}
-	iter(m.Radiant)
-	iter(m.Dire)
+	iter(t.players)
+
+}
+
+func (t Team) ForEachAsyncI(f func(player Player, index int)) {
+	var wg sync.WaitGroup
+	index := 0
+	iter := func(team []Player) {
+		wg.Add(len(team))
+		for _, p := range team {
+			go func() {
+				f(p, index)
+				wg.Done()
+			}()
+			index++
+		}
+	}
+	iter(t.players)
 
 	wg.Wait()
 }
 
-func (m Match) GoForEachPlayer(f func(player PlayerDetails)) func() {
+func (t Team) GoForEachI(f func(player Player, index int)) func() {
 	var wg sync.WaitGroup
-	iter := func(team []PlayerDetails) {
+	index := 0
+	iter := func(team []Player) {
 		wg.Add(len(team))
 		for _, p := range team {
-			f(p)
-			wg.Done()
+			go func() {
+				f(p, index)
+				wg.Done()
+			}()
+			index++
 		}
 	}
-	iter(m.Radiant)
-	iter(m.Dire)
+	iter(t.players)
 
 	return wg.Wait
 }
 
 func (t Team) ForEach(f func(player Player)) {
-	iter := func(team []Player) {
-		for _, p := range team {
-			f(p)
-		}
-	}
-	iter(t.players)
-
+	t.ForEachI(func(player Player, index int) {
+		f(player)
+	})
 }
 
 func (t Team) ForEachAsync(f func(player Player)) {
-	var wg sync.WaitGroup
-	iter := func(team []Player) {
-		wg.Add(len(team))
+	t.ForEachAsyncI(func(player Player, index int) {
+		f(player)
+	})
+}
+
+func (t Team) GoForEach(f func(player Player)) func() {
+	return t.GoForEachI(func(player Player, index int) {
+		f(player)
+	})
+}
+
+func (t TeamDetails) ForEachI(f func(player PlayerDetails, index int)) {
+	index := 0
+	iter := func(team []PlayerDetails) {
 		for _, p := range team {
-			f(p)
-			wg.Done()
+			f(p, index)
+			index++
 		}
 	}
-	iter(t.players)
+	iter([]PlayerDetails(t))
+
+}
+
+func (t TeamDetails) ForEachAsyncI(f func(player PlayerDetails, index int)) {
+	var wg sync.WaitGroup
+	index := 0
+	iter := func(team []PlayerDetails) {
+		wg.Add(len(team))
+		for _, p := range team {
+			go func() {
+				f(p, index)
+				wg.Done()
+			}()
+			index++
+		}
+	}
+	iter([]PlayerDetails(t))
 
 	wg.Wait()
 }
 
-func (t Team) GoForEach(f func(player Player)) func() {
+func (t TeamDetails) GoForEachI(f func(player PlayerDetails, index int)) func() {
 	var wg sync.WaitGroup
-	iter := func(team []Player) {
+	index := 0
+	iter := func(team []PlayerDetails) {
 		wg.Add(len(team))
 		for _, p := range team {
-			f(p)
-			wg.Done()
+			go func() {
+				f(p, index)
+				wg.Done()
+			}()
+			index++
 		}
 	}
-	iter(t.players)
+	iter([]PlayerDetails(t))
 
 	return wg.Wait
 }
 
 func (t TeamDetails) ForEach(f func(player PlayerDetails)) {
-	iter := func(team []PlayerDetails) {
-		for _, p := range team {
-			f(p)
-		}
-	}
-	iter([]PlayerDetails(t))
-
+	t.ForEachI(func(player PlayerDetails, index int) {
+		f(player)
+	})
 }
 
 func (t TeamDetails) ForEachAsync(f func(player PlayerDetails)) {
-	var wg sync.WaitGroup
-	iter := func(team []PlayerDetails) {
-		wg.Add(len(team))
-		for _, p := range team {
-			f(p)
-			wg.Done()
+	t.ForEachAsyncI(func(player PlayerDetails, index int) {
+		f(player)
+	})
+}
+
+func (t TeamDetails) GoForEach(f func(player PlayerDetails)) func() {
+	return t.GoForEachI(func(player PlayerDetails, index int) {
+		f(player)
+	})
+}
+
+func (p PicksBans) ForEachPicksBansI(f func(pickBan PickBan, index int)) {
+	index := 0
+	iter := func(pickBan []PickBan) {
+		for _, pB := range pickBan {
+			f(pB, index)
+			index++
 		}
 	}
-	iter([]PlayerDetails(t))
+	iter([]PickBan(p))
+
+}
+
+func (p PicksBans) ForEachPicksBansAsyncI(f func(pickBan PickBan, index int)) {
+	var wg sync.WaitGroup
+	index := 0
+	iter := func(pickBan []PickBan) {
+		wg.Add(len(pickBan))
+		for _, pB := range pickBan {
+			go func() {
+				f(pB, index)
+				wg.Done()
+			}()
+			index++
+		}
+	}
+	iter([]PickBan(p))
 
 	wg.Wait()
 }
 
-func (t TeamDetails) GoForEach(f func(player PlayerDetails)) func() {
+func (p PicksBans) GoForEachPicksBansI(f func(pickBan PickBan, index int)) func() {
 	var wg sync.WaitGroup
-	iter := func(team []PlayerDetails) {
-		wg.Add(len(team))
-		for _, p := range team {
-			f(p)
-			wg.Done()
+	index := 0
+	iter := func(pickBan []PickBan) {
+		wg.Add(len(pickBan))
+		for _, pB := range pickBan {
+			go func() {
+				f(pB, index)
+				wg.Done()
+			}()
+			index++
 		}
 	}
-	iter([]PlayerDetails(t))
+	iter([]PickBan(p))
 
 	return wg.Wait
 }
 
 func (p PicksBans) ForEachPicksBans(f func(pickBan PickBan)) {
-	iter := func(pickBan []PickBan) {
-		for _, pB := range pickBan {
-			f(pB)
-		}
-	}
-	iter([]PickBan(p))
-
+	p.ForEachPicksBansI(func(pickBan PickBan, index int) {
+		f(pickBan)
+	})
 }
 
 func (p PicksBans) ForEachPicksBansAsync(f func(pickBan PickBan)) {
-	var wg sync.WaitGroup
-	iter := func(pickBan []PickBan) {
-		wg.Add(len(pickBan))
-		for _, pB := range pickBan {
-			f(pB)
-			wg.Done()
+	p.ForEachPicksBansAsyncI(func(pickBan PickBan, index int) {
+		f(pickBan)
+	})
+}
+
+func (p PicksBans) GoForEachPicksBans(f func(pickBan PickBan)) func() {
+	return p.GoForEachPicksBansI(func(pickBan PickBan, index int) {
+		f(pickBan)
+	})
+}
+
+func (a AbilityUpgrades) ForEachAbilityUpgradesI(f func(abilityUpgrade AbilityUpgrade, index int)) {
+	index := 0
+	iter := func(abilityUpgrade []AbilityUpgrade) {
+		for _, aU := range abilityUpgrade {
+			f(aU, index)
+			index++
 		}
 	}
-	iter([]PickBan(p))
+	iter([]AbilityUpgrade(a))
+
+}
+
+func (a AbilityUpgrades) ForEachAbilityUpgradesAsyncI(f func(abilityUpgrade AbilityUpgrade, index int)) {
+	var wg sync.WaitGroup
+	index := 0
+	iter := func(abilityUpgrade []AbilityUpgrade) {
+		wg.Add(len(abilityUpgrade))
+		for _, aU := range abilityUpgrade {
+			go func() {
+				f(aU, index)
+				wg.Done()
+			}()
+			index++
+		}
+	}
+	iter([]AbilityUpgrade(a))
 
 	wg.Wait()
 }
 
-func (p PicksBans) GoForEachPicksBans(f func(pickBan PickBan)) func() {
+func (a AbilityUpgrades) GoForEachAbilityUpgradesI(f func(abilityUpgrade AbilityUpgrade, index int)) func() {
 	var wg sync.WaitGroup
-	iter := func(pickBan []PickBan) {
-		wg.Add(len(pickBan))
-		for _, pB := range pickBan {
-			f(pB)
-			wg.Done()
+	index := 0
+	iter := func(abilityUpgrade []AbilityUpgrade) {
+		wg.Add(len(abilityUpgrade))
+		for _, aU := range abilityUpgrade {
+			go func() {
+				f(aU, index)
+				wg.Done()
+			}()
+			index++
 		}
 	}
-	iter([]PickBan(p))
+	iter([]AbilityUpgrade(a))
 
 	return wg.Wait
 }
 
 func (a AbilityUpgrades) ForEachAbilityUpgrades(f func(abilityUpgrade AbilityUpgrade)) {
-	iter := func(abilityUpgrade []AbilityUpgrade) {
-		for _, aU := range abilityUpgrade {
-			f(aU)
-		}
-	}
-	iter([]AbilityUpgrade(a))
-
+	a.ForEachAbilityUpgradesI(func(abilityUpgrade AbilityUpgrade, index int) {
+		f(abilityUpgrade)
+	})
 }
 
 func (a AbilityUpgrades) ForEachAbilityUpgradesAsync(f func(abilityUpgrade AbilityUpgrade)) {
-	var wg sync.WaitGroup
-	iter := func(abilityUpgrade []AbilityUpgrade) {
-		wg.Add(len(abilityUpgrade))
-		for _, aU := range abilityUpgrade {
-			f(aU)
-			wg.Done()
-		}
-	}
-	iter([]AbilityUpgrade(a))
-
-	wg.Wait()
+	a.ForEachAbilityUpgradesAsyncI(func(abilityUpgrade AbilityUpgrade, index int) {
+		f(abilityUpgrade)
+	})
 }
 
 func (a AbilityUpgrades) GoForEachAbilityUpgrades(f func(abilityUpgrade AbilityUpgrade)) func() {
-	var wg sync.WaitGroup
-	iter := func(abilityUpgrade []AbilityUpgrade) {
-		wg.Add(len(abilityUpgrade))
-		for _, aU := range abilityUpgrade {
-			f(aU)
-			wg.Done()
-		}
-	}
-	iter([]AbilityUpgrade(a))
-
-	return wg.Wait
+	return a.GoForEachAbilityUpgradesI(func(abilityUpgrade AbilityUpgrade, index int) {
+		f(abilityUpgrade)
+	})
 }
