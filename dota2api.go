@@ -8,6 +8,8 @@ import (
 	"strings"
 )
 
+//go:generate ./genIterators -p dota2api -i genIterators.yaml -o iterators.go
+
 type Dota2 struct {
 	// steam api url
 	steamApi string

@@ -182,21 +182,6 @@ func (h Heroes) Count() int {
 	return len(h.heroes)
 }
 
-func (h Heroes) ForEach(f func(hero Hero)) {
-	for _, hero := range h.heroes {
-		f(hero)
-	}
-}
-
-func (h Heroes) GoForEach(f func(hero Hero, wg *sync.WaitGroup)) {
-	var wg sync.WaitGroup
-	wg.Add(len(h.heroes))
-	for _, hero := range h.heroes {
-		go f(hero, &wg)
-	}
-	wg.Wait()
-}
-
 func (d Dota2) GetHeroImage(hero Hero, size int) (image.Image, error) {
 	ext := "png"
 	if size == SizeVert {

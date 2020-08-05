@@ -180,21 +180,6 @@ func (i Items) Count() int {
 	return len(i.items)
 }
 
-func (i Items) ForEach(f func(item Item)) {
-	for _, item := range i.items {
-		f(item)
-	}
-}
-
-func (i Items) GoForEach(f func(item Item, wg *sync.WaitGroup)) {
-	var wg sync.WaitGroup
-	wg.Add(len(i.items))
-	for _, hero := range i.items {
-		go f(hero, &wg)
-	}
-	wg.Wait()
-}
-
 func (d Dota2) GetItemImage(item Item) (image.Image, error) {
 	url := fmt.Sprintf("%s/items/%s_lg.png", d.dota2CDN, item.Name.name)
 	res, err := Get(url)

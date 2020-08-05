@@ -122,13 +122,26 @@ func TestItems_ForEach(t *testing.T) {
 		})
 		g.It("Should work on asynchronous request", func() {
 			c := make(chan int, items.Count())
-			items.GoForEach(func(item Item, wg *sync.WaitGroup) {
+			items.ForEachAsync(func(item Item) {
 				if item.ID == 0 && item.Name.GetName() == "" {
 					g.Fail("Empty element in for each")
 				}
 				c <- 1
-				wg.Done()
 			})
+			for i := 0; i < items.Count(); i++ {
+				select {
+				case <-c:
+					continue
+				default:
+					g.Fail("Skipped element in for each")
+				}
+			}
+			items.GoForEach(func(item Item) {
+				if item.ID == 0 && item.Name.GetName() == "" {
+					g.Fail("Empty element in for each")
+				}
+				c <- 1
+			})()
 			for i := 0; i < items.Count(); i++ {
 				select {
 				case <-c:

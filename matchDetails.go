@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"sort"
 	"strconv"
-	"sync"
 	"time"
 )
 
@@ -125,23 +124,6 @@ type Match struct {
 	Engine          Engine
 	Score           Score
 	PicksBans       PicksBans
-}
-
-func (m Match) ForEachPlayer(f func(p PlayerDetails)) {
-	m.Radiant.ForEach(f)
-	m.Dire.ForEach(f)
-}
-
-func (m Match) GoForEachPlayer(f func(p PlayerDetails, wg *sync.WaitGroup)) {
-	var wg sync.WaitGroup
-	wg.Add(len(m.Radiant) + len(m.Dire))
-	for _, p := range m.Radiant {
-		f(p, &wg)
-	}
-	for _, p := range m.Dire {
-		f(p, &wg)
-	}
-	wg.Wait()
 }
 
 type PicksBans []PickBan
@@ -283,21 +265,6 @@ const (
 )
 
 type TeamDetails []PlayerDetails
-
-func (t TeamDetails) ForEach(f func(p PlayerDetails)) {
-	for _, p := range t {
-		f(p)
-	}
-}
-
-func (t TeamDetails) GoForEach(f func(p PlayerDetails, wg *sync.WaitGroup)) {
-	var wg sync.WaitGroup
-	wg.Add(len(t))
-	for _, p := range t {
-		f(p, &wg)
-	}
-	wg.Wait()
-}
 
 func (t TeamDetails) Count() int {
 	return len(t)

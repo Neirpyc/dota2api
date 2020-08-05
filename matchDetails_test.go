@@ -3,7 +3,6 @@ package dota2api
 import (
 	"fmt"
 	. "github.com/franela/goblin"
-	"sync"
 	"testing"
 	"time"
 )
@@ -49,14 +48,13 @@ func TestDota2_GetMatchDetails2(t *testing.T) {
 			g.Assert(details.HumanPlayers).Equal(10)
 			g.Assert(details.Radiant.Count()).Equal(5)
 			g.Assert(details.Dire.Count()).Equal(5)
-			details.Dire.GoForEach(func(p PlayerDetails, wg *sync.WaitGroup) {
+			wait := details.Dire.GoForEach(func(p PlayerDetails) {
 				g.Assert(p.LeaverStatus == LeaverStatusNone).IsTrue()
-				wg.Done()
 			})
-			details.GoForEachPlayer(func(p PlayerDetails, wg *sync.WaitGroup) {
+			details.GoForEachPlayer(func(p PlayerDetails) {
 				g.Assert(p.LeaverStatus == LeaverStatusNone).IsTrue()
-				wg.Done()
-			})
+			})()
+			wait()
 		})
 		g.It("Should return Source2 as engine", func() {
 			g.Assert(details.Engine == EngineSource2).IsTrue()
