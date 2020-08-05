@@ -40,15 +40,17 @@ func ({{ReceiverName}} {{ReceiverType}}) ForEach{{MethodNameExtension}}I(f func(
 
 func ({{ReceiverName}} {{ReceiverType}}) ForEach{{MethodNameExtension}}AsyncI(f func({{FuncParameterName}} {{FuncParameterType}}, index int)) {
 	var wg sync.WaitGroup
-	index := 0
+	index := -1
 	iter := func({{IterParamName}} []{{FuncParameterType}}) {
 		wg.Add(len({{IterParamName}}))
 		for _, {{ForVarName}} := range {{IterParamName}} {
+						index++
+			index := index
+			{{ForVarName}} := {{ForVarName}}
 			go func() {
 				f({{ForVarName}}, index)
 				wg.Done()
 			}()
-			index++
 		}
 	}
 {{Iterators}}
@@ -57,15 +59,17 @@ func ({{ReceiverName}} {{ReceiverType}}) ForEach{{MethodNameExtension}}AsyncI(f 
 
 func ({{ReceiverName}} {{ReceiverType}}) GoForEach{{MethodNameExtension}}I(f func({{FuncParameterName}} {{FuncParameterType}}, index int)) func() {
 	var wg sync.WaitGroup
-	index := 0
+	index := -1
 	iter := func({{IterParamName}} []{{FuncParameterType}}) {
 		wg.Add(len({{IterParamName}}))
 		for _, {{ForVarName}} := range {{IterParamName}} {
+			index++
+			index := index
+			{{ForVarName}} := {{ForVarName}}
 			go func() {
 				f({{ForVarName}}, index)
 				wg.Done()
 			}()
-			index++
 		}
 	}
 {{Iterators}}

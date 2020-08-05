@@ -18,15 +18,17 @@ func (h Heroes) ForEachI(f func(hero Hero, index int)) {
 
 func (h Heroes) ForEachAsyncI(f func(hero Hero, index int)) {
 	var wg sync.WaitGroup
-	index := 0
+	index := -1
 	iter := func(heroes []Hero) {
 		wg.Add(len(heroes))
 		for _, hero := range heroes {
+			index++
+			index := index
+			hero := hero
 			go func() {
 				f(hero, index)
 				wg.Done()
 			}()
-			index++
 		}
 	}
 	iter(h.heroes)
@@ -36,15 +38,17 @@ func (h Heroes) ForEachAsyncI(f func(hero Hero, index int)) {
 
 func (h Heroes) GoForEachI(f func(hero Hero, index int)) func() {
 	var wg sync.WaitGroup
-	index := 0
+	index := -1
 	iter := func(heroes []Hero) {
 		wg.Add(len(heroes))
 		for _, hero := range heroes {
+			index++
+			index := index
+			hero := hero
 			go func() {
 				f(hero, index)
 				wg.Done()
 			}()
-			index++
 		}
 	}
 	iter(h.heroes)
@@ -84,15 +88,17 @@ func (i Items) ForEachI(f func(item Item, index int)) {
 
 func (i Items) ForEachAsyncI(f func(item Item, index int)) {
 	var wg sync.WaitGroup
-	index := 0
+	index := -1
 	iter := func(items []Item) {
 		wg.Add(len(items))
 		for _, item := range items {
+			index++
+			index := index
+			item := item
 			go func() {
 				f(item, index)
 				wg.Done()
 			}()
-			index++
 		}
 	}
 	iter(i.items)
@@ -102,15 +108,17 @@ func (i Items) ForEachAsyncI(f func(item Item, index int)) {
 
 func (i Items) GoForEachI(f func(item Item, index int)) func() {
 	var wg sync.WaitGroup
-	index := 0
+	index := -1
 	iter := func(items []Item) {
 		wg.Add(len(items))
 		for _, item := range items {
+			index++
+			index := index
+			item := item
 			go func() {
 				f(item, index)
 				wg.Done()
 			}()
-			index++
 		}
 	}
 	iter(i.items)
@@ -151,15 +159,17 @@ func (m MatchDetails) ForEachPlayerI(f func(player PlayerDetails, index int)) {
 
 func (m MatchDetails) ForEachPlayerAsyncI(f func(player PlayerDetails, index int)) {
 	var wg sync.WaitGroup
-	index := 0
+	index := -1
 	iter := func(team []PlayerDetails) {
 		wg.Add(len(team))
 		for _, p := range team {
+			index++
+			index := index
+			p := p
 			go func() {
 				f(p, index)
 				wg.Done()
 			}()
-			index++
 		}
 	}
 	iter(m.Radiant)
@@ -170,15 +180,17 @@ func (m MatchDetails) ForEachPlayerAsyncI(f func(player PlayerDetails, index int
 
 func (m MatchDetails) GoForEachPlayerI(f func(player PlayerDetails, index int)) func() {
 	var wg sync.WaitGroup
-	index := 0
+	index := -1
 	iter := func(team []PlayerDetails) {
 		wg.Add(len(team))
 		for _, p := range team {
+			index++
+			index := index
+			p := p
 			go func() {
 				f(p, index)
 				wg.Done()
 			}()
-			index++
 		}
 	}
 	iter(m.Radiant)
@@ -219,15 +231,17 @@ func (t Team) ForEachI(f func(player Player, index int)) {
 
 func (t Team) ForEachAsyncI(f func(player Player, index int)) {
 	var wg sync.WaitGroup
-	index := 0
+	index := -1
 	iter := func(team []Player) {
 		wg.Add(len(team))
 		for _, p := range team {
+			index++
+			index := index
+			p := p
 			go func() {
 				f(p, index)
 				wg.Done()
 			}()
-			index++
 		}
 	}
 	iter(t.players)
@@ -237,15 +251,17 @@ func (t Team) ForEachAsyncI(f func(player Player, index int)) {
 
 func (t Team) GoForEachI(f func(player Player, index int)) func() {
 	var wg sync.WaitGroup
-	index := 0
+	index := -1
 	iter := func(team []Player) {
 		wg.Add(len(team))
 		for _, p := range team {
+			index++
+			index := index
+			p := p
 			go func() {
 				f(p, index)
 				wg.Done()
 			}()
-			index++
 		}
 	}
 	iter(t.players)
@@ -285,15 +301,17 @@ func (t TeamDetails) ForEachI(f func(player PlayerDetails, index int)) {
 
 func (t TeamDetails) ForEachAsyncI(f func(player PlayerDetails, index int)) {
 	var wg sync.WaitGroup
-	index := 0
+	index := -1
 	iter := func(team []PlayerDetails) {
 		wg.Add(len(team))
 		for _, p := range team {
+			index++
+			index := index
+			p := p
 			go func() {
 				f(p, index)
 				wg.Done()
 			}()
-			index++
 		}
 	}
 	iter([]PlayerDetails(t))
@@ -303,15 +321,17 @@ func (t TeamDetails) ForEachAsyncI(f func(player PlayerDetails, index int)) {
 
 func (t TeamDetails) GoForEachI(f func(player PlayerDetails, index int)) func() {
 	var wg sync.WaitGroup
-	index := 0
+	index := -1
 	iter := func(team []PlayerDetails) {
 		wg.Add(len(team))
 		for _, p := range team {
+			index++
+			index := index
+			p := p
 			go func() {
 				f(p, index)
 				wg.Done()
 			}()
-			index++
 		}
 	}
 	iter([]PlayerDetails(t))
@@ -351,15 +371,17 @@ func (p PicksBans) ForEachPicksBansI(f func(pickBan PickBan, index int)) {
 
 func (p PicksBans) ForEachPicksBansAsyncI(f func(pickBan PickBan, index int)) {
 	var wg sync.WaitGroup
-	index := 0
+	index := -1
 	iter := func(pickBan []PickBan) {
 		wg.Add(len(pickBan))
 		for _, pB := range pickBan {
+			index++
+			index := index
+			pB := pB
 			go func() {
 				f(pB, index)
 				wg.Done()
 			}()
-			index++
 		}
 	}
 	iter([]PickBan(p))
@@ -369,15 +391,17 @@ func (p PicksBans) ForEachPicksBansAsyncI(f func(pickBan PickBan, index int)) {
 
 func (p PicksBans) GoForEachPicksBansI(f func(pickBan PickBan, index int)) func() {
 	var wg sync.WaitGroup
-	index := 0
+	index := -1
 	iter := func(pickBan []PickBan) {
 		wg.Add(len(pickBan))
 		for _, pB := range pickBan {
+			index++
+			index := index
+			pB := pB
 			go func() {
 				f(pB, index)
 				wg.Done()
 			}()
-			index++
 		}
 	}
 	iter([]PickBan(p))
@@ -417,15 +441,17 @@ func (a AbilityUpgrades) ForEachAbilityUpgradesI(f func(abilityUpgrade AbilityUp
 
 func (a AbilityUpgrades) ForEachAbilityUpgradesAsyncI(f func(abilityUpgrade AbilityUpgrade, index int)) {
 	var wg sync.WaitGroup
-	index := 0
+	index := -1
 	iter := func(abilityUpgrade []AbilityUpgrade) {
 		wg.Add(len(abilityUpgrade))
 		for _, aU := range abilityUpgrade {
+			index++
+			index := index
+			aU := aU
 			go func() {
 				f(aU, index)
 				wg.Done()
 			}()
-			index++
 		}
 	}
 	iter([]AbilityUpgrade(a))
@@ -435,15 +461,17 @@ func (a AbilityUpgrades) ForEachAbilityUpgradesAsyncI(f func(abilityUpgrade Abil
 
 func (a AbilityUpgrades) GoForEachAbilityUpgradesI(f func(abilityUpgrade AbilityUpgrade, index int)) func() {
 	var wg sync.WaitGroup
-	index := 0
+	index := -1
 	iter := func(abilityUpgrade []AbilityUpgrade) {
 		wg.Add(len(abilityUpgrade))
 		for _, aU := range abilityUpgrade {
+			index++
+			index := index
+			aU := aU
 			go func() {
 				f(aU, index)
 				wg.Done()
 			}()
-			index++
 		}
 	}
 	iter([]AbilityUpgrade(a))
