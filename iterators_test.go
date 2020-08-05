@@ -105,12 +105,12 @@ func TestItems_Iterators(t *testing.T) {
 		})
 	})
 }
-func TestMatchPlayer_Iterators(t *testing.T) {
+func TestMatchDetailsPlayer_Iterators(t *testing.T) {
 	g := Goblin(t)
-	g.Describe("TestMatch_Iterators", func() {
+	g.Describe("TestMatchDetails_Iterators", func() {
 		g.It("Have a working ForEach method", func() {
 			c := 0
-			m := Match{}
+			m := MatchDetails{}
 			m.Radiant = make([]PlayerDetails, 10)
 			m.Dire = make([]PlayerDetails, 10)
 
@@ -120,7 +120,7 @@ func TestMatchPlayer_Iterators(t *testing.T) {
 			g.Assert(c).Equal(10 * 2)
 		})
 		g.It("Have a working ForEachAsync method", func() {
-			m := Match{}
+			m := MatchDetails{}
 			m.Radiant = make([]PlayerDetails, 10)
 			m.Dire = make([]PlayerDetails, 10)
 
@@ -138,7 +138,7 @@ func TestMatchPlayer_Iterators(t *testing.T) {
 			}
 		})
 		g.It("Have a working GoForEach method", func() {
-			m := Match{}
+			m := MatchDetails{}
 			m.Radiant = make([]PlayerDetails, 10)
 			m.Dire = make([]PlayerDetails, 10)
 

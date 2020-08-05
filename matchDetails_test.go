@@ -57,7 +57,7 @@ func TestDota2_GetMatchDetails2(t *testing.T) {
 			wait()
 		})
 		g.It("Should return Source2 as engine", func() {
-			g.Assert(details.Engine == EngineSource2).IsTrue()
+			g.Assert(details.Engine == Source2).IsTrue()
 		})
 		g.Xit("Should return Ranked Matchmaking as GameMode", func() {
 			g.Assert(details.GameMode).Equal(GameModeRankedMatchmaking)
@@ -74,7 +74,7 @@ func TestDota2_GetMatchDetails2(t *testing.T) {
 		g.It("Should return Dire as winner", func() {
 			g.Assert(details.Victory.DireWon()).IsTrue()
 			g.Assert(details.Victory.RadiantWon()).IsFalse()
-			g.Assert(details.Victory.GetWinningTeam()).Equal(Dire)
+			g.Assert(details.Victory.GetWinningTeam() == Dire).IsTrue()
 		})
 		g.It("Should return correct time stamps", func() {
 			g.Assert(details.Duration).Equal(2552 * time.Second)
@@ -128,7 +128,7 @@ func TestDota2_GetMatchDetails2(t *testing.T) {
 		})
 		g.It("Should return correct Picks and Bans", func() {
 			bansHeroesIds := []int{46, 105, 104, 41, 23, 82, 32}
-			bansTeams := []int{Radiant, Radiant, Radiant, Radiant, Radiant, Dire, Dire}
+			bansTeams := []Victory{RadiantVictory, RadiantVictory, RadiantVictory, RadiantVictory, RadiantVictory, DireVictory, DireVictory}
 			p, f := details.PicksBans.GetPick(0)
 			g.Assert(f).IsTrue()
 			g.Assert(p.IsPick()).IsTrue()
@@ -142,7 +142,7 @@ func TestDota2_GetMatchDetails2(t *testing.T) {
 				g.Assert(ban.IsBan()).IsTrue()
 				g.Assert(ban.Hero.ID).Equal(bansHeroesIds[i])
 				g.Assert(ban.Order).Equal(10 + i)
-				g.Assert(ban.GetTeam()).Equal(bansTeams[i])
+				g.Assert(ban.GetTeam() == int(bansTeams[i])).IsTrue()
 			}
 			picksHeroesIds := []int{35, 26, 50, 99, 75, 7, 47, 42, 11, 44}
 			picksIsDire := []bool{true, false, true, false, false, true, true, false, false, true}

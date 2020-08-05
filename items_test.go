@@ -11,10 +11,10 @@ import (
 
 func TestGetItems(t *testing.T) {
 	g := Goblin(t)
+	api, _ := LoadConfig("config.yaml")
 	g.Describe("GetItems", func() {
 		g.It("Should return no error", func(done Done) {
 			go func() {
-				api, _ := LoadConfig("config.yaml")
 				_, err := api.GetItems()
 				g.Assert(err).Equal(nil)
 				done()
@@ -22,7 +22,6 @@ func TestGetItems(t *testing.T) {
 		})
 		g.It("Should return at least one hero", func(done Done) {
 			go func() {
-				api, _ := LoadConfig("config.yaml")
 				items, _ := api.GetItems()
 				g.Assert(len(items.items) > 0).IsTrue()
 				done()
@@ -30,7 +29,6 @@ func TestGetItems(t *testing.T) {
 		})
 		g.It("Should work with concurrent usage", func(done Done) {
 			go func() {
-				api, _ := LoadConfig("config.yaml")
 				var wg sync.WaitGroup
 				wg.Add(10)
 				for i := 0; i < 10; i++ {
@@ -47,7 +45,6 @@ func TestGetItems(t *testing.T) {
 		})
 		g.It("Should fill cache", func(done Done) {
 			go func() {
-				api, _ := LoadConfig("config.yaml")
 				_, _ = api.GetItems()
 				items, err := api.getItemsFromCache()
 				g.Assert(err).Equal(nil)

@@ -141,9 +141,9 @@ func TestDota2_GetMatchHistory_Cursor(t *testing.T) {
 		})
 		g.It("Should not error when no match is remaining", func() {
 			for c.GetRemaining() > 0 {
-				_, _ = api.GetMatchHistory(c, MatchesRequested(200))
+				_, _ = api.GetMatchHistory(c, MatchesRequested(c.GetRemaining()))
 			}
-			matches, err = api.GetMatchHistory(c, MatchesRequested(200))
+			matches, err = api.GetMatchHistory(c, MatchesRequested(10))
 			g.Assert(err == nil).IsTrue()
 		})
 	})

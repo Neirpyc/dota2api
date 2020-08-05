@@ -13,13 +13,13 @@ func getMatchDetailsUrl(dota2 *Dota2) string {
 	return fmt.Sprintf("%s/%s/%s/", dota2.dota2MatchUrl, "GetMatchDetails", dota2.dota2ApiVersion)
 }
 
-type MatchDetails struct {
-	Result MatchJSON `json:"result"`
+type matchDetailsJSON struct {
+	Result matchJSON `json:"result"`
 }
 
-type MatchJSON struct {
+type matchJSON struct {
 	Error                 string          `bson:"error" json:"error" bson:"error"`
-	Players               []PlayerJSON    `json:"players" bson:"players"`
+	Players               []playerJSON    `json:"players" bson:"players"`
 	RadiantWin            bool            `json:"radiant_win" bson:"radiant_win"`
 	Duration              int             `json:"duration" bson:"duration"`
 	PreGameDuration       int             `json:"pre_game_duration" bson:"pre_game_duration"`
@@ -54,10 +54,10 @@ type MatchJSON struct {
 	DireTeamComplete      int             `json:"dire_team_complete" bson:"dire_team_complete"`
 	RadiantCaptain        int             `json:"radiant_captain" bson:"radian_captain"`
 	DireCaptain           int             `json:"dire_captain" bson:"dire_captain"`
-	PicksBans             []PicksBansJSON `json:"picks_bans" bson:"picks_bans"`
+	PicksBans             []picksBansJSON `json:"picks_bans" bson:"picks_bans"`
 }
 
-type PlayerJSON struct {
+type playerJSON struct {
 	AccountID         int                  `json:"account_id" bson:"account_id"`
 	PlayerSlot        int                  `json:"player_slot" bson:"player_slot"`
 	HeroID            int                  `json:"hero_id" bson:"hero_id"`
@@ -88,23 +88,25 @@ type PlayerJSON struct {
 	ScaledTowerDamage int                  `json:"scaled_tower_damage" bson:"scaled_tower_damage"`
 	HeroHealing       int                  `json:"hero_healing" bson:"hero_healing"`
 	ScaledHeroHealing int                  `json:"scaled_hero_healing" bson:"scaled_hero_healing"`
-	AbilityUpgrades   []AbilityUpgradeJSON `json:"ability_upgrades" bson:"ability_upgrades"`
+	AbilityUpgrades   []abilityUpgradeJSON `json:"ability_upgrades" bson:"ability_upgrades"`
 }
 
-type PicksBansJSON struct {
+type picksBansJSON struct {
 	IsPick bool `json:"is_pick" bson:"is_pick"`
 	HeroId int  `json:"hero_id" bson:"hero_id"`
 	Team   int  `json:"team" bson:"team"`
 	Order  int  `json:"order" bson:"order"`
 }
 
-type AbilityUpgradeJSON struct {
+type abilityUpgradeJSON struct {
 	Ability int `json:"ability" bson:"ability"`
 	Level   int `json:"Level" bson:"Level"`
 	Time    int `json:"time" bson:"time"`
 }
 
-type Match struct {
+type abilityUpgradesJSON []abilityUpgradeJSON
+
+type MatchDetails struct {
 	Radiant         TeamDetails
 	Dire            TeamDetails
 	Victory         Victory
@@ -153,17 +155,17 @@ func (p PicksBans) GetPickByHero(hero Hero) (PickBan, bool) {
 	return PickBan{}, false
 }
 
-func (p PicksBans) GetByTeam(team int) PicksBans {
+func (p PicksBans) GetByTeam(team Side) PicksBans {
 	var ret PicksBans
 	for _, pickBan := range p {
-		if pickBan.team == team {
+		if pickBan.team == int(team) {
 			ret = append(ret, pickBan)
 		}
 	}
 	return ret
 }
 
-func (p PicksBans) GetByPickType(pickType int) PicksBans {
+func (p PicksBans) GetByPickType(pickType PickType) PicksBans {
 	var ret PicksBans
 	for _, pickBan := range p {
 		if pickBan.GetType() == pickType {
@@ -180,8 +182,10 @@ type PickBan struct {
 	Order  int
 }
 
+type PickType int
+
 const (
-	Pick = iota
+	Pick PickType = iota
 	Ban
 )
 
@@ -193,7 +197,7 @@ func (p PickBan) IsBan() bool {
 	return !p.isPick
 }
 
-func (p PickBan) GetType() int {
+func (p PickBan) GetType() PickType {
 	if p.isPick {
 		return Pick
 	}
@@ -201,11 +205,11 @@ func (p PickBan) GetType() int {
 }
 
 func (p PickBan) IsRadiant() bool {
-	return p.team == Radiant
+	return p.team == int(RadiantVictory)
 }
 
 func (p PickBan) IsDire() bool {
-	return p.team == Dire
+	return p.team == int(DireVictory)
 }
 
 func (p PickBan) GetTeam() int {
@@ -260,8 +264,8 @@ type AbilityUpgrade struct {
 type Engine int
 
 const (
-	EngineSource1 = iota
-	EngineSource2
+	Source1 Engine = iota
+	Source2
 )
 
 type TeamDetails []PlayerDetails
@@ -346,7 +350,7 @@ func (g Gold) ToString() string {
 type LeaverStatus int
 
 const (
-	LeaverStatusNone = iota
+	LeaverStatusNone LeaverStatus = iota
 	LeaverStatusDisconnected
 	LeaverStatusDisconnectedTooLong
 	LeaverStatusAbandoned
@@ -374,26 +378,30 @@ type KDA struct {
 	Assists int
 }
 
-type Victory bool
+type Side int
 
 const (
-	Radiant = iota
+	Radiant Side = iota
 	Dire
 )
 
+type Victory int
+
+const (
+	RadiantVictory Victory = iota
+	DireVictory
+)
+
 func (v Victory) RadiantWon() bool {
-	return bool(v)
+	return v == RadiantVictory
 }
 
 func (v Victory) DireWon() bool {
-	return !bool(v)
+	return v == DireVictory
 }
 
-func (v Victory) GetWinningTeam() int {
-	if v {
-		return Radiant
-	}
-	return Dire
+func (v Victory) GetWinningTeam() Side {
+	return Side(v)
 }
 
 type BuildingsState struct {
@@ -455,7 +463,7 @@ type GameMode int
 
 //todo update GameModes strings
 func (g GameMode) GetString() string {
-	switch int(g) {
+	switch g {
 	case GameModeNone:
 		return "None"
 	case GameModeAllPick:
@@ -503,7 +511,7 @@ func (g GameMode) GetString() string {
 
 //todo update GameModes
 const (
-	GameModeNone = iota
+	GameModeNone GameMode = iota
 	GameModeAllPick
 	GameModeCaptainsDraft
 	GameModeRandomDraft
@@ -530,11 +538,85 @@ type Score struct {
 	DireScore    int
 }
 
-//Get match details
-func (d *Dota2) GetMatchDetails(params ...Parameter) (Match, error) {
+func (p playerJSON) toPlayerDetails(heroes Heroes, items Items) PlayerDetails {
+	h, _ := heroes.GetById(p.HeroID)
 
-	var matchDetails MatchDetails
-	var match Match
+	i0, _ := items.GetById(p.Item0)
+	i1, _ := items.GetById(p.Item1)
+	i2, _ := items.GetById(p.Item2)
+	i3, _ := items.GetById(p.Item3)
+	i4, _ := items.GetById(p.Item4)
+	i5, _ := items.GetById(p.Item5)
+	iN, _ := items.GetById(p.ItemNeutral)
+	iB0, _ := items.GetById(p.Backpack0)
+	iB1, _ := items.GetById(p.Backpack1)
+	iB2, _ := items.GetById(p.Backpack2)
+	player := PlayerDetails{
+		AccountId: p.AccountID,
+		Hero:      h,
+		Items: PlayersItems{
+			Item0:         i0,
+			Item1:         i1,
+			Item2:         i2,
+			Item3:         i3,
+			Item4:         i4,
+			Item5:         i5,
+			ItemNeutral:   iN,
+			BackpackItem0: iB0,
+			BackpackItem1: iB1,
+			BackpackItem2: iB2,
+		},
+		KDA: KDA{
+			Kills:   p.Kills,
+			Deaths:  p.Deaths,
+			Assists: p.Assists,
+		},
+		LeaverStatus: LeaverStatus(p.LeaverStatus),
+		Stats: PlayerStats{
+			LastHits:      p.LastHits,
+			Denies:        p.Denies,
+			GoldPerMinute: p.GoldPerMin,
+			XpPerMinute:   p.XpPerMin,
+			Level:         p.Level,
+			HeroDamage: Damage{
+				raw:    p.HeroDamage,
+				scaled: p.ScaledHeroDamage,
+			},
+			TowerDamage: Damage{
+				raw:    p.TowerDamage,
+				scaled: p.ScaledTowerDamage,
+			},
+			HeroHealing: Damage{
+				raw:    p.HeroHealing,
+				scaled: p.ScaledHeroHealing,
+			},
+			Gold: PlayerGold{
+				current: p.Gold,
+				spent:   p.GoldSpent,
+			},
+		},
+		AbilityUpgrades: make(AbilityUpgrades, len(p.AbilityUpgrades)),
+	}
+	return player
+}
+
+func (a abilityUpgradesJSON) toAbilityUpgrade() AbilityUpgrades {
+	ret := make([]AbilityUpgrade, len(a))
+	for i, aU := range a {
+		ret[i] = AbilityUpgrade{
+			Time:    time.Duration(int64(aU.Time) * int64(time.Second)),
+			Ability: aU.Ability,
+			Level:   aU.Level,
+		}
+	}
+	return ret
+}
+
+//Get match details
+func (d *Dota2) GetMatchDetails(params ...Parameter) (MatchDetails, error) {
+
+	var matchDetails matchDetailsJSON
+	var match MatchDetails
 
 	param, err := getParameterMap([]int{parameterKindMatchId}, nil, params)
 	if err != nil {
@@ -560,10 +642,16 @@ func (d *Dota2) GetMatchDetails(params ...Parameter) (Match, error) {
 		return match, errors.New(matchDetails.Result.Error)
 	}
 
-	match = Match{
-		Radiant:         make([]PlayerDetails, 0),
-		Dire:            make([]PlayerDetails, 0),
-		Victory:         Victory(matchDetails.Result.RadiantWin),
+	match = MatchDetails{
+		Radiant: make([]PlayerDetails, 0),
+		Dire:    make([]PlayerDetails, 0),
+		Victory: func() Victory {
+			if matchDetails.Result.RadiantWin {
+				return RadiantVictory
+			} else {
+				return DireVictory
+			}
+		}(),
 		Duration:        time.Duration(int64(matchDetails.Result.Duration) * int64(time.Second)),
 		PreGameDuration: time.Duration(int64(matchDetails.Result.PreGameDuration) * int64(time.Second)),
 		StartTime:       time.Unix(matchDetails.Result.StartTime, 0),
@@ -603,79 +691,19 @@ func (d *Dota2) GetMatchDetails(params ...Parameter) (Match, error) {
 	}
 
 	for _, player := range matchDetails.Result.Players {
-		h, _ := heroes.GetById(player.HeroID)
+		p := player.toPlayerDetails(heroes, items)
 
-		i0, _ := items.GetById(player.Item0)
-		i1, _ := items.GetById(player.Item1)
-		i2, _ := items.GetById(player.Item2)
-		i3, _ := items.GetById(player.Item3)
-		i4, _ := items.GetById(player.Item4)
-		i5, _ := items.GetById(player.Item5)
-		iN, _ := items.GetById(player.ItemNeutral)
-		iB0, _ := items.GetById(player.Backpack0)
-		iB1, _ := items.GetById(player.Backpack1)
-		iB2, _ := items.GetById(player.Backpack2)
-		p := PlayerDetails{
-			AccountId: player.AccountID,
-			Hero:      h,
-			Items: PlayersItems{
-				Item0:         i0,
-				Item1:         i1,
-				Item2:         i2,
-				Item3:         i3,
-				Item4:         i4,
-				Item5:         i5,
-				ItemNeutral:   iN,
-				BackpackItem0: iB0,
-				BackpackItem1: iB1,
-				BackpackItem2: iB2,
-			},
-			KDA: KDA{
-				Kills:   player.Kills,
-				Deaths:  player.Deaths,
-				Assists: player.Assists,
-			},
-			LeaverStatus: LeaverStatus(player.LeaverStatus),
-			Stats: PlayerStats{
-				LastHits:      player.LastHits,
-				Denies:        player.Denies,
-				GoldPerMinute: player.GoldPerMin,
-				XpPerMinute:   player.XpPerMin,
-				Level:         player.Level,
-				HeroDamage: Damage{
-					raw:    player.HeroDamage,
-					scaled: player.ScaledHeroDamage,
-				},
-				TowerDamage: Damage{
-					raw:    player.TowerDamage,
-					scaled: player.ScaledTowerDamage,
-				},
-				HeroHealing: Damage{
-					raw:    player.HeroHealing,
-					scaled: player.ScaledHeroHealing,
-				},
-				Gold: PlayerGold{
-					current: player.Gold,
-					spent:   player.GoldSpent,
-				},
-			},
-			AbilityUpgrades: make(AbilityUpgrades, len(player.AbilityUpgrades)),
-		}
+		p.AbilityUpgrades = abilityUpgradesJSON(player.AbilityUpgrades).toAbilityUpgrade()
+
+		sort.Slice(p.AbilityUpgrades, func(i, j int) bool {
+			return p.AbilityUpgrades[i].Level < p.AbilityUpgrades[j].Level
+		})
+
 		if player.PlayerSlot&128 == 0 {
 			match.Radiant = append(match.Radiant, p)
 		} else {
 			match.Dire = append(match.Dire, p)
 		}
-		for i, aU := range player.AbilityUpgrades {
-			p.AbilityUpgrades[i] = AbilityUpgrade{
-				Time:    time.Duration(int64(aU.Time) * int64(time.Second)),
-				Ability: aU.Ability,
-				Level:   aU.Level,
-			}
-		}
-		sort.Slice(p.AbilityUpgrades, func(i, j int) bool {
-			return p.AbilityUpgrades[i].Level < p.AbilityUpgrades[j].Level
-		})
 	}
 
 	for _, pickBan := range matchDetails.Result.PicksBans {

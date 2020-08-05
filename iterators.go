@@ -136,7 +136,7 @@ func (i Items) GoForEach(f func(item Item)) func() {
 	})
 }
 
-func (m Match) ForEachPlayerI(f func(player PlayerDetails, index int)) {
+func (m MatchDetails) ForEachPlayerI(f func(player PlayerDetails, index int)) {
 	index := 0
 	iter := func(team []PlayerDetails) {
 		for _, p := range team {
@@ -149,7 +149,7 @@ func (m Match) ForEachPlayerI(f func(player PlayerDetails, index int)) {
 
 }
 
-func (m Match) ForEachPlayerAsyncI(f func(player PlayerDetails, index int)) {
+func (m MatchDetails) ForEachPlayerAsyncI(f func(player PlayerDetails, index int)) {
 	var wg sync.WaitGroup
 	index := 0
 	iter := func(team []PlayerDetails) {
@@ -168,7 +168,7 @@ func (m Match) ForEachPlayerAsyncI(f func(player PlayerDetails, index int)) {
 	wg.Wait()
 }
 
-func (m Match) GoForEachPlayerI(f func(player PlayerDetails, index int)) func() {
+func (m MatchDetails) GoForEachPlayerI(f func(player PlayerDetails, index int)) func() {
 	var wg sync.WaitGroup
 	index := 0
 	iter := func(team []PlayerDetails) {
@@ -187,19 +187,19 @@ func (m Match) GoForEachPlayerI(f func(player PlayerDetails, index int)) func() 
 	return wg.Wait
 }
 
-func (m Match) ForEachPlayer(f func(player PlayerDetails)) {
+func (m MatchDetails) ForEachPlayer(f func(player PlayerDetails)) {
 	m.ForEachPlayerI(func(player PlayerDetails, index int) {
 		f(player)
 	})
 }
 
-func (m Match) ForEachPlayerAsync(f func(player PlayerDetails)) {
+func (m MatchDetails) ForEachPlayerAsync(f func(player PlayerDetails)) {
 	m.ForEachPlayerAsyncI(func(player PlayerDetails, index int) {
 		f(player)
 	})
 }
 
-func (m Match) GoForEachPlayer(f func(player PlayerDetails)) func() {
+func (m MatchDetails) GoForEachPlayer(f func(player PlayerDetails)) func() {
 	return m.GoForEachPlayerI(func(player PlayerDetails, index int) {
 		f(player)
 	})

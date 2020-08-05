@@ -42,7 +42,7 @@ func main() {
 	matchHistoryObject, _ := json.Marshal(matchHistory)
 	fmt.Println(string(matchHistoryObject))
 
-	matchDetails, err := dota2.GetMatchDetails(2606807053)
+	matchDetails, err := dota2.GetMatchDetails(dota2api.MatchId(2606807053))
 	if err != nil {
 		fmt.Println(err)
 		return

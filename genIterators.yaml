@@ -20,7 +20,7 @@ List:
     IterOnFields:
       - .items
   - ReceiverName: m
-    ReceiverType: Match
+    ReceiverType: MatchDetails
     MethodNameExtension: Player
     FuncParameterName: player
     FuncParameterType: PlayerDetails
