@@ -21,11 +21,9 @@ const testHeaderImport = `import (
 	. "github.com/franela/goblin"
 	"testing"
 )
-
 `
 
 const iteratorHeaderImport = `import "sync"
-
 `
 
 const iteratorAll = `
@@ -46,7 +44,7 @@ func ({{ReceiverName}} {{ReceiverType}}) ForEach{{MethodNameExtension}}AsyncI(f 
 	iter := func({{IterParamName}} []{{FuncParameterType}}) {
 		wg.Add(len({{IterParamName}}))
 		for _, {{ForVarName}} := range {{IterParamName}} {
-			go func(){
+			go func() {
 				f({{ForVarName}}, index)
 				wg.Done()
 			}()
@@ -63,7 +61,7 @@ func ({{ReceiverName}} {{ReceiverType}}) GoForEach{{MethodNameExtension}}I(f fun
 	iter := func({{IterParamName}} []{{FuncParameterType}}) {
 		wg.Add(len({{IterParamName}}))
 		for _, {{ForVarName}} := range {{IterParamName}} {
-			go func(){
+			go func() {
 				f({{ForVarName}}, index)
 				wg.Done()
 			}()
@@ -94,7 +92,8 @@ func ({{ReceiverName}} {{ReceiverType}}) GoForEach{{MethodNameExtension}}(f func
 `
 
 //todo test the indices
-const testAll = `func Test{{ReceiverType}}{{MethodNameExtension}}_Iterators(t *testing.T) {
+const testAll = `
+func Test{{ReceiverType}}{{MethodNameExtension}}_Iterators(t *testing.T) {
     g := Goblin(t)
     g.Describe("Test{{ReceiverType}}_Iterators", func() {
 		g.It("Have a working ForEach method", func() {

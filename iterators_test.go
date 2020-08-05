@@ -89,6 +89,7 @@ func BenchmarkHeroes_GoForEach(b *testing.B) {
 
 	})()
 }
+
 func TestItems_Iterators(t *testing.T) {
 	g := Goblin(t)
 	g.Describe("TestItems_Iterators", func() {
@@ -171,6 +172,7 @@ func BenchmarkItems_GoForEach(b *testing.B) {
 
 	})()
 }
+
 func TestMatchDetailsPlayer_Iterators(t *testing.T) {
 	g := Goblin(t)
 	g.Describe("TestMatchDetails_Iterators", func() {
@@ -259,6 +261,7 @@ func BenchmarkMatchDetails_GoForEachPlayer(b *testing.B) {
 
 	})()
 }
+
 func TestTeam_Iterators(t *testing.T) {
 	g := Goblin(t)
 	g.Describe("TestTeam_Iterators", func() {
@@ -341,6 +344,7 @@ func BenchmarkTeam_GoForEach(b *testing.B) {
 
 	})()
 }
+
 func TestTeamDetails_Iterators(t *testing.T) {
 	g := Goblin(t)
 	g.Describe("TestTeamDetails_Iterators", func() {
@@ -423,6 +427,7 @@ func BenchmarkTeamDetails_GoForEach(b *testing.B) {
 
 	})()
 }
+
 func TestPicksBansPicksBans_Iterators(t *testing.T) {
 	g := Goblin(t)
 	g.Describe("TestPicksBans_Iterators", func() {
@@ -505,6 +510,7 @@ func BenchmarkPicksBans_GoForEachPicksBans(b *testing.B) {
 
 	})()
 }
+
 func TestAbilityUpgradesAbilityUpgrades_Iterators(t *testing.T) {
 	g := Goblin(t)
 	g.Describe("TestAbilityUpgrades_Iterators", func() {
