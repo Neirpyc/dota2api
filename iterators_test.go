@@ -56,6 +56,39 @@ func TestHeroes_Iterators(t *testing.T) {
 		})
 	})
 }
+
+func BenchmarkHeroes_ForEach(b *testing.B) {
+	h := Heroes{}
+	h.heroes = make([]Hero, b.N)
+
+	b.ReportAllocs()
+	b.StartTimer()
+	h.ForEach(func(hero Hero) {
+
+	})
+}
+
+func BenchmarkHeroes_ForEachAsync(b *testing.B) {
+	h := Heroes{}
+	h.heroes = make([]Hero, b.N)
+
+	b.ReportAllocs()
+	b.StartTimer()
+	h.ForEachAsync(func(hero Hero) {
+
+	})
+}
+
+func BenchmarkHeroes_GoForEach(b *testing.B) {
+	h := Heroes{}
+	h.heroes = make([]Hero, b.N)
+
+	b.ReportAllocs()
+	b.StartTimer()
+	h.GoForEach(func(hero Hero) {
+
+	})()
+}
 func TestItems_Iterators(t *testing.T) {
 	g := Goblin(t)
 	g.Describe("TestItems_Iterators", func() {
@@ -104,6 +137,39 @@ func TestItems_Iterators(t *testing.T) {
 			}
 		})
 	})
+}
+
+func BenchmarkItems_ForEach(b *testing.B) {
+	i := Items{}
+	i.items = make([]Item, b.N)
+
+	b.ReportAllocs()
+	b.StartTimer()
+	i.ForEach(func(item Item) {
+
+	})
+}
+
+func BenchmarkItems_ForEachAsync(b *testing.B) {
+	i := Items{}
+	i.items = make([]Item, b.N)
+
+	b.ReportAllocs()
+	b.StartTimer()
+	i.ForEachAsync(func(item Item) {
+
+	})
+}
+
+func BenchmarkItems_GoForEach(b *testing.B) {
+	i := Items{}
+	i.items = make([]Item, b.N)
+
+	b.ReportAllocs()
+	b.StartTimer()
+	i.GoForEach(func(item Item) {
+
+	})()
 }
 func TestMatchDetailsPlayer_Iterators(t *testing.T) {
 	g := Goblin(t)
@@ -157,6 +223,42 @@ func TestMatchDetailsPlayer_Iterators(t *testing.T) {
 		})
 	})
 }
+
+func BenchmarkMatchDetails_ForEachPlayer(b *testing.B) {
+	m := MatchDetails{}
+	m.Radiant = make([]PlayerDetails, b.N)
+	m.Dire = make([]PlayerDetails, b.N)
+
+	b.ReportAllocs()
+	b.StartTimer()
+	m.ForEachPlayer(func(player PlayerDetails) {
+
+	})
+}
+
+func BenchmarkMatchDetails_ForEachPlayerAsync(b *testing.B) {
+	m := MatchDetails{}
+	m.Radiant = make([]PlayerDetails, b.N)
+	m.Dire = make([]PlayerDetails, b.N)
+
+	b.ReportAllocs()
+	b.StartTimer()
+	m.ForEachPlayerAsync(func(player PlayerDetails) {
+
+	})
+}
+
+func BenchmarkMatchDetails_GoForEachPlayer(b *testing.B) {
+	m := MatchDetails{}
+	m.Radiant = make([]PlayerDetails, b.N)
+	m.Dire = make([]PlayerDetails, b.N)
+
+	b.ReportAllocs()
+	b.StartTimer()
+	m.GoForEachPlayer(func(player PlayerDetails) {
+
+	})()
+}
 func TestTeam_Iterators(t *testing.T) {
 	g := Goblin(t)
 	g.Describe("TestTeam_Iterators", func() {
@@ -205,6 +307,39 @@ func TestTeam_Iterators(t *testing.T) {
 			}
 		})
 	})
+}
+
+func BenchmarkTeam_ForEach(b *testing.B) {
+	t := Team{}
+	t.players = make([]Player, b.N)
+
+	b.ReportAllocs()
+	b.StartTimer()
+	t.ForEach(func(player Player) {
+
+	})
+}
+
+func BenchmarkTeam_ForEachAsync(b *testing.B) {
+	t := Team{}
+	t.players = make([]Player, b.N)
+
+	b.ReportAllocs()
+	b.StartTimer()
+	t.ForEachAsync(func(player Player) {
+
+	})
+}
+
+func BenchmarkTeam_GoForEach(b *testing.B) {
+	t := Team{}
+	t.players = make([]Player, b.N)
+
+	b.ReportAllocs()
+	b.StartTimer()
+	t.GoForEach(func(player Player) {
+
+	})()
 }
 func TestTeamDetails_Iterators(t *testing.T) {
 	g := Goblin(t)
@@ -255,6 +390,39 @@ func TestTeamDetails_Iterators(t *testing.T) {
 		})
 	})
 }
+
+func BenchmarkTeamDetails_ForEach(b *testing.B) {
+	t := TeamDetails{}
+	t = make([]PlayerDetails, b.N)
+
+	b.ReportAllocs()
+	b.StartTimer()
+	t.ForEach(func(player PlayerDetails) {
+
+	})
+}
+
+func BenchmarkTeamDetails_ForEachAsync(b *testing.B) {
+	t := TeamDetails{}
+	t = make([]PlayerDetails, b.N)
+
+	b.ReportAllocs()
+	b.StartTimer()
+	t.ForEachAsync(func(player PlayerDetails) {
+
+	})
+}
+
+func BenchmarkTeamDetails_GoForEach(b *testing.B) {
+	t := TeamDetails{}
+	t = make([]PlayerDetails, b.N)
+
+	b.ReportAllocs()
+	b.StartTimer()
+	t.GoForEach(func(player PlayerDetails) {
+
+	})()
+}
 func TestPicksBansPicksBans_Iterators(t *testing.T) {
 	g := Goblin(t)
 	g.Describe("TestPicksBans_Iterators", func() {
@@ -304,6 +472,39 @@ func TestPicksBansPicksBans_Iterators(t *testing.T) {
 		})
 	})
 }
+
+func BenchmarkPicksBans_ForEachPicksBans(b *testing.B) {
+	p := PicksBans{}
+	p = make([]PickBan, b.N)
+
+	b.ReportAllocs()
+	b.StartTimer()
+	p.ForEachPicksBans(func(pickBan PickBan) {
+
+	})
+}
+
+func BenchmarkPicksBans_ForEachPicksBansAsync(b *testing.B) {
+	p := PicksBans{}
+	p = make([]PickBan, b.N)
+
+	b.ReportAllocs()
+	b.StartTimer()
+	p.ForEachPicksBansAsync(func(pickBan PickBan) {
+
+	})
+}
+
+func BenchmarkPicksBans_GoForEachPicksBans(b *testing.B) {
+	p := PicksBans{}
+	p = make([]PickBan, b.N)
+
+	b.ReportAllocs()
+	b.StartTimer()
+	p.GoForEachPicksBans(func(pickBan PickBan) {
+
+	})()
+}
 func TestAbilityUpgradesAbilityUpgrades_Iterators(t *testing.T) {
 	g := Goblin(t)
 	g.Describe("TestAbilityUpgrades_Iterators", func() {
@@ -352,4 +553,37 @@ func TestAbilityUpgradesAbilityUpgrades_Iterators(t *testing.T) {
 			}
 		})
 	})
+}
+
+func BenchmarkAbilityUpgrades_ForEachAbilityUpgrades(b *testing.B) {
+	a := AbilityUpgrades{}
+	a = make([]AbilityUpgrade, b.N)
+
+	b.ReportAllocs()
+	b.StartTimer()
+	a.ForEachAbilityUpgrades(func(abilityUpgrade AbilityUpgrade) {
+
+	})
+}
+
+func BenchmarkAbilityUpgrades_ForEachAbilityUpgradesAsync(b *testing.B) {
+	a := AbilityUpgrades{}
+	a = make([]AbilityUpgrade, b.N)
+
+	b.ReportAllocs()
+	b.StartTimer()
+	a.ForEachAbilityUpgradesAsync(func(abilityUpgrade AbilityUpgrade) {
+
+	})
+}
+
+func BenchmarkAbilityUpgrades_GoForEachAbilityUpgrades(b *testing.B) {
+	a := AbilityUpgrades{}
+	a = make([]AbilityUpgrade, b.N)
+
+	b.ReportAllocs()
+	b.StartTimer()
+	a.GoForEachAbilityUpgrades(func(abilityUpgrade AbilityUpgrade) {
+
+	})()
 }

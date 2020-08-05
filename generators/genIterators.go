@@ -21,9 +21,11 @@ const testHeaderImport = `import (
 	. "github.com/franela/goblin"
 	"testing"
 )
+
 `
 
 const iteratorHeaderImport = `import "sync"
+
 `
 
 const iteratorAll = `
@@ -98,20 +100,20 @@ const testAll = `func Test{{ReceiverType}}{{MethodNameExtension}}_Iterators(t *t
 		g.It("Have a working ForEach method", func() {
 			c := 0
 			{{ReceiverName}} := {{ReceiverType}}{}
-{{Iterators}}
+{{IteratorsTest}}
 			{{ReceiverName}}.ForEach{{MethodNameExtension}}(func({{FuncParameterName}} {{FuncParameterType}}) {
 				c++
 			})
-			g.Assert(c).Equal({{TestCount}} * {{IteratorCount}})
+			g.Assert(c).Equal({{TestCount }} * {{ IteratorCount}})
 		})
 		g.It("Have a working ForEachAsync method", func() {
 			{{ReceiverName}} := {{ReceiverType}}{}
-{{Iterators}}
-			c := make(chan bool, {{TestCount}} * {{IteratorCount}})
+{{IteratorsTest}}
+			c := make(chan bool, {{TestCount -}} * {{- IteratorCount}})
 			{{ReceiverName}}.ForEach{{MethodNameExtension}}Async(func({{FuncParameterName}} {{FuncParameterType}}) {
 				c <- true
 			})
-			for i := 0; i < {{TestCount}} * {{IteratorCount}}; i++ {
+			for i := 0; i < {{TestCount -}} * {{- IteratorCount}}; i++ {
 				select {
 				case <-c:
 					continue
@@ -122,12 +124,12 @@ const testAll = `func Test{{ReceiverType}}{{MethodNameExtension}}_Iterators(t *t
 		})
 		g.It("Have a working GoForEach method", func() {
 			{{ReceiverName}} := {{ReceiverType}}{}
-{{Iterators}}
-			c := make(chan bool, {{TestCount}} * {{IteratorCount}})
+{{IteratorsTest}}
+			c := make(chan bool, {{TestCount -}} * {{- IteratorCount}})
 			{{ReceiverName}}.GoForEach{{MethodNameExtension}}(func({{FuncParameterName}} {{FuncParameterType}}) {
 				c <- true
 			})()
-			for i := 0; i < {{TestCount}} * {{IteratorCount}}; i++ {
+			for i := 0; i < {{TestCount -}} * {{- IteratorCount}}; i++ {
 				select {
 				case <-c:
 					continue
@@ -138,12 +140,45 @@ const testAll = `func Test{{ReceiverType}}{{MethodNameExtension}}_Iterators(t *t
 		})
 	})
 }
+
+func Benchmark{{ReceiverType}}_ForEach{{MethodNameExtension}}(b *testing.B) {
+	{{ReceiverName}} := {{ReceiverType}}{}
+{{IteratorsBench}}
+	b.ReportAllocs()
+	b.StartTimer()
+	{{ReceiverName}}.ForEach{{MethodNameExtension}}(func({{FuncParameterName}} {{FuncParameterType}}) {
+		
+	})
+}
+
+func Benchmark{{ReceiverType}}_ForEach{{MethodNameExtension}}Async(b *testing.B) {
+	{{ReceiverName}} := {{ReceiverType}}{}
+{{IteratorsBench}}
+	b.ReportAllocs()
+	b.StartTimer()
+	{{ReceiverName}}.ForEach{{MethodNameExtension}}Async(func({{FuncParameterName}} {{FuncParameterType}}) {
+		
+	})
+}
+
+func Benchmark{{ReceiverType}}_GoForEach{{MethodNameExtension}}(b *testing.B) {
+	{{ReceiverName}} := {{ReceiverType}}{}
+{{IteratorsBench}}
+	b.ReportAllocs()
+	b.StartTimer()
+	{{ReceiverName}}.GoForEach{{MethodNameExtension}}(func({{FuncParameterName}} {{FuncParameterType}}) {
+		
+	})()
+}
 `
 
 const iterator = `	iter({{CastBegin}}{{ReceiverName}}{{FieldToIterate}}{{CastEnd}})
 `
 
 const iteratorTest = `			{{ReceiverName}}{{FieldToIterate}} = make([]{{FuncParameterType}}, {{TestCount}})
+`
+
+const iteratorBench = `	{{ReceiverName}}{{FieldToIterate}} = make([]{{FuncParameterType}}, b.N)
 `
 
 type IteratorGenerationInstructions struct {
@@ -192,7 +227,7 @@ func (i IteratorGenerationInstructions) getIterators(in int) string {
 	return buf.String()
 }
 
-func (i IteratorGenerationInstructions) getTestIterators(in int) string {
+func (i IteratorGenerationInstructions) getTestIteratorsTest(in int) string {
 	var b []byte
 	buf := bytes.NewBuffer(b)
 	for _, f := range i.List[in].IterOnFields {
@@ -206,6 +241,27 @@ func (i IteratorGenerationInstructions) getTestIterators(in int) string {
 			panic(err)
 		}
 		err = t.Execute(buf, iteratorTest)
+		if err != nil {
+			panic(err)
+		}
+	}
+	return buf.String()
+}
+
+func (i IteratorGenerationInstructions) getTestIteratorsBench(in int) string {
+	var b []byte
+	buf := bytes.NewBuffer(b)
+	for _, f := range i.List[in].IterOnFields {
+		t, err := template.New("IteratorsBench").Funcs(template.FuncMap{
+			"ReceiverName":      func() string { return i.List[in].ReceiverName },
+			"FieldToIterate":    func() string { return f },
+			"FuncParameterType": func() string { return i.List[in].FuncParameterType },
+			"TestCount":         func() int { return i.TestCount },
+		}).Parse(iteratorBench)
+		if err != nil {
+			panic(err)
+		}
+		err = t.Execute(buf, iteratorBench)
 		if err != nil {
 			panic(err)
 		}
@@ -249,7 +305,8 @@ func (i IteratorGenerationInstructions) getTestFunction(in int) string {
 		"ForVarName":          func() string { return i.List[in].ForVarName },
 		"IteratorCount":       func() int { return len(i.List[in].IterOnFields) },
 		"TestCount":           func() int { return i.TestCount },
-		"Iterators":           func() string { return i.getTestIterators(in) },
+		"IteratorsTest":       func() string { return i.getTestIteratorsTest(in) },
+		"IteratorsBench":      func() string { return i.getTestIteratorsBench(in) },
 	}).Parse(testAll)
 	if err != nil {
 		panic(err)
