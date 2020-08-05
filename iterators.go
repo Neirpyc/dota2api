@@ -196,3 +196,79 @@ func (t TeamDetails) GoForEach(f func(player PlayerDetails)) func() {
 
 	return wg.Wait
 }
+
+func (p PicksBans) ForEachPicksBans(f func(pickBan PickBan)) {
+	iter := func(pickBan []PickBan) {
+		for _, pB := range pickBan {
+			f(pB)
+		}
+	}
+	iter([]PickBan(p))
+
+}
+
+func (p PicksBans) ForEachPicksBansAsync(f func(pickBan PickBan)) {
+	var wg sync.WaitGroup
+	iter := func(pickBan []PickBan) {
+		wg.Add(len(pickBan))
+		for _, pB := range pickBan {
+			f(pB)
+			wg.Done()
+		}
+	}
+	iter([]PickBan(p))
+
+	wg.Wait()
+}
+
+func (p PicksBans) GoForEachPicksBans(f func(pickBan PickBan)) func() {
+	var wg sync.WaitGroup
+	iter := func(pickBan []PickBan) {
+		wg.Add(len(pickBan))
+		for _, pB := range pickBan {
+			f(pB)
+			wg.Done()
+		}
+	}
+	iter([]PickBan(p))
+
+	return wg.Wait
+}
+
+func (a AbilityUpgrades) ForEachAbilityUpgrades(f func(abilityUpgrade AbilityUpgrade)) {
+	iter := func(abilityUpgrade []AbilityUpgrade) {
+		for _, aU := range abilityUpgrade {
+			f(aU)
+		}
+	}
+	iter([]AbilityUpgrade(a))
+
+}
+
+func (a AbilityUpgrades) ForEachAbilityUpgradesAsync(f func(abilityUpgrade AbilityUpgrade)) {
+	var wg sync.WaitGroup
+	iter := func(abilityUpgrade []AbilityUpgrade) {
+		wg.Add(len(abilityUpgrade))
+		for _, aU := range abilityUpgrade {
+			f(aU)
+			wg.Done()
+		}
+	}
+	iter([]AbilityUpgrade(a))
+
+	wg.Wait()
+}
+
+func (a AbilityUpgrades) GoForEachAbilityUpgrades(f func(abilityUpgrade AbilityUpgrade)) func() {
+	var wg sync.WaitGroup
+	iter := func(abilityUpgrade []AbilityUpgrade) {
+		wg.Add(len(abilityUpgrade))
+		for _, aU := range abilityUpgrade {
+			f(aU)
+			wg.Done()
+		}
+	}
+	iter([]AbilityUpgrade(a))
+
+	return wg.Wait
+}

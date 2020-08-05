@@ -255,3 +255,101 @@ func TestTeamDetails_Iterators(t *testing.T) {
 		})
 	})
 }
+func TestPicksBansPicksBans_Iterators(t *testing.T) {
+	g := Goblin(t)
+	g.Describe("TestPicksBans_Iterators", func() {
+		g.It("Have a working ForEach method", func() {
+			c := 0
+			p := PicksBans{}
+			p = make([]PickBan, 10)
+
+			p.ForEachPicksBans(func(pickBan PickBan) {
+				c++
+			})
+			g.Assert(c).Equal(10 * 1)
+		})
+		g.It("Have a working ForEachAsync method", func() {
+			p := PicksBans{}
+			p = make([]PickBan, 10)
+
+			c := make(chan bool, 10*1)
+			p.ForEachPicksBansAsync(func(pickBan PickBan) {
+				c <- true
+			})
+			for i := 0; i < 10*1; i++ {
+				select {
+				case <-c:
+					continue
+				default:
+					g.Fail("Skipped element in for each")
+				}
+			}
+		})
+		g.It("Have a working GoForEach method", func() {
+			p := PicksBans{}
+			p = make([]PickBan, 10)
+
+			c := make(chan bool, 10*1)
+			p.GoForEachPicksBans(func(pickBan PickBan) {
+				c <- true
+			})()
+			for i := 0; i < 10*1; i++ {
+				select {
+				case <-c:
+					continue
+				default:
+					g.Fail("Skipped element in for each")
+				}
+			}
+		})
+	})
+}
+func TestAbilityUpgradesAbilityUpgrades_Iterators(t *testing.T) {
+	g := Goblin(t)
+	g.Describe("TestAbilityUpgrades_Iterators", func() {
+		g.It("Have a working ForEach method", func() {
+			c := 0
+			a := AbilityUpgrades{}
+			a = make([]AbilityUpgrade, 10)
+
+			a.ForEachAbilityUpgrades(func(abilityUpgrade AbilityUpgrade) {
+				c++
+			})
+			g.Assert(c).Equal(10 * 1)
+		})
+		g.It("Have a working ForEachAsync method", func() {
+			a := AbilityUpgrades{}
+			a = make([]AbilityUpgrade, 10)
+
+			c := make(chan bool, 10*1)
+			a.ForEachAbilityUpgradesAsync(func(abilityUpgrade AbilityUpgrade) {
+				c <- true
+			})
+			for i := 0; i < 10*1; i++ {
+				select {
+				case <-c:
+					continue
+				default:
+					g.Fail("Skipped element in for each")
+				}
+			}
+		})
+		g.It("Have a working GoForEach method", func() {
+			a := AbilityUpgrades{}
+			a = make([]AbilityUpgrade, 10)
+
+			c := make(chan bool, 10*1)
+			a.GoForEachAbilityUpgrades(func(abilityUpgrade AbilityUpgrade) {
+				c <- true
+			})()
+			for i := 0; i < 10*1; i++ {
+				select {
+				case <-c:
+					continue
+				default:
+					g.Fail("Skipped element in for each")
+				}
+			}
+		})
+	})
+}

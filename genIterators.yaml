@@ -1,53 +1,69 @@
 ---
 List:
-  - ReceiverName: "h"
-    ReceiverType: "Heroes"
-    MethodNameExtension: ""
-    FuncParameterName: "hero"
-    FuncParameterType: "Hero"
-    IterParamName: "heroes"
-    ForVarName: "hero"
+  - ReceiverName: h
+    ReceiverType: Heroes
+    MethodNameExtension: ''
+    FuncParameterName: hero
+    FuncParameterType: Hero
+    IterParamName: heroes
+    ForVarName: hero
     IterOnFields:
-      - ".heroes"
-
-  - ReceiverName: "i"
-    ReceiverType: "Items"
-    MethodNameExtension: ""
-    FuncParameterName: "item"
-    FuncParameterType: "Item"
-    IterParamName: "items"
-    ForVarName: "item"
+      - .heroes
+  - ReceiverName: i
+    ReceiverType: Items
+    MethodNameExtension: ''
+    FuncParameterName: item
+    FuncParameterType: Item
+    IterParamName: items
+    ForVarName: item
     IterOnFields:
-      - ".items"
-
-  - ReceiverName: "m"
-    ReceiverType: "Match"
-    MethodNameExtension: "Player"
-    FuncParameterName: "player"
-    FuncParameterType: "PlayerDetails"
-    IterParamName: "team"
-    ForVarName: "p"
+      - .items
+  - ReceiverName: m
+    ReceiverType: Match
+    MethodNameExtension: Player
+    FuncParameterName: player
+    FuncParameterType: PlayerDetails
+    IterParamName: team
+    ForVarName: p
     IterOnFields:
-      - ".Radiant"
-      - ".Dire"
-
-  - ReceiverName: "t"
-    ReceiverType: "Team"
-    MethodNameExtension: ""
-    FuncParameterName: "player"
-    FuncParameterType: "Player"
-    IterParamName: "team"
-    ForVarName: "p"
+      - .Radiant
+      - .Dire
+  - ReceiverName: t
+    ReceiverType: Team
+    MethodNameExtension: ''
+    FuncParameterName: player
+    FuncParameterType: Player
+    IterParamName: team
+    ForVarName: p
     IterOnFields:
-      - ".players"
-
-  - ReceiverName: "t"
-    ReceiverType: "TeamDetails"
-    MethodNameExtension: ""
-    FuncParameterName: "player"
-    FuncParameterType: "PlayerDetails"
-    IterParamName: "team"
-    ForVarName: "p"
-    CastTo: "[]PlayerDetails"
+      - .players
+  - ReceiverName: t
+    ReceiverType: TeamDetails
+    MethodNameExtension: ''
+    FuncParameterName: player
+    FuncParameterType: PlayerDetails
+    IterParamName: team
+    ForVarName: p
+    CastTo: '[]PlayerDetails'
     IterOnFields:
-      - ""
+      - ''
+  - ReceiverName: p
+    ReceiverType: PicksBans
+    MethodNameExtension: PicksBans
+    FuncParameterName: pickBan
+    FuncParameterType: PickBan
+    IterParamName: pickBan
+    ForVarName: pB
+    CastTo: '[]PickBan'
+    IterOnFields:
+      - ''
+  - ReceiverName: a
+    ReceiverType: AbilityUpgrades
+    MethodNameExtension: AbilityUpgrades
+    FuncParameterName: abilityUpgrade
+    FuncParameterType: AbilityUpgrade
+    IterParamName: abilityUpgrade
+    ForVarName: aU
+    CastTo: '[]AbilityUpgrade'
+    IterOnFields:
+      - ''
