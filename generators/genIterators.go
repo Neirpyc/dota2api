@@ -147,7 +147,8 @@ const iteratorTest = `			{{ReceiverName}}{{FieldToIterate}} = make([]{{FuncParam
 `
 
 type IteratorGenerationInstructions struct {
-	List []struct {
+	TestCount int `yaml:"TestCount"`
+	List      []struct {
 		ReceiverName        string   `yaml:"ReceiverName"`
 		ReceiverType        string   `yaml:"ReceiverType"`
 		MethodNameExtension string   `yaml:"MethodNameExtension"`
@@ -157,7 +158,6 @@ type IteratorGenerationInstructions struct {
 		ForVarName          string   `yaml:"ForVarName"`
 		CastTo              string   `yaml:"CastTo"`
 		IterOnFields        []string `yaml:"IterOnFields"`
-		TestCount           int      `yaml:"TestCount"`
 	} `yaml:"List"`
 }
 
@@ -200,12 +200,7 @@ func (i IteratorGenerationInstructions) getTestIterators(in int) string {
 			"ReceiverName":      func() string { return i.List[in].ReceiverName },
 			"FieldToIterate":    func() string { return f },
 			"FuncParameterType": func() string { return i.List[in].FuncParameterType },
-			"TestCount": func() int {
-				if i.List[in].TestCount == 0 {
-					return 10
-				}
-				return i.List[in].TestCount
-			},
+			"TestCount":         func() int { return i.TestCount },
 		}).Parse(iteratorTest)
 		if err != nil {
 			panic(err)
@@ -253,13 +248,8 @@ func (i IteratorGenerationInstructions) getTestFunction(in int) string {
 		"IterParamName":       func() string { return i.List[in].IterParamName },
 		"ForVarName":          func() string { return i.List[in].ForVarName },
 		"IteratorCount":       func() int { return len(i.List[in].IterOnFields) },
-		"TestCount": func() int {
-			if i.List[in].TestCount == 0 {
-				return 10
-			}
-			return i.List[in].TestCount
-		},
-		"Iterators": func() string { return i.getTestIterators(in) },
+		"TestCount":           func() int { return i.TestCount },
+		"Iterators":           func() string { return i.getTestIterators(in) },
 	}).Parse(testAll)
 	if err != nil {
 		panic(err)
