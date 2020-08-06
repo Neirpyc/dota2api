@@ -427,10 +427,9 @@ func main() {
 
 	if o == "" {
 		return
-	} else {
-		if f, err = os.Create(strings.TrimRight(o, ".go") + "_test.go"); err != nil {
-			panic(err)
-		}
+	}
+	if f, err = os.Create(strings.TrimRight(o, ".go") + "_test.go"); err != nil {
+		panic(err)
 	}
 
 	if _, err = fmt.Fprintf(f, header+testHeaderImport, strings.Join(os.Args, " "), p); err != nil {

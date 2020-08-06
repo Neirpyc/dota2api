@@ -648,9 +648,8 @@ func (d *Dota2) GetMatchDetails(params ...Parameter) (MatchDetails, error) {
 		Victory: func() Victory {
 			if matchDetails.Result.RadiantWin {
 				return RadiantVictory
-			} else {
-				return DireVictory
 			}
+			return DireVictory
 		}(),
 		Duration:        time.Duration(int64(matchDetails.Result.Duration) * int64(time.Second)),
 		PreGameDuration: time.Duration(int64(matchDetails.Result.PreGameDuration) * int64(time.Second)),
