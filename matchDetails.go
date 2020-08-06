@@ -18,7 +18,7 @@ type matchDetailsJSON struct {
 }
 
 type matchJSON struct {
-	Error                 string          `bson:"error" json:"error" bson:"error"`
+	Error                 string          `json:"error" json:"error" bson:"error"`
 	Players               []playerJSON    `json:"players" bson:"players"`
 	RadiantWin            bool            `json:"radiant_win" bson:"radiant_win"`
 	Duration              int             `json:"duration" bson:"duration"`

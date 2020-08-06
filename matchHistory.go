@@ -25,6 +25,10 @@ func getMatchHistoryUrl(dota2 *Dota2) string {
 	return fmt.Sprintf("%s/%s/%s/", dota2.dota2MatchUrl, "GetMatchHistory", dota2.dota2ApiVersion)
 }
 
+func getMatchHistoryBySequenceNumUrl(dota2 *Dota2) string {
+	return fmt.Sprintf("%s/%s/%s/", dota2.dota2MatchUrl, "GetMatchHistoryBySequenceNum", dota2.dota2ApiVersion)
+}
+
 type MatchHistoryJSON struct {
 	Result matchHistoryResultJSON `json:"result"`
 }
@@ -45,6 +49,47 @@ type matchSummaryJSON struct {
 	RadiantTeamID int                 `json:"radiant_team_id" bson:"radiant_team_id"`
 	DireTeamID    int                 `json:"dire_team_id" bson:"dire_team_id"`
 	Players       []playerSummaryJSON `json:"players" bson:"players"`
+}
+
+func (m MatchHistoryJSON) toMatchSummary(d *Dota2) (MatchHistory, error) {
+	var res MatchHistory
+
+	res.Matches = make([]MatchSummary, len(m.Result.Matches))
+	for i, src := range m.Result.Matches {
+		res.Matches[i].LobbyType = LobbyType(src.LobbyType)
+		res.Matches[i].StartTime = time.Unix(src.StartTime, 0)
+		res.Matches[i].MatchId = src.MatchID
+		res.Matches[i].MatchSeqNum = src.MatchSeqNum
+		res.Matches[i].Radiant = Team{
+			Id: src.RadiantTeamID,
+		}
+		res.Matches[i].Dire = Team{
+			Id: src.DireTeamID,
+		}
+		heroes, err := d.GetHeroes()
+		if err != nil {
+			return res, err
+		}
+		for _, p := range src.Players {
+			var h Hero
+			var found bool
+			if p.HeroID == 0 {
+				h.ID = 0
+			} else if h, found = heroes.GetById(p.HeroID); !found {
+				return res, errors.New("hero ID not found")
+			}
+			player := Player{
+				AccountId: p.AccountID,
+				Hero:      h,
+			}
+			if p.PlayerSlot&128 > 0 {
+				res.Matches[i].Dire.players = append(res.Matches[i].Dire.players, player)
+			} else {
+				res.Matches[i].Radiant.players = append(res.Matches[i].Radiant.players, player)
+			}
+		}
+	}
+	return res, nil
 }
 
 type playerSummaryJSON struct {
@@ -168,23 +213,27 @@ func (l LobbyType) GetName() string {
 
 type Cursor struct {
 	c *struct {
-		currentMatchID int64
-		remaining      int
+		begin     int64
+		remaining int
 	}
 }
 
 func NewCursor() Cursor {
 	return Cursor{c: &struct {
-		currentMatchID int64
-		remaining      int
+		begin     int64
+		remaining int
 	}{
-		currentMatchID: -1,
-		remaining:      -1,
+		begin:     -1,
+		remaining: -1,
 	}}
 }
 
 func (c Cursor) GetLastReceivedMatch() int64 {
-	return c.c.currentMatchID + 1
+	return c.c.begin
+}
+
+func (c Cursor) SetBegin(begin int64) {
+	c.c.begin = begin
 }
 
 func (c Cursor) GetRemaining() int {
@@ -217,8 +266,9 @@ func (d *Dota2) GetMatchHistory(params ...interface{}) (MatchHistory, error) {
 		return res, err
 	}
 	if c.c != nil {
+		c.c.begin--
 		if _, f := param["start_at_match_id"]; !f {
-			param["start_at_match_id"] = c.c.currentMatchID
+			param["start_at_match_id"] = c.c.begin
 		}
 	}
 	param["key"] = d.steamApiKey
@@ -240,48 +290,70 @@ func (d *Dota2) GetMatchHistory(params ...interface{}) (MatchHistory, error) {
 	}
 	if c.c != nil {
 		if matchHistory.Result.NumResults > 0 {
-			c.c.currentMatchID = matchHistory.Result.Matches[matchHistory.Result.NumResults-1].MatchID - 1
+			c.c.begin = matchHistory.Result.Matches[matchHistory.Result.NumResults-1].MatchID
 		}
 		c.c.remaining = matchHistory.Result.ResultsRemaining
 	}
 
-	res.Matches = make([]MatchSummary, len(matchHistory.Result.Matches))
-	for i, src := range matchHistory.Result.Matches {
-		res.Matches[i].LobbyType = LobbyType(src.LobbyType)
-		res.Matches[i].StartTime = time.Unix(src.StartTime, 0)
-		res.Matches[i].MatchId = src.MatchID
-		res.Matches[i].MatchSeqNum = src.MatchSeqNum
-		res.Matches[i].Radiant = Team{
-			Id: src.RadiantTeamID,
+	res, err = matchHistory.toMatchSummary(d)
+
+	return res, err
+}
+
+func (d *Dota2) GetMatchHistoryBySequenceNum(params ...interface{}) (MatchHistory, error) {
+	var matchHistory MatchHistoryJSON
+	var res MatchHistory
+	var c Cursor
+
+	parameters := make([]Parameter, 0)
+
+	for _, p := range params {
+		if reflect.TypeOf(p) == reflect.TypeOf(Cursor{}) {
+			c = p.(Cursor)
+		} else if v, ok := p.(Parameter); ok {
+			parameters = append(parameters, v)
+		} else {
+			return res, errors.New("invalid parameter")
 		}
-		res.Matches[i].Dire = Team{
-			Id: src.DireTeamID,
+	}
+	param, err := getParameterMap(nil, []int{
+		parameterStartMatchAtSeqNum,
+		parameterKindMatchesRequested}, parameters)
+	if err != nil {
+		return res, err
+	}
+	if c.c != nil {
+		c.c.begin++
+		if _, f := param["start_at_match_seq_num"]; !f {
+			param["start_at_match_seq_num"] = c.c.begin
 		}
-		heroes, err := d.GetHeroes()
-		if err != nil {
-			return res, err
-		}
-		for _, p := range src.Players {
-			var h Hero
-			var found bool
-			if p.HeroID == 0 {
-				h.ID = 0
-			} else if h, found = heroes.GetById(p.HeroID); !found {
-				return res, errors.New("hero ID not found")
-			}
-			player := Player{
-				AccountId: p.AccountID,
-				Hero:      h,
-			}
-			if p.PlayerSlot&128 > 0 {
-				res.Matches[i].Dire.players = append(res.Matches[i].Dire.players, player)
-			} else {
-				res.Matches[i].Radiant.players = append(res.Matches[i].Radiant.players, player)
-			}
+	}
+	param["key"] = d.steamApiKey
+	url, err := parseUrl(getMatchHistoryBySequenceNumUrl(d), param)
+	if err != nil {
+		return res, err
+	}
+	resp, err := Get(url)
+	if err != nil {
+		return res, err
+	}
+
+	err = json.Unmarshal(resp, &matchHistory)
+	if err != nil {
+		return res, err
+	}
+	if matchHistory.Result.Status != 1 {
+		return res, errors.New(string(resp))
+	}
+	if c.c != nil {
+		if len(matchHistory.Result.Matches) > 0 {
+			c.c.begin = matchHistory.Result.Matches[len(matchHistory.Result.Matches)-1].MatchSeqNum
 		}
 	}
 
-	return res, nil
+	res, err = matchHistory.toMatchSummary(d)
+
+	return res, err
 }
 
 func HeroId(id int) ParameterInt {
@@ -321,5 +393,13 @@ func MinPlayers(id int) ParameterInt {
 		k:       "min_players",
 		v:       id,
 		kindInt: parameterKindMinPlayers,
+	}
+}
+
+func StartAtMatchSeqNum(id int64) ParameterInt64 {
+	return ParameterInt64{
+		k:       "start_at_match_seq_num",
+		v:       id,
+		kindInt: parameterStartMatchAtSeqNum,
 	}
 }

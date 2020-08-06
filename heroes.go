@@ -199,5 +199,8 @@ func (d Dota2) GetHeroImage(hero Hero, size int) (image.Image, error) {
 	if size != SizeVert || err != nil {
 		img, err = png.Decode(bytes.NewReader(res))
 	}
+	if err != nil && size != SizeVert {
+		img, err = jpeg.Decode(bytes.NewReader(res))
+	}
 	return img, err
 }

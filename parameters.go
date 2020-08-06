@@ -9,6 +9,7 @@ const (
 	parameterKindStartAtMatchId
 	parameterKindMinPlayers
 	parameterKindMatchId
+	parameterStartMatchAtSeqNum
 )
 
 type Parameter interface {

@@ -30,10 +30,6 @@ type Dota2 struct {
 	// api version
 	dota2ApiVersion string
 
-	// convert 64-bit steamID to 32-bit steamID
-	// STEAMID64 - 76561197960265728 = STEAMID32
-	convertInt int64
-
 	// http request timeout
 	timeout int
 
@@ -79,32 +75,6 @@ func (d *Dota2) ResolveVanityUrl(vanityurl string) (int64, error) {
 	}
 
 	return steamId, nil
-}
-
-//Get match history by sequence num
-func (d *Dota2) GetMatchHistoryBySequenceNum(param map[string]interface{}) (MatchHistoryJSON, error) {
-	var matchHistory MatchHistoryJSON
-
-	param["key"] = d.steamApiKey
-
-	url, err := parseUrl(getMatchHistoryBySequenceNumUrl(d), param)
-	if err != nil {
-		return matchHistory, err
-	}
-	resp, err := Get(url)
-	if err != nil {
-		return matchHistory, err
-	}
-
-	err = json.Unmarshal(resp, &matchHistory)
-	if err != nil {
-		return matchHistory, err
-	}
-	if matchHistory.Result.Status != 1 {
-		return matchHistory, errors.New(string(resp))
-	}
-
-	return matchHistory, nil
 }
 
 //Get player summaries

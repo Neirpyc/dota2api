@@ -61,6 +61,10 @@ func TestDota2_GetMatchHistory_Parameters(t *testing.T) {
 			_, err := api.GetMatchHistory(MatchesRequested(52), 37)
 			g.Assert(err != nil).IsTrue()
 		})
+		g.It("Should duplicated forbidden parameters", func() {
+			_, err := api.GetMatchHistory(MatchesRequested(0), MatchesRequested(0))
+			g.Assert(err != nil).IsTrue()
+		})
 		matches, err := api.GetMatchHistory(MatchesRequested(42))
 		g.It("Should accept a valid parameter", func() {
 			g.Assert(err == nil).IsTrue()
@@ -145,6 +149,116 @@ func TestDota2_GetMatchHistory_Cursor(t *testing.T) {
 			}
 			matches, err = api.GetMatchHistory(c, MatchesRequested(10))
 			g.Assert(err == nil).IsTrue()
+		})
+	})
+}
+
+func TestDota2_GetMatchHistoryBySequenceNum(t *testing.T) {
+	g := Goblin(t)
+	api, _ := LoadConfig("config.yaml")
+	g.Describe("api.TestDota2_GetMatchHistoryBySequenceNum", func() {
+		hist, err := api.GetMatchHistoryBySequenceNum()
+		g.It("Should return no error", func() {
+			g.Assert(err == nil).IsTrue()
+		})
+		g.It("Should return at least one result", func() {
+			g.Assert(hist.Count() > 0).IsTrue()
+		})
+		g.It("Should return a match seq num for each result", func() {
+			for _, match := range hist.Matches {
+				g.Assert(match.MatchSeqNum != 0).IsTrue()
+			}
+		})
+		g.It("Should return a match ID for each result", func() {
+			for _, match := range hist.Matches {
+				g.Assert(match.MatchId != 0).IsTrue()
+			}
+		})
+		g.It("Should return a start time for each result", func() {
+			for _, match := range hist.Matches {
+				g.Assert(match.StartTime.Unix() != 0).IsTrue()
+			}
+		})
+		g.It("Should return a working LobbyType for each result", func() {
+			for _, match := range hist.Matches {
+				match.LobbyType.GetId()
+				g.Assert(match.LobbyType.GetName() != "").IsTrue()
+			}
+		})
+		g.It("Should return a team for each result", func() {
+			for _, match := range hist.Matches {
+				g.Assert(match.Radiant.players != nil || match.Dire.players != nil).IsTrue()
+			}
+		})
+	})
+}
+
+func TestDota2_GetMatchHistoryBySequenceNum_Parameters(t *testing.T) {
+	g := Goblin(t)
+	api, _ := LoadConfig("config.yaml")
+	g.Describe("api.GetMatchHistoryBySequenceNum Parameters", func() {
+		g.It("Should refuse invalid parameters", func() {
+			_, err := api.GetMatchHistoryBySequenceNum(42, 37)
+			g.Assert(err != nil).IsTrue()
+		})
+		g.It("Should refuse forbidden parameters", func() {
+			_, err := api.GetMatchHistoryBySequenceNum(MatchId(0))
+			g.Assert(err != nil).IsTrue()
+		})
+		g.It("Should duplicated forbidden parameters", func() {
+			_, err := api.GetMatchHistoryBySequenceNum(MatchesRequested(0), MatchesRequested(0))
+			g.Assert(err != nil).IsTrue()
+		})
+		g.It("Should refuse even one invalid parameter", func() {
+			_, err := api.GetMatchHistoryBySequenceNum(MatchesRequested(52), 37)
+			g.Assert(err != nil).IsTrue()
+		})
+		matches, err := api.GetMatchHistoryBySequenceNum(MatchesRequested(42), StartAtMatchSeqNum(424242))
+		g.It("Should accept a valid parameter", func() {
+			g.Assert(err == nil).IsTrue()
+		})
+		g.It("Should work with matchesRequested parameter", func() {
+			g.Assert(matches.Count() == 42).IsTrue()
+		})
+		g.It("Should work with startAtMatchSeqNum parameter", func() {
+			for _, match := range matches.Matches {
+				g.Assert(match.MatchSeqNum > 424242).IsTrue()
+			}
+		})
+	})
+}
+
+func TestDota2_GetMatchHistoryBySequenceNum_Cursor(t *testing.T) {
+	g := Goblin(t)
+	api, _ := LoadConfig("config.yaml")
+	g.Describe("api.GetMatchHistoryBySequenceNum Cursor", func() {
+		g.Describe("Part 1", func() {
+			c := NewCursor()
+			matches, err := api.GetMatchHistoryBySequenceNum(c, MatchesRequested(50))
+			g.It("Should accept a cursor parameter", func() {
+				g.Assert(err == nil).IsTrue()
+			})
+			g.It("Should modify the cursor parameter", func() {
+				g.Assert(c.c != nil).IsTrue()
+			})
+			g.It("Should modify correctly the cursor", func() {
+				g.Assert(matches.Matches[matches.Count()-1].MatchSeqNum == c.GetLastReceivedMatch()).IsTrue()
+			})
+		})
+		g.Describe("Part 2", func() {
+			c := NewCursor()
+			matches, _ := api.GetMatchHistoryBySequenceNum(c, MatchesRequested(50))
+			old := c.GetLastReceivedMatch() + 5000
+			c.SetBegin(old)
+			matches, _ = api.GetMatchHistoryBySequenceNum(c, MatchesRequested(50))
+			g.It("Should modify correctly the cursor when reusing a cursor", func() {
+				g.Assert(matches.Matches[matches.Count()-1].MatchSeqNum == c.GetLastReceivedMatch()).IsTrue()
+			})
+			g.It("Should send a new batch of matches when reusing a cursor", func() {
+				for _, match := range matches.Matches {
+					g.Assert(match.MatchSeqNum > old).IsTrue()
+				}
+			})
 		})
 	})
 }
