@@ -184,7 +184,7 @@ func BenchmarkItems_GetById(b *testing.B) {
 		ids[i] = items.items[rand.Int()%len(items.items)].ID
 	}
 	b.ReportAllocs()
-	b.StartTimer()
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		items.GetById(ids[i])
 	}
@@ -219,7 +219,7 @@ func BenchmarkItems_GetByName(b *testing.B) {
 		names[i] = items.items[rand.Int()%len(items.items)].Name.GetFullName()
 	}
 	b.ReportAllocs()
-	b.StartTimer()
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		items.GetByName(names[i])
 	}

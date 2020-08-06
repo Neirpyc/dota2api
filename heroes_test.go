@@ -207,7 +207,7 @@ func BenchmarkHeroes_GetById(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		ids[i] = heroes.heroes[rand.Int()%len(heroes.heroes)].ID
 	}
-	b.StartTimer()
+	b.ResetTimer()
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		heroes.GetById(ids[i])
@@ -242,7 +242,7 @@ func BenchmarkHeroes_GetByName(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		names[i] = heroes.heroes[rand.Int()%len(heroes.heroes)].Name.GetFullName()
 	}
-	b.StartTimer()
+	b.ResetTimer()
 	b.ReportAllocs()
 	for i := 0; i < b.N; i++ {
 		heroes.GetByName(names[i])

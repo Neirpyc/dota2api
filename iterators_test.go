@@ -13,22 +13,22 @@ func TestHeroes_Iterators(t *testing.T) {
 		g.It("Have a working ForEach method", func() {
 			c := 0
 			h := Heroes{}
-			h.heroes = make([]Hero, 10)
+			h.heroes = make([]Hero, 100000)
 
 			h.ForEach(func(hero Hero) {
 				c++
 			})
-			g.Assert(c).Equal(10 * 1)
+			g.Assert(c).Equal(100000 * 1)
 		})
 		g.It("Have a working ForEachAsync method", func() {
 			h := Heroes{}
-			h.heroes = make([]Hero, 10)
+			h.heroes = make([]Hero, 100000)
 
-			c := make(chan bool, 10*1)
+			c := make(chan bool, 100000*1)
 			h.ForEachAsync(func(hero Hero) {
 				c <- true
 			})
-			for i := 0; i < 10*1; i++ {
+			for i := 0; i < 100000*1; i++ {
 				select {
 				case <-c:
 					continue
@@ -39,13 +39,13 @@ func TestHeroes_Iterators(t *testing.T) {
 		})
 		g.It("Have a working GoForEach method", func() {
 			h := Heroes{}
-			h.heroes = make([]Hero, 10)
+			h.heroes = make([]Hero, 100000)
 
-			c := make(chan bool, 10*1)
+			c := make(chan bool, 100000*1)
 			h.GoForEach(func(hero Hero) {
 				c <- true
 			})()
-			for i := 0; i < 10*1; i++ {
+			for i := 0; i < 100000*1; i++ {
 				select {
 				case <-c:
 					continue
@@ -53,6 +53,57 @@ func TestHeroes_Iterators(t *testing.T) {
 					g.Fail("Skipped element in for each")
 				}
 			}
+		})
+		g.It("Have a working ForEach methodI", func() {
+			c := 0
+			h := Heroes{}
+			h.heroes = make([]Hero, 100000)
+
+			h.ForEachI(func(hero Hero, index int) {
+				g.Assert(index).Equal(c)
+				c++
+			})
+			g.Assert(c).Equal(100000 * 1)
+		})
+		g.It("Have a working ForEachAsyncI method", func() {
+			h := Heroes{}
+			h.heroes = make([]Hero, 100000)
+
+			c := make(chan int, 100000*1)
+			h.ForEachAsyncI(func(hero Hero, index int) {
+				c <- index
+			})
+			sum := 0
+			for i := 0; i < 100000*1; i++ {
+				select {
+				case read := <-c:
+					sum += read
+					continue
+				default:
+					g.Fail("Skipped element in for each")
+				}
+			}
+			g.Assert(sum).Equal(100000*1*(100000*1+1)/2 - 100000*1)
+		})
+		g.It("Have a working GoForEachI method", func() {
+			h := Heroes{}
+			h.heroes = make([]Hero, 100000)
+
+			c := make(chan int, 100000*1)
+			h.GoForEachI(func(hero Hero, index int) {
+				c <- index
+			})()
+			sum := 0
+			for i := 0; i < 100000*1; i++ {
+				select {
+				case read := <-c:
+					sum += read
+					continue
+				default:
+					g.Fail("Skipped element in for each")
+				}
+			}
+			g.Assert(sum).Equal(100000*1*(100000*1+1)/2 - 100000*1)
 		})
 	})
 }
@@ -62,7 +113,7 @@ func BenchmarkHeroes_ForEach(b *testing.B) {
 	h.heroes = make([]Hero, b.N)
 
 	b.ReportAllocs()
-	b.StartTimer()
+	b.ResetTimer()
 	h.ForEach(func(hero Hero) {
 
 	})
@@ -73,7 +124,7 @@ func BenchmarkHeroes_ForEachAsync(b *testing.B) {
 	h.heroes = make([]Hero, b.N)
 
 	b.ReportAllocs()
-	b.StartTimer()
+	b.ResetTimer()
 	h.ForEachAsync(func(hero Hero) {
 
 	})
@@ -84,7 +135,7 @@ func BenchmarkHeroes_GoForEach(b *testing.B) {
 	h.heroes = make([]Hero, b.N)
 
 	b.ReportAllocs()
-	b.StartTimer()
+	b.ResetTimer()
 	h.GoForEach(func(hero Hero) {
 
 	})()
@@ -96,22 +147,22 @@ func TestItems_Iterators(t *testing.T) {
 		g.It("Have a working ForEach method", func() {
 			c := 0
 			i := Items{}
-			i.items = make([]Item, 10)
+			i.items = make([]Item, 100000)
 
 			i.ForEach(func(item Item) {
 				c++
 			})
-			g.Assert(c).Equal(10 * 1)
+			g.Assert(c).Equal(100000 * 1)
 		})
 		g.It("Have a working ForEachAsync method", func() {
 			i := Items{}
-			i.items = make([]Item, 10)
+			i.items = make([]Item, 100000)
 
-			c := make(chan bool, 10*1)
+			c := make(chan bool, 100000*1)
 			i.ForEachAsync(func(item Item) {
 				c <- true
 			})
-			for i := 0; i < 10*1; i++ {
+			for i := 0; i < 100000*1; i++ {
 				select {
 				case <-c:
 					continue
@@ -122,13 +173,13 @@ func TestItems_Iterators(t *testing.T) {
 		})
 		g.It("Have a working GoForEach method", func() {
 			i := Items{}
-			i.items = make([]Item, 10)
+			i.items = make([]Item, 100000)
 
-			c := make(chan bool, 10*1)
+			c := make(chan bool, 100000*1)
 			i.GoForEach(func(item Item) {
 				c <- true
 			})()
-			for i := 0; i < 10*1; i++ {
+			for i := 0; i < 100000*1; i++ {
 				select {
 				case <-c:
 					continue
@@ -136,6 +187,57 @@ func TestItems_Iterators(t *testing.T) {
 					g.Fail("Skipped element in for each")
 				}
 			}
+		})
+		g.It("Have a working ForEach methodI", func() {
+			c := 0
+			i := Items{}
+			i.items = make([]Item, 100000)
+
+			i.ForEachI(func(item Item, index int) {
+				g.Assert(index).Equal(c)
+				c++
+			})
+			g.Assert(c).Equal(100000 * 1)
+		})
+		g.It("Have a working ForEachAsyncI method", func() {
+			i := Items{}
+			i.items = make([]Item, 100000)
+
+			c := make(chan int, 100000*1)
+			i.ForEachAsyncI(func(item Item, index int) {
+				c <- index
+			})
+			sum := 0
+			for i := 0; i < 100000*1; i++ {
+				select {
+				case read := <-c:
+					sum += read
+					continue
+				default:
+					g.Fail("Skipped element in for each")
+				}
+			}
+			g.Assert(sum).Equal(100000*1*(100000*1+1)/2 - 100000*1)
+		})
+		g.It("Have a working GoForEachI method", func() {
+			i := Items{}
+			i.items = make([]Item, 100000)
+
+			c := make(chan int, 100000*1)
+			i.GoForEachI(func(item Item, index int) {
+				c <- index
+			})()
+			sum := 0
+			for i := 0; i < 100000*1; i++ {
+				select {
+				case read := <-c:
+					sum += read
+					continue
+				default:
+					g.Fail("Skipped element in for each")
+				}
+			}
+			g.Assert(sum).Equal(100000*1*(100000*1+1)/2 - 100000*1)
 		})
 	})
 }
@@ -145,7 +247,7 @@ func BenchmarkItems_ForEach(b *testing.B) {
 	i.items = make([]Item, b.N)
 
 	b.ReportAllocs()
-	b.StartTimer()
+	b.ResetTimer()
 	i.ForEach(func(item Item) {
 
 	})
@@ -156,7 +258,7 @@ func BenchmarkItems_ForEachAsync(b *testing.B) {
 	i.items = make([]Item, b.N)
 
 	b.ReportAllocs()
-	b.StartTimer()
+	b.ResetTimer()
 	i.ForEachAsync(func(item Item) {
 
 	})
@@ -167,7 +269,7 @@ func BenchmarkItems_GoForEach(b *testing.B) {
 	i.items = make([]Item, b.N)
 
 	b.ReportAllocs()
-	b.StartTimer()
+	b.ResetTimer()
 	i.GoForEach(func(item Item) {
 
 	})()
@@ -179,24 +281,24 @@ func TestMatchDetailsPlayer_Iterators(t *testing.T) {
 		g.It("Have a working ForEach method", func() {
 			c := 0
 			m := MatchDetails{}
-			m.Radiant = make([]PlayerDetails, 10)
-			m.Dire = make([]PlayerDetails, 10)
+			m.Radiant = make([]PlayerDetails, 100000)
+			m.Dire = make([]PlayerDetails, 100000)
 
 			m.ForEachPlayer(func(player PlayerDetails) {
 				c++
 			})
-			g.Assert(c).Equal(10 * 2)
+			g.Assert(c).Equal(100000 * 2)
 		})
 		g.It("Have a working ForEachAsync method", func() {
 			m := MatchDetails{}
-			m.Radiant = make([]PlayerDetails, 10)
-			m.Dire = make([]PlayerDetails, 10)
+			m.Radiant = make([]PlayerDetails, 100000)
+			m.Dire = make([]PlayerDetails, 100000)
 
-			c := make(chan bool, 10*2)
+			c := make(chan bool, 100000*2)
 			m.ForEachPlayerAsync(func(player PlayerDetails) {
 				c <- true
 			})
-			for i := 0; i < 10*2; i++ {
+			for i := 0; i < 100000*2; i++ {
 				select {
 				case <-c:
 					continue
@@ -207,14 +309,14 @@ func TestMatchDetailsPlayer_Iterators(t *testing.T) {
 		})
 		g.It("Have a working GoForEach method", func() {
 			m := MatchDetails{}
-			m.Radiant = make([]PlayerDetails, 10)
-			m.Dire = make([]PlayerDetails, 10)
+			m.Radiant = make([]PlayerDetails, 100000)
+			m.Dire = make([]PlayerDetails, 100000)
 
-			c := make(chan bool, 10*2)
+			c := make(chan bool, 100000*2)
 			m.GoForEachPlayer(func(player PlayerDetails) {
 				c <- true
 			})()
-			for i := 0; i < 10*2; i++ {
+			for i := 0; i < 100000*2; i++ {
 				select {
 				case <-c:
 					continue
@@ -222,6 +324,60 @@ func TestMatchDetailsPlayer_Iterators(t *testing.T) {
 					g.Fail("Skipped element in for each")
 				}
 			}
+		})
+		g.It("Have a working ForEach methodI", func() {
+			c := 0
+			m := MatchDetails{}
+			m.Radiant = make([]PlayerDetails, 100000)
+			m.Dire = make([]PlayerDetails, 100000)
+
+			m.ForEachPlayerI(func(player PlayerDetails, index int) {
+				g.Assert(index).Equal(c)
+				c++
+			})
+			g.Assert(c).Equal(100000 * 2)
+		})
+		g.It("Have a working ForEachAsyncI method", func() {
+			m := MatchDetails{}
+			m.Radiant = make([]PlayerDetails, 100000)
+			m.Dire = make([]PlayerDetails, 100000)
+
+			c := make(chan int, 100000*2)
+			m.ForEachPlayerAsyncI(func(player PlayerDetails, index int) {
+				c <- index
+			})
+			sum := 0
+			for i := 0; i < 100000*2; i++ {
+				select {
+				case read := <-c:
+					sum += read
+					continue
+				default:
+					g.Fail("Skipped element in for each")
+				}
+			}
+			g.Assert(sum).Equal(100000*2*(100000*2+1)/2 - 100000*2)
+		})
+		g.It("Have a working GoForEachI method", func() {
+			m := MatchDetails{}
+			m.Radiant = make([]PlayerDetails, 100000)
+			m.Dire = make([]PlayerDetails, 100000)
+
+			c := make(chan int, 100000*2)
+			m.GoForEachPlayerI(func(player PlayerDetails, index int) {
+				c <- index
+			})()
+			sum := 0
+			for i := 0; i < 100000*2; i++ {
+				select {
+				case read := <-c:
+					sum += read
+					continue
+				default:
+					g.Fail("Skipped element in for each")
+				}
+			}
+			g.Assert(sum).Equal(100000*2*(100000*2+1)/2 - 100000*2)
 		})
 	})
 }
@@ -232,7 +388,7 @@ func BenchmarkMatchDetails_ForEachPlayer(b *testing.B) {
 	m.Dire = make([]PlayerDetails, b.N)
 
 	b.ReportAllocs()
-	b.StartTimer()
+	b.ResetTimer()
 	m.ForEachPlayer(func(player PlayerDetails) {
 
 	})
@@ -244,7 +400,7 @@ func BenchmarkMatchDetails_ForEachPlayerAsync(b *testing.B) {
 	m.Dire = make([]PlayerDetails, b.N)
 
 	b.ReportAllocs()
-	b.StartTimer()
+	b.ResetTimer()
 	m.ForEachPlayerAsync(func(player PlayerDetails) {
 
 	})
@@ -256,7 +412,7 @@ func BenchmarkMatchDetails_GoForEachPlayer(b *testing.B) {
 	m.Dire = make([]PlayerDetails, b.N)
 
 	b.ReportAllocs()
-	b.StartTimer()
+	b.ResetTimer()
 	m.GoForEachPlayer(func(player PlayerDetails) {
 
 	})()
@@ -268,22 +424,22 @@ func TestTeam_Iterators(t *testing.T) {
 		g.It("Have a working ForEach method", func() {
 			c := 0
 			t := Team{}
-			t.players = make([]Player, 10)
+			t.players = make([]Player, 100000)
 
 			t.ForEach(func(player Player) {
 				c++
 			})
-			g.Assert(c).Equal(10 * 1)
+			g.Assert(c).Equal(100000 * 1)
 		})
 		g.It("Have a working ForEachAsync method", func() {
 			t := Team{}
-			t.players = make([]Player, 10)
+			t.players = make([]Player, 100000)
 
-			c := make(chan bool, 10*1)
+			c := make(chan bool, 100000*1)
 			t.ForEachAsync(func(player Player) {
 				c <- true
 			})
-			for i := 0; i < 10*1; i++ {
+			for i := 0; i < 100000*1; i++ {
 				select {
 				case <-c:
 					continue
@@ -294,13 +450,13 @@ func TestTeam_Iterators(t *testing.T) {
 		})
 		g.It("Have a working GoForEach method", func() {
 			t := Team{}
-			t.players = make([]Player, 10)
+			t.players = make([]Player, 100000)
 
-			c := make(chan bool, 10*1)
+			c := make(chan bool, 100000*1)
 			t.GoForEach(func(player Player) {
 				c <- true
 			})()
-			for i := 0; i < 10*1; i++ {
+			for i := 0; i < 100000*1; i++ {
 				select {
 				case <-c:
 					continue
@@ -308,6 +464,57 @@ func TestTeam_Iterators(t *testing.T) {
 					g.Fail("Skipped element in for each")
 				}
 			}
+		})
+		g.It("Have a working ForEach methodI", func() {
+			c := 0
+			t := Team{}
+			t.players = make([]Player, 100000)
+
+			t.ForEachI(func(player Player, index int) {
+				g.Assert(index).Equal(c)
+				c++
+			})
+			g.Assert(c).Equal(100000 * 1)
+		})
+		g.It("Have a working ForEachAsyncI method", func() {
+			t := Team{}
+			t.players = make([]Player, 100000)
+
+			c := make(chan int, 100000*1)
+			t.ForEachAsyncI(func(player Player, index int) {
+				c <- index
+			})
+			sum := 0
+			for i := 0; i < 100000*1; i++ {
+				select {
+				case read := <-c:
+					sum += read
+					continue
+				default:
+					g.Fail("Skipped element in for each")
+				}
+			}
+			g.Assert(sum).Equal(100000*1*(100000*1+1)/2 - 100000*1)
+		})
+		g.It("Have a working GoForEachI method", func() {
+			t := Team{}
+			t.players = make([]Player, 100000)
+
+			c := make(chan int, 100000*1)
+			t.GoForEachI(func(player Player, index int) {
+				c <- index
+			})()
+			sum := 0
+			for i := 0; i < 100000*1; i++ {
+				select {
+				case read := <-c:
+					sum += read
+					continue
+				default:
+					g.Fail("Skipped element in for each")
+				}
+			}
+			g.Assert(sum).Equal(100000*1*(100000*1+1)/2 - 100000*1)
 		})
 	})
 }
@@ -317,7 +524,7 @@ func BenchmarkTeam_ForEach(b *testing.B) {
 	t.players = make([]Player, b.N)
 
 	b.ReportAllocs()
-	b.StartTimer()
+	b.ResetTimer()
 	t.ForEach(func(player Player) {
 
 	})
@@ -328,7 +535,7 @@ func BenchmarkTeam_ForEachAsync(b *testing.B) {
 	t.players = make([]Player, b.N)
 
 	b.ReportAllocs()
-	b.StartTimer()
+	b.ResetTimer()
 	t.ForEachAsync(func(player Player) {
 
 	})
@@ -339,7 +546,7 @@ func BenchmarkTeam_GoForEach(b *testing.B) {
 	t.players = make([]Player, b.N)
 
 	b.ReportAllocs()
-	b.StartTimer()
+	b.ResetTimer()
 	t.GoForEach(func(player Player) {
 
 	})()
@@ -351,22 +558,22 @@ func TestTeamDetails_Iterators(t *testing.T) {
 		g.It("Have a working ForEach method", func() {
 			c := 0
 			t := TeamDetails{}
-			t = make([]PlayerDetails, 10)
+			t = make([]PlayerDetails, 100000)
 
 			t.ForEach(func(player PlayerDetails) {
 				c++
 			})
-			g.Assert(c).Equal(10 * 1)
+			g.Assert(c).Equal(100000 * 1)
 		})
 		g.It("Have a working ForEachAsync method", func() {
 			t := TeamDetails{}
-			t = make([]PlayerDetails, 10)
+			t = make([]PlayerDetails, 100000)
 
-			c := make(chan bool, 10*1)
+			c := make(chan bool, 100000*1)
 			t.ForEachAsync(func(player PlayerDetails) {
 				c <- true
 			})
-			for i := 0; i < 10*1; i++ {
+			for i := 0; i < 100000*1; i++ {
 				select {
 				case <-c:
 					continue
@@ -377,13 +584,13 @@ func TestTeamDetails_Iterators(t *testing.T) {
 		})
 		g.It("Have a working GoForEach method", func() {
 			t := TeamDetails{}
-			t = make([]PlayerDetails, 10)
+			t = make([]PlayerDetails, 100000)
 
-			c := make(chan bool, 10*1)
+			c := make(chan bool, 100000*1)
 			t.GoForEach(func(player PlayerDetails) {
 				c <- true
 			})()
-			for i := 0; i < 10*1; i++ {
+			for i := 0; i < 100000*1; i++ {
 				select {
 				case <-c:
 					continue
@@ -391,6 +598,57 @@ func TestTeamDetails_Iterators(t *testing.T) {
 					g.Fail("Skipped element in for each")
 				}
 			}
+		})
+		g.It("Have a working ForEach methodI", func() {
+			c := 0
+			t := TeamDetails{}
+			t = make([]PlayerDetails, 100000)
+
+			t.ForEachI(func(player PlayerDetails, index int) {
+				g.Assert(index).Equal(c)
+				c++
+			})
+			g.Assert(c).Equal(100000 * 1)
+		})
+		g.It("Have a working ForEachAsyncI method", func() {
+			t := TeamDetails{}
+			t = make([]PlayerDetails, 100000)
+
+			c := make(chan int, 100000*1)
+			t.ForEachAsyncI(func(player PlayerDetails, index int) {
+				c <- index
+			})
+			sum := 0
+			for i := 0; i < 100000*1; i++ {
+				select {
+				case read := <-c:
+					sum += read
+					continue
+				default:
+					g.Fail("Skipped element in for each")
+				}
+			}
+			g.Assert(sum).Equal(100000*1*(100000*1+1)/2 - 100000*1)
+		})
+		g.It("Have a working GoForEachI method", func() {
+			t := TeamDetails{}
+			t = make([]PlayerDetails, 100000)
+
+			c := make(chan int, 100000*1)
+			t.GoForEachI(func(player PlayerDetails, index int) {
+				c <- index
+			})()
+			sum := 0
+			for i := 0; i < 100000*1; i++ {
+				select {
+				case read := <-c:
+					sum += read
+					continue
+				default:
+					g.Fail("Skipped element in for each")
+				}
+			}
+			g.Assert(sum).Equal(100000*1*(100000*1+1)/2 - 100000*1)
 		})
 	})
 }
@@ -400,7 +658,7 @@ func BenchmarkTeamDetails_ForEach(b *testing.B) {
 	t = make([]PlayerDetails, b.N)
 
 	b.ReportAllocs()
-	b.StartTimer()
+	b.ResetTimer()
 	t.ForEach(func(player PlayerDetails) {
 
 	})
@@ -411,7 +669,7 @@ func BenchmarkTeamDetails_ForEachAsync(b *testing.B) {
 	t = make([]PlayerDetails, b.N)
 
 	b.ReportAllocs()
-	b.StartTimer()
+	b.ResetTimer()
 	t.ForEachAsync(func(player PlayerDetails) {
 
 	})
@@ -422,7 +680,7 @@ func BenchmarkTeamDetails_GoForEach(b *testing.B) {
 	t = make([]PlayerDetails, b.N)
 
 	b.ReportAllocs()
-	b.StartTimer()
+	b.ResetTimer()
 	t.GoForEach(func(player PlayerDetails) {
 
 	})()
@@ -434,22 +692,22 @@ func TestPicksBansPicksBans_Iterators(t *testing.T) {
 		g.It("Have a working ForEach method", func() {
 			c := 0
 			p := PicksBans{}
-			p = make([]PickBan, 10)
+			p = make([]PickBan, 100000)
 
 			p.ForEachPicksBans(func(pickBan PickBan) {
 				c++
 			})
-			g.Assert(c).Equal(10 * 1)
+			g.Assert(c).Equal(100000 * 1)
 		})
 		g.It("Have a working ForEachAsync method", func() {
 			p := PicksBans{}
-			p = make([]PickBan, 10)
+			p = make([]PickBan, 100000)
 
-			c := make(chan bool, 10*1)
+			c := make(chan bool, 100000*1)
 			p.ForEachPicksBansAsync(func(pickBan PickBan) {
 				c <- true
 			})
-			for i := 0; i < 10*1; i++ {
+			for i := 0; i < 100000*1; i++ {
 				select {
 				case <-c:
 					continue
@@ -460,13 +718,13 @@ func TestPicksBansPicksBans_Iterators(t *testing.T) {
 		})
 		g.It("Have a working GoForEach method", func() {
 			p := PicksBans{}
-			p = make([]PickBan, 10)
+			p = make([]PickBan, 100000)
 
-			c := make(chan bool, 10*1)
+			c := make(chan bool, 100000*1)
 			p.GoForEachPicksBans(func(pickBan PickBan) {
 				c <- true
 			})()
-			for i := 0; i < 10*1; i++ {
+			for i := 0; i < 100000*1; i++ {
 				select {
 				case <-c:
 					continue
@@ -474,6 +732,57 @@ func TestPicksBansPicksBans_Iterators(t *testing.T) {
 					g.Fail("Skipped element in for each")
 				}
 			}
+		})
+		g.It("Have a working ForEach methodI", func() {
+			c := 0
+			p := PicksBans{}
+			p = make([]PickBan, 100000)
+
+			p.ForEachPicksBansI(func(pickBan PickBan, index int) {
+				g.Assert(index).Equal(c)
+				c++
+			})
+			g.Assert(c).Equal(100000 * 1)
+		})
+		g.It("Have a working ForEachAsyncI method", func() {
+			p := PicksBans{}
+			p = make([]PickBan, 100000)
+
+			c := make(chan int, 100000*1)
+			p.ForEachPicksBansAsyncI(func(pickBan PickBan, index int) {
+				c <- index
+			})
+			sum := 0
+			for i := 0; i < 100000*1; i++ {
+				select {
+				case read := <-c:
+					sum += read
+					continue
+				default:
+					g.Fail("Skipped element in for each")
+				}
+			}
+			g.Assert(sum).Equal(100000*1*(100000*1+1)/2 - 100000*1)
+		})
+		g.It("Have a working GoForEachI method", func() {
+			p := PicksBans{}
+			p = make([]PickBan, 100000)
+
+			c := make(chan int, 100000*1)
+			p.GoForEachPicksBansI(func(pickBan PickBan, index int) {
+				c <- index
+			})()
+			sum := 0
+			for i := 0; i < 100000*1; i++ {
+				select {
+				case read := <-c:
+					sum += read
+					continue
+				default:
+					g.Fail("Skipped element in for each")
+				}
+			}
+			g.Assert(sum).Equal(100000*1*(100000*1+1)/2 - 100000*1)
 		})
 	})
 }
@@ -483,7 +792,7 @@ func BenchmarkPicksBans_ForEachPicksBans(b *testing.B) {
 	p = make([]PickBan, b.N)
 
 	b.ReportAllocs()
-	b.StartTimer()
+	b.ResetTimer()
 	p.ForEachPicksBans(func(pickBan PickBan) {
 
 	})
@@ -494,7 +803,7 @@ func BenchmarkPicksBans_ForEachPicksBansAsync(b *testing.B) {
 	p = make([]PickBan, b.N)
 
 	b.ReportAllocs()
-	b.StartTimer()
+	b.ResetTimer()
 	p.ForEachPicksBansAsync(func(pickBan PickBan) {
 
 	})
@@ -505,7 +814,7 @@ func BenchmarkPicksBans_GoForEachPicksBans(b *testing.B) {
 	p = make([]PickBan, b.N)
 
 	b.ReportAllocs()
-	b.StartTimer()
+	b.ResetTimer()
 	p.GoForEachPicksBans(func(pickBan PickBan) {
 
 	})()
@@ -517,22 +826,22 @@ func TestAbilityUpgradesAbilityUpgrades_Iterators(t *testing.T) {
 		g.It("Have a working ForEach method", func() {
 			c := 0
 			a := AbilityUpgrades{}
-			a = make([]AbilityUpgrade, 10)
+			a = make([]AbilityUpgrade, 100000)
 
 			a.ForEachAbilityUpgrades(func(abilityUpgrade AbilityUpgrade) {
 				c++
 			})
-			g.Assert(c).Equal(10 * 1)
+			g.Assert(c).Equal(100000 * 1)
 		})
 		g.It("Have a working ForEachAsync method", func() {
 			a := AbilityUpgrades{}
-			a = make([]AbilityUpgrade, 10)
+			a = make([]AbilityUpgrade, 100000)
 
-			c := make(chan bool, 10*1)
+			c := make(chan bool, 100000*1)
 			a.ForEachAbilityUpgradesAsync(func(abilityUpgrade AbilityUpgrade) {
 				c <- true
 			})
-			for i := 0; i < 10*1; i++ {
+			for i := 0; i < 100000*1; i++ {
 				select {
 				case <-c:
 					continue
@@ -543,13 +852,13 @@ func TestAbilityUpgradesAbilityUpgrades_Iterators(t *testing.T) {
 		})
 		g.It("Have a working GoForEach method", func() {
 			a := AbilityUpgrades{}
-			a = make([]AbilityUpgrade, 10)
+			a = make([]AbilityUpgrade, 100000)
 
-			c := make(chan bool, 10*1)
+			c := make(chan bool, 100000*1)
 			a.GoForEachAbilityUpgrades(func(abilityUpgrade AbilityUpgrade) {
 				c <- true
 			})()
-			for i := 0; i < 10*1; i++ {
+			for i := 0; i < 100000*1; i++ {
 				select {
 				case <-c:
 					continue
@@ -557,6 +866,57 @@ func TestAbilityUpgradesAbilityUpgrades_Iterators(t *testing.T) {
 					g.Fail("Skipped element in for each")
 				}
 			}
+		})
+		g.It("Have a working ForEach methodI", func() {
+			c := 0
+			a := AbilityUpgrades{}
+			a = make([]AbilityUpgrade, 100000)
+
+			a.ForEachAbilityUpgradesI(func(abilityUpgrade AbilityUpgrade, index int) {
+				g.Assert(index).Equal(c)
+				c++
+			})
+			g.Assert(c).Equal(100000 * 1)
+		})
+		g.It("Have a working ForEachAsyncI method", func() {
+			a := AbilityUpgrades{}
+			a = make([]AbilityUpgrade, 100000)
+
+			c := make(chan int, 100000*1)
+			a.ForEachAbilityUpgradesAsyncI(func(abilityUpgrade AbilityUpgrade, index int) {
+				c <- index
+			})
+			sum := 0
+			for i := 0; i < 100000*1; i++ {
+				select {
+				case read := <-c:
+					sum += read
+					continue
+				default:
+					g.Fail("Skipped element in for each")
+				}
+			}
+			g.Assert(sum).Equal(100000*1*(100000*1+1)/2 - 100000*1)
+		})
+		g.It("Have a working GoForEachI method", func() {
+			a := AbilityUpgrades{}
+			a = make([]AbilityUpgrade, 100000)
+
+			c := make(chan int, 100000*1)
+			a.GoForEachAbilityUpgradesI(func(abilityUpgrade AbilityUpgrade, index int) {
+				c <- index
+			})()
+			sum := 0
+			for i := 0; i < 100000*1; i++ {
+				select {
+				case read := <-c:
+					sum += read
+					continue
+				default:
+					g.Fail("Skipped element in for each")
+				}
+			}
+			g.Assert(sum).Equal(100000*1*(100000*1+1)/2 - 100000*1)
 		})
 	})
 }
@@ -566,7 +926,7 @@ func BenchmarkAbilityUpgrades_ForEachAbilityUpgrades(b *testing.B) {
 	a = make([]AbilityUpgrade, b.N)
 
 	b.ReportAllocs()
-	b.StartTimer()
+	b.ResetTimer()
 	a.ForEachAbilityUpgrades(func(abilityUpgrade AbilityUpgrade) {
 
 	})
@@ -577,7 +937,7 @@ func BenchmarkAbilityUpgrades_ForEachAbilityUpgradesAsync(b *testing.B) {
 	a = make([]AbilityUpgrade, b.N)
 
 	b.ReportAllocs()
-	b.StartTimer()
+	b.ResetTimer()
 	a.ForEachAbilityUpgradesAsync(func(abilityUpgrade AbilityUpgrade) {
 
 	})
@@ -588,7 +948,7 @@ func BenchmarkAbilityUpgrades_GoForEachAbilityUpgrades(b *testing.B) {
 	a = make([]AbilityUpgrade, b.N)
 
 	b.ReportAllocs()
-	b.StartTimer()
+	b.ResetTimer()
 	a.GoForEachAbilityUpgrades(func(abilityUpgrade AbilityUpgrade) {
 
 	})()

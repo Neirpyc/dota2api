@@ -95,7 +95,6 @@ func ({{ReceiverName}} {{ReceiverType}}) GoForEach{{MethodNameExtension}}(f func
 }
 `
 
-//todo test the indices
 const testAll = `
 func Test{{ReceiverType}}{{MethodNameExtension}}_Iterators(t *testing.T) {
     g := Goblin(t)
@@ -141,6 +140,57 @@ func Test{{ReceiverType}}{{MethodNameExtension}}_Iterators(t *testing.T) {
 				}
 			}    
 		})
+		g.It("Have a working ForEach methodI", func() {
+			c := 0
+			{{ReceiverName}} := {{ReceiverType}}{}
+{{IteratorsTest}}
+
+			{{ReceiverName}}.ForEach{{MethodNameExtension}}I(func({{FuncParameterName}} {{FuncParameterType}}, index int) {
+				g.Assert(index).Equal(c)
+				c++
+			})
+			g.Assert(c).Equal({{TestCount -}} * {{- IteratorCount}})
+		})
+		g.It("Have a working ForEachAsyncI method", func() {
+			{{ReceiverName}} := {{ReceiverType}}{}
+{{IteratorsTest}}
+
+			c := make(chan int, {{TestCount -}} * {{- IteratorCount}})
+			{{ReceiverName}}.ForEach{{MethodNameExtension}}AsyncI(func({{FuncParameterName}} {{FuncParameterType}}, index int) {
+				c <- index
+			})
+			sum := 0
+			for i := 0; i < {{TestCount -}} * {{- IteratorCount}}; i++ {
+				select {
+				case read := <-c:
+					sum += read
+					continue
+				default:
+					g.Fail("Skipped element in for each")
+				}
+			}
+			g.Assert(sum).Equal({{TestCount -}} * {{- IteratorCount}}*({{TestCount -}} * {{- IteratorCount}}+1)/2 - {{TestCount -}} * {{- IteratorCount}})
+		})
+		g.It("Have a working GoForEachI method", func() {
+			{{ReceiverName}} := {{ReceiverType}}{}
+{{IteratorsTest}}
+
+			c := make(chan int, {{TestCount -}} * {{- IteratorCount}})
+			{{ReceiverName}}.GoForEach{{MethodNameExtension}}I(func({{FuncParameterName}} {{FuncParameterType}}, index int) {
+				c <- index
+			})()
+			sum := 0
+			for i := 0; i < {{TestCount -}} * {{- IteratorCount}}; i++ {
+				select {
+				case read := <-c:
+					sum += read
+					continue
+				default:
+					g.Fail("Skipped element in for each")
+				}
+			}
+			g.Assert(sum).Equal({{TestCount -}} * {{- IteratorCount}}*({{TestCount -}} * {{- IteratorCount}}+1)/2 - {{TestCount -}} * {{- IteratorCount}})
+		})
 	})
 }
 
@@ -148,7 +198,7 @@ func Benchmark{{ReceiverType}}_ForEach{{MethodNameExtension}}(b *testing.B) {
 	{{ReceiverName}} := {{ReceiverType}}{}
 {{IteratorsBench}}
 	b.ReportAllocs()
-	b.StartTimer()
+	b.ResetTimer()
 	{{ReceiverName}}.ForEach{{MethodNameExtension}}(func({{FuncParameterName}} {{FuncParameterType}}) {
 		
 	})
@@ -158,7 +208,7 @@ func Benchmark{{ReceiverType}}_ForEach{{MethodNameExtension}}Async(b *testing.B)
 	{{ReceiverName}} := {{ReceiverType}}{}
 {{IteratorsBench}}
 	b.ReportAllocs()
-	b.StartTimer()
+	b.ResetTimer()
 	{{ReceiverName}}.ForEach{{MethodNameExtension}}Async(func({{FuncParameterName}} {{FuncParameterType}}) {
 		
 	})
@@ -168,7 +218,7 @@ func Benchmark{{ReceiverType}}_GoForEach{{MethodNameExtension}}(b *testing.B) {
 	{{ReceiverName}} := {{ReceiverType}}{}
 {{IteratorsBench}}
 	b.ReportAllocs()
-	b.StartTimer()
+	b.ResetTimer()
 	{{ReceiverName}}.GoForEach{{MethodNameExtension}}(func({{FuncParameterName}} {{FuncParameterType}}) {
 		
 	})()
