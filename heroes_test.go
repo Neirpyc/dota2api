@@ -101,12 +101,12 @@ func TestHeroes_ForEach(t *testing.T) {
 		})
 		g.It("Should work on asynchronous request", func() {
 			c := make(chan int, heroes.Count())
-			heroes.ForEachAsync(func(hero Hero) {
+			heroes.GoForEach(func(hero Hero) {
 				if hero.ID == 0 && hero.Name.GetName() == "" {
 					g.Fail("Empty element in for each")
 				}
 				c <- 1
-			})
+			})()
 			for i := 0; i < heroes.Count(); i++ {
 				select {
 				case <-c:

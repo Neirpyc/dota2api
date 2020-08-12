@@ -87,7 +87,11 @@ func (i Items) GetById(id int) (item Item, found bool) {
 			end = curr - 1
 		}
 	}
-	return Item{}, false
+	return
+}
+
+func (i Items) GetByPos(pos int) Item {
+	return i.items[pos]
 }
 
 // Returns the item which has the given name
@@ -101,6 +105,10 @@ func (i Items) GetByName(name string) (item Item, found bool) {
 		}
 	}
 	return Item{}, false
+}
+
+func (i Items) Item(pos int) Item {
+	return i.items[pos]
 }
 
 type getItemsCache struct {

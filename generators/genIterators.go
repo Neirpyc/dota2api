@@ -38,25 +38,6 @@ func ({{ReceiverName}} {{ReceiverType}}) ForEach{{MethodNameExtension}}I(f func(
 {{Iterators}}
 }
 
-func ({{ReceiverName}} {{ReceiverType}}) ForEach{{MethodNameExtension}}AsyncI(f func({{FuncParameterName}} {{FuncParameterType}}, index int)) {
-	var wg sync.WaitGroup
-	index := -1
-	iter := func({{IterParamName}} []{{FuncParameterType}}) {
-		wg.Add(len({{IterParamName}}))
-		for _, {{ForVarName}} := range {{IterParamName}} {
-						index++
-			index := index
-			{{ForVarName}} := {{ForVarName}}
-			go func() {
-				f({{ForVarName}}, index)
-				wg.Done()
-			}()
-		}
-	}
-{{Iterators}}
-	wg.Wait()
-}
-
 func ({{ReceiverName}} {{ReceiverType}}) GoForEach{{MethodNameExtension}}I(f func({{FuncParameterName}} {{FuncParameterType}}, index int)) func() {
 	var wg sync.WaitGroup
 	index := -1
@@ -82,12 +63,6 @@ func ({{ReceiverName}} {{ReceiverType}}) ForEach{{MethodNameExtension}}(f func({
 	})
 }
 
-func ({{ReceiverName}} {{ReceiverType}}) ForEach{{MethodNameExtension}}Async(f func({{FuncParameterName}} {{FuncParameterType}})) {
-	{{ReceiverName}}.ForEach{{MethodNameExtension}}AsyncI(func({{FuncParameterName}} {{FuncParameterType}}, index int) {
-		f({{FuncParameterName}})
-	})
-}
-
 func ({{ReceiverName}} {{ReceiverType}}) GoForEach{{MethodNameExtension}}(f func({{FuncParameterName}} {{FuncParameterType}})) func() {
 	return {{ReceiverName}}.GoForEach{{MethodNameExtension}}I(func({{FuncParameterName}} {{FuncParameterType}}, index int) {
 		f({{FuncParameterName}})
@@ -99,7 +74,7 @@ const testAll = `
 func Test{{ReceiverType}}{{MethodNameExtension}}_Iterators(t *testing.T) {
     g := Goblin(t)
     g.Describe("Test{{ReceiverType}}_Iterators", func() {
-		g.It("Have a working ForEach method", func() {
+		g.It("Has a working ForEach method", func() {
 			c := 0
 			{{ReceiverName}} := {{ReceiverType}}{}
 {{IteratorsTest}}
@@ -108,23 +83,7 @@ func Test{{ReceiverType}}{{MethodNameExtension}}_Iterators(t *testing.T) {
 			})
 			g.Assert(c).Equal({{TestCount }} * {{ IteratorCount}})
 		})
-		g.It("Have a working ForEachAsync method", func() {
-			{{ReceiverName}} := {{ReceiverType}}{}
-{{IteratorsTest}}
-			c := make(chan bool, {{TestCount -}} * {{- IteratorCount}})
-			{{ReceiverName}}.ForEach{{MethodNameExtension}}Async(func({{FuncParameterName}} {{FuncParameterType}}) {
-				c <- true
-			})
-			for i := 0; i < {{TestCount -}} * {{- IteratorCount}}; i++ {
-				select {
-				case <-c:
-					continue
-				default:
-					g.Fail("Skipped element in for each")
-				}
-			}
-		})
-		g.It("Have a working GoForEach method", func() {
+		g.It("Has a working GoForEach method", func() {
 			{{ReceiverName}} := {{ReceiverType}}{}
 {{IteratorsTest}}
 			c := make(chan bool, {{TestCount -}} * {{- IteratorCount}})
@@ -140,7 +99,7 @@ func Test{{ReceiverType}}{{MethodNameExtension}}_Iterators(t *testing.T) {
 				}
 			}    
 		})
-		g.It("Have a working ForEach methodI", func() {
+		g.It("Has a working ForEach methodI", func() {
 			c := 0
 			{{ReceiverName}} := {{ReceiverType}}{}
 {{IteratorsTest}}
@@ -151,27 +110,7 @@ func Test{{ReceiverType}}{{MethodNameExtension}}_Iterators(t *testing.T) {
 			})
 			g.Assert(c).Equal({{TestCount -}} * {{- IteratorCount}})
 		})
-		g.It("Have a working ForEachAsyncI method", func() {
-			{{ReceiverName}} := {{ReceiverType}}{}
-{{IteratorsTest}}
-
-			c := make(chan int, {{TestCount -}} * {{- IteratorCount}})
-			{{ReceiverName}}.ForEach{{MethodNameExtension}}AsyncI(func({{FuncParameterName}} {{FuncParameterType}}, index int) {
-				c <- index
-			})
-			sum := 0
-			for i := 0; i < {{TestCount -}} * {{- IteratorCount}}; i++ {
-				select {
-				case read := <-c:
-					sum += read
-					continue
-				default:
-					g.Fail("Skipped element in for each")
-				}
-			}
-			g.Assert(sum).Equal({{TestCount -}} * {{- IteratorCount}}*({{TestCount -}} * {{- IteratorCount}}+1)/2 - {{TestCount -}} * {{- IteratorCount}})
-		})
-		g.It("Have a working GoForEachI method", func() {
+		g.It("Has a working GoForEachI method", func() {
 			{{ReceiverName}} := {{ReceiverType}}{}
 {{IteratorsTest}}
 
@@ -200,16 +139,6 @@ func Benchmark{{ReceiverType}}_ForEach{{MethodNameExtension}}(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
 	{{ReceiverName}}.ForEach{{MethodNameExtension}}(func({{FuncParameterName}} {{FuncParameterType}}) {
-		
-	})
-}
-
-func Benchmark{{ReceiverType}}_ForEach{{MethodNameExtension}}Async(b *testing.B) {
-	{{ReceiverName}} := {{ReceiverType}}{}
-{{IteratorsBench}}
-	b.ReportAllocs()
-	b.ResetTimer()
-	{{ReceiverName}}.ForEach{{MethodNameExtension}}Async(func({{FuncParameterName}} {{FuncParameterType}}) {
 		
 	})
 }

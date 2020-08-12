@@ -46,7 +46,7 @@ func LoadConfig(file string) (Dota2, error) {
 
 	dota2.steamApi = applyDefaultValue(conf.SteamApi, "https://api.steampowered.com")
 	dota2.steamApiVersion = applyDefaultValue(conf.SteamApiVersion, "V001")
-	dota2.steamUser = applyDefaultValue(conf.SteamUser, "SteamUser")
+	dota2.steamUser = applyDefaultValue(conf.SteamUser, "ISteamUser")
 	dota2.dota2Match = applyDefaultValue(conf.Dota2Match, "IDOTA2Match_570")
 	dota2.dota2Econ = applyDefaultValue(conf.Dota2Econ, "IEconDOTA2_570")
 	dota2.dota2ApiVersion = applyDefaultValue(conf.Dota2ApiVersion, "V001")
