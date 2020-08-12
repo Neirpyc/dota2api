@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"strings"
 )
 
 //go:generate ./genIterators -p dota2api -i genIterators.yaml -o iterators.go
@@ -75,34 +74,6 @@ func (d *Dota2) ResolveVanityUrl(vanityurl string) (int64, error) {
 	}
 
 	return steamId, nil
-}
-
-//Get player summaries
-func (d *Dota2) GetPlayerSummaries(steamIds []int64) (PlayerSummaries, error) {
-	var playerSummaries PlayerSummaries
-	var players PlayerSummaries
-
-	param := map[string]interface{}{
-		"key":      d.steamApiKey,
-		"steamids": strings.Join(ArrayIntToStr(steamIds), ","),
-	}
-	url, err := parseUrl(getPlayerSummariesUrl(d), param)
-
-	if err != nil {
-		return players, err
-	}
-	resp, err := Get(url)
-	if err != nil {
-		return players, err
-	}
-
-	err = json.Unmarshal(resp, &playerSummaries)
-	if err != nil {
-		return players, err
-	}
-
-	players = playerSummaries
-	return players, nil
 }
 
 //Get friend list

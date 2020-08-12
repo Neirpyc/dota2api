@@ -8,11 +8,6 @@ func getResolveVanityUrl(dota2 *Dota2) string {
 	return fmt.Sprintf("%s/%s/%s/", dota2.steamUserUrl, "ResolveVanityURL", dota2.steamApiVersion)
 }
 
-func getPlayerSummariesUrl(dota2 *Dota2) string {
-
-	return fmt.Sprintf("%s/%s/%s/", dota2.steamUserUrl, "GetPlayerSummaries", "V002")
-}
-
 func getFriendListUrl(dota2 *Dota2) string {
 
 	return fmt.Sprintf("%s/%s/%s/", dota2.steamUserUrl, "GetFriendList", dota2.steamApiVersion)
