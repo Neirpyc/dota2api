@@ -23,21 +23,31 @@ type playerSummariesJSON struct {
 }
 
 type playerAccountJSON struct {
-	Steamid                  string `json:"steamid"`
-	CommunityVisibilityState int    `json:"communityvisibilitystate"`
-	ProfileState             int    `json:"profilestate"`
-	PersonaName              string `json:"personaname"`
-	LastLogoff               int64  `json:"lastlogoff"`
-	ProfileUrl               string `json:"profileurl"`
-	Avatar                   string `json:"avatar"`
-	AvatarMedium             string `json:"avatarmedium"`
-	AvatarFull               string `json:"avatarfull"`
-	AvatarHash               string `json:"avatarhash"`
-	PersonaState             int    `json:"personastate"`
-	PersonaStateFlags        int    `json:"personastateflags"`
+	Steamid                  string          `json:"steamid"`
+	CommunityVisibilityState int             `json:"communityvisibilitystate"`
+	ProfileState             int             `json:"profilestate"`
+	PersonaName              string          `json:"personaname"`
+	LastLogoff               int64           `json:"lastlogoff"`
+	ProfileUrl               string          `json:"profileurl"`
+	Avatar                   string          `json:"avatar"`
+	AvatarMedium             string          `json:"avatarmedium"`
+	AvatarFull               string          `json:"avatarfull"`
+	AvatarHash               string          `json:"avatarhash"`
+	PersonaState             int             `json:"personastate"`
+	PersonaStateFlags        int             `json:"personastateflags"`
+	CommentPermission        json.RawMessage `json:"commentpermission"`
+	RealName                 json.RawMessage `json:"realname"`
+	PrimaryClanId            json.RawMessage `json:"primaryclanid"`
+	TimeCreated              json.RawMessage `json:"timecreated"`
+	LocCountryCode           json.RawMessage `json:"loccountrycode"`
+	LocStateCode             json.RawMessage `json:"locstatecode"`
+	LocCityId                json.RawMessage `json:"loccityid"`
+	GameId                   json.RawMessage `json:"gameid"`
+	GameExtraInfo            json.RawMessage `json:"gameextrainfo"`
+	GameServerIp             json.RawMessage `json:"gameserverip"`
 }
 
-func (p playerSummariesJSON) toPlayerAccounts(rawResponse []byte) PlayerAccounts {
+func (p playerSummariesJSON) toPlayerAccounts() PlayerAccounts {
 	var ret = make(PlayerAccounts, len(p.Response.Players))
 	for i, player := range p.Response.Players {
 		ret[i] = PlayerAccount{
@@ -60,14 +70,42 @@ func (p playerSummariesJSON) toPlayerAccounts(rawResponse []byte) PlayerAccounts
 				Hash:         player.AvatarHash,
 			},
 			UserStatus: UserStatus(player.PersonaState),
-			/*Optional: func() Optional {
-				var o Optional
-				reader := bytes.NewReader(rawResponse)
-				dec := json.NewDecoder(reader)
-				dec.DisallowUnknownFields()
-				gameId
-				if v, err := dec.Decode()
-			}(),*/
+			Optional: func() (o Optional) {
+				checkField := func(src json.RawMessage) (string, bool) {
+					if len(src) > 0 {
+						return string(src), true
+					}
+					return "", false
+				}
+				var tmp string
+				var err error
+				_, o.commentPermissionPresent = checkField(player.CommentPermission)
+				o.realName, o.realNamePresent = checkField(player.RealName)
+				if tmp, o.primaryClanIdPresent = checkField(player.PrimaryClanId); o.primaryClanIdPresent {
+					if o.primaryClanId, err = strconv.ParseUint(tmp, 10, 64); err != nil {
+						panic(err)
+					}
+				}
+				if tmp, o.timeCreatedPresent = checkField(player.TimeCreated); o.timeCreatedPresent {
+					if unix, err := strconv.ParseInt(tmp, 10, 64); err != nil {
+						panic(err)
+					} else {
+						o.timeCreated = time.Unix(unix, 0)
+					}
+				}
+				o.locCountryCode, o.locCountryCodePresent = checkField(player.LocCountryCode)
+				o.locStateCode, o.locStateCodePresent = checkField(player.LocStateCode)
+				if tmp, o.locCityIdPresent = checkField(player.LocCityId); o.locCityIdPresent {
+					if o.locCityId, err = strconv.ParseUint(tmp, 10, 64); err != nil {
+						panic(err)
+					}
+				}
+				o.gameId, o.gameIdPresent = checkField(player.GameId)
+				o.gameName, o.gameNamePresent = checkField(player.GameExtraInfo)
+				o.gameServerIp, o.gameServerIpPresent = checkField(player.GameServerIp)
+
+				return
+			}(),
 		}
 	}
 	return ret
@@ -155,10 +193,16 @@ type Optional struct {
 	locCityId                uint64
 	gameServerIpPresent      bool
 	gameServerIp             string
+	realNamePresent          bool
+	realName                 string
 }
 
 func (o Optional) GameId() (gameId string, present bool) {
 	return o.gameId, o.gameIdPresent
+}
+
+func (o Optional) RealName() (realName string, present bool) {
+	return o.realName, o.realNamePresent
 }
 
 func (o Optional) GameName() (gameName string, present bool) {
@@ -202,7 +246,7 @@ type PlayerAccount struct {
 	ProfileUrl               string
 	Avatar                   Avatar
 	UserStatus               UserStatus
-	Optional                 Optional //todo get a working Optional
+	Optional                 Optional
 }
 
 //Get player summaries
@@ -229,5 +273,5 @@ func (d *Dota2) GetPlayerSummaries(steamIds []int64) (PlayerAccounts, error) {
 		return playerAccounts, err
 	}
 
-	return playerSummaries.toPlayerAccounts(resp), nil
+	return playerSummaries.toPlayerAccounts(), nil
 }
