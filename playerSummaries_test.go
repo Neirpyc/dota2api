@@ -25,20 +25,20 @@ func TestDota2_GetPlayerSummaries(t *testing.T) {
 			g.It("Should call the correct request URI", func() {
 				mockClient.DoFunc = func(req *http.Request) (*http.Response, error) {
 					m, err := regexp.MatchString(getPlayerSummariesUrl(&api)+"\\?key=.*&steamids=%5B42%5D", req.URL.String())
-					g.Assert(err).Equal(nil)
-					g.Assert(m).Equal(true)
+					g.Assert(err).IsNil()
+					g.Assert(m).IsTrue()
 					return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(strings.NewReader(response0))}, nil
 				}
 				sum, err = api.GetPlayerSummaries(ParameterSteamIds(NewSteamIdFrom64(42)))
 			})
 			g.It("Should return no error", func() {
-				g.Assert(err == nil).IsTrue()
+				g.Assert(err).IsNil()
 			})
 			g.It("Should return 1 summary", func() {
-				g.Assert(len(sum) == 1).IsTrue()
+				g.Assert(len(sum)).Equal(1)
 			})
 			g.It("Should parse non Optional flags", func() {
-				/*g.Assert(sum[0].SteamId).Equal(NewSteamIdFrom64(42))
+				g.Assert(sum[0].SteamId).Equal(NewSteamIdFrom64(42))
 				g.Assert(sum[0].CommunityVisibilityState).Equal(VisibilityFriendsOfFriends)
 				g.Assert(sum[0].ProfileState).Equal(ProfileStateConfigured)
 				g.Assert(sum[0].DisplayName).Equal("userNAME")
@@ -47,9 +47,9 @@ func TestDota2_GetPlayerSummaries(t *testing.T) {
 				g.Assert(sum[0].Avatar.Avatar64Url).Equal("avatar64URL")
 				g.Assert(sum[0].Avatar.Avatar184Url).Equal("avatar184URL")
 				g.Assert(sum[0].Avatar.Hash).Equal("avatarHASH")
-				g.Assert(sum[0].ProfileState).Equal(1)
+				g.Assert(sum[0].ProfileState).Equal(ProfileStateConfigured)
 				g.Assert(sum[0].UserStatus).Equal(UserStatusAway)
-				g.Assert(sum[0].PersonaStateFlag).Equal(64)*/
+				g.Assert(sum[0].PersonaStateFlag).Equal(64)
 			})
 		})
 	})
