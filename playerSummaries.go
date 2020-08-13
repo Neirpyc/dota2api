@@ -8,6 +8,7 @@ import (
 	"image"
 	"image/jpeg"
 	"image/png"
+	"io"
 	"strconv"
 	"time"
 )
@@ -150,6 +151,10 @@ func (a Avatar) getUrl(url string) (img image.Image, err error) {
 	rd := bytes.NewReader(ret)
 	img, err = jpeg.Decode(rd)
 	if err != nil {
+		_, err = rd.Seek(0, io.SeekStart)
+		if err != nil {
+			return
+		}
 		img, err = png.Decode(rd)
 	}
 	return

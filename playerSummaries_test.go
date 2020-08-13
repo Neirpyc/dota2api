@@ -1,7 +1,12 @@
 package dota2api
 
 import (
+	"bytes"
 	. "github.com/franela/goblin"
+	"image"
+	"image/color"
+	"image/jpeg"
+	"image/png"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -161,6 +166,110 @@ func TestDota2_GetPlayerSummaries(t *testing.T) {
 				g.Assert(f).IsTrue()
 				g.Assert(str).Equal("gameSERVERip")
 			})
+		})
+	})
+}
+
+func getImageTest() image.Image {
+	img := image.NewNRGBA(image.Rect(0, 0, 1, 1))
+	img.Set(0, 0, color.RGBA{
+		R: 42,
+		G: 42 * 2,
+		B: 42 * 3,
+		A: 255,
+	})
+	return img
+}
+
+const zero8FirstBits = ((^uint32(0)) >> 8) << 8
+
+func TestAvatar_Avatar(t *testing.T) {
+	g := Goblin(t)
+	mockClient := mockClient{}
+	api := LoadConfig(GetTestConfig())
+	api.client = &mockClient
+	a := Avatar{
+		Avatar32Url:  "avatar32",
+		Avatar64Url:  "avatar64",
+		Avatar184Url: "avatar184",
+		api:          &api,
+	}
+	getFunc := func(jpg bool, name string) func(req *http.Request) (*http.Response, error) {
+		return func(req *http.Request) (*http.Response, error) {
+			g.Assert(req.URL.String()).Equal(name)
+			var b []byte
+			buf := bytes.NewBuffer(b)
+			if jpg {
+				_ = jpeg.Encode(buf, getImageTest(), &jpeg.Options{
+					Quality: 100,
+				})
+			} else {
+				_ = png.Encode(buf, getImageTest())
+			}
+			return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(buf)}, nil
+		}
+	}
+	check := func(img image.Image, err error) {
+		g.Assert(err).IsNil()
+		r0, g0, b0, _ := img.At(0, 0).RGBA()
+		r1, g1, b1, _ := color.RGBA{
+			R: 42,
+			G: 42 * 2,
+			B: 42 * 3,
+			A: 255,
+		}.RGBA()
+		isOk := func(a, b uint32) bool {
+			if a > b {
+				return a-b < 255
+			}
+			return b-a < 255
+		}
+		g.Assert(isOk(r0, r1)).IsTrue()
+		g.Assert(isOk(g0, g1)).IsTrue()
+		g.Assert(isOk(b0, b1)).IsTrue()
+	}
+	var img image.Image
+	var err error
+	g.Describe("avatar.Avatar32", func() {
+		g.It("Should query the correct URL", func() {
+			mockClient.DoFunc = getFunc(true, "avatar32")
+			img, err = a.Avatar32()
+		})
+		g.It("Should decode jpeg image", func() {
+			check(img, err)
+		})
+		g.It("Should decode png image", func() {
+			mockClient.DoFunc = getFunc(false, "avatar32")
+			img, err = a.Avatar32()
+			check(img, err)
+		})
+	})
+	g.Describe("avatar.Avatar64", func() {
+		g.It("Should query the correct URL", func() {
+			mockClient.DoFunc = getFunc(true, "avatar64")
+			img, err = a.Avatar64()
+		})
+		g.It("Should decode jpeg image", func() {
+			check(img, err)
+		})
+		g.It("Should decode png image", func() {
+			mockClient.DoFunc = getFunc(false, "avatar64")
+			img, err = a.Avatar64()
+			check(img, err)
+		})
+	})
+	g.Describe("avatar.Avatar184", func() {
+		g.It("Should query the correct URL", func() {
+			mockClient.DoFunc = getFunc(true, "avatar184")
+			img, err = a.Avatar184()
+		})
+		g.It("Should decode jpeg image", func() {
+			check(img, err)
+		})
+		g.It("Should decode png image", func() {
+			mockClient.DoFunc = getFunc(false, "avatar184")
+			img, err = a.Avatar184()
+			check(img, err)
 		})
 	})
 }
