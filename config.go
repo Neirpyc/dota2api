@@ -1,10 +1,14 @@
 package dota2api
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"net"
+	"net/http"
+	"time"
 )
 
 type Config struct {
@@ -25,6 +29,8 @@ func applyDefaultValue(value string, def string) string {
 	}
 	return value
 }
+
+const timeout = time.Duration(20) * time.Second
 
 func LoadConfig(file string) (Dota2, error) {
 	dota2 := Dota2{}
@@ -61,6 +67,15 @@ func LoadConfig(file string) (Dota2, error) {
 
 	dota2.heroesCache = &getHeroesCache{}
 	dota2.itemsCache = &getItemsCache{}
+
+	dota2.client = &http.Client{Transport: &http.Transport{
+		ResponseHeaderTimeout: timeout,
+		DialContext: func(_ context.Context, network, addr string) (net.Conn, error) {
+			return net.DialTimeout(network, addr, timeout)
+		},
+		DisableKeepAlives: true,
+	},
+	}
 
 	return dota2, nil
 }

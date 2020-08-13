@@ -276,7 +276,7 @@ func (d *Dota2) GetMatchHistory(params ...interface{}) (MatchHistory, error) {
 	if err != nil {
 		return res, err
 	}
-	resp, err := Get(url)
+	resp, err := d.Get(url)
 	if err != nil {
 		return res, err
 	}
@@ -333,7 +333,7 @@ func (d *Dota2) GetMatchHistoryBySequenceNum(params ...interface{}) (MatchHistor
 	if err != nil {
 		return res, err
 	}
-	resp, err := Get(url)
+	resp, err := d.Get(url)
 	if err != nil {
 		return res, err
 	}

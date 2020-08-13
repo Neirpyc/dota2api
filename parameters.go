@@ -10,6 +10,7 @@ const (
 	parameterKindMinPlayers
 	parameterKindMatchId
 	parameterStartMatchAtSeqNum
+	parameterSteamIds
 )
 
 type Parameter interface {
@@ -66,6 +67,24 @@ func (p ParameterInt) value() interface{} {
 }
 
 func (p ParameterInt) kind() int {
+	return p.kindInt
+}
+
+type ParameterString struct {
+	k       string
+	v       string
+	kindInt int
+}
+
+func (p ParameterString) key() string {
+	return p.k
+}
+
+func (p ParameterString) value() interface{} {
+	return p.v
+}
+
+func (p ParameterString) kind() int {
 	return p.kindInt
 }
 

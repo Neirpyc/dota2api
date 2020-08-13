@@ -145,7 +145,7 @@ func (d *Dota2) getItemsFromAPI() (Items, error) {
 		if err != nil {
 			return items, err
 		}
-		resp, err := Get(url)
+		resp, err := d.Get(url)
 		if err != nil {
 			return items, err
 		}
@@ -190,7 +190,7 @@ func (i Items) Count() int {
 
 func (d Dota2) GetItemImage(item Item) (image.Image, error) {
 	url := fmt.Sprintf("%s/items/%s_lg.png", d.dota2CDN, item.Name.name)
-	res, err := Get(url)
+	res, err := d.Get(url)
 	if err != nil {
 		return nil, err
 	}

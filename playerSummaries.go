@@ -3,12 +3,12 @@ package dota2api
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"image"
 	"image/jpeg"
 	"image/png"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -47,7 +47,7 @@ type playerAccountJSON struct {
 	GameServerIp             json.RawMessage `json:"gameserverip"`
 }
 
-func (p playerSummariesJSON) toPlayerAccounts() PlayerAccounts {
+func (p playerSummariesJSON) toPlayerAccounts(api *Dota2) PlayerAccounts {
 	var ret = make(PlayerAccounts, len(p.Response.Players))
 	for i, player := range p.Response.Players {
 		ret[i] = PlayerAccount{
@@ -63,11 +63,13 @@ func (p playerSummariesJSON) toPlayerAccounts() PlayerAccounts {
 			DisplayName:              player.PersonaName,
 			LastLogOff:               time.Unix(player.LastLogoff, 0),
 			ProfileUrl:               player.ProfileUrl,
+			PersonaStateFlag:         player.PersonaStateFlags,
 			Avatar: Avatar{
 				Avatar32Url:  player.Avatar,
 				Avatar64Url:  player.AvatarMedium,
-				Avatar184Url: player.AvatarMedium,
+				Avatar184Url: player.AvatarFull,
 				Hash:         player.AvatarHash,
+				api:          api,
 			},
 			UserStatus: UserStatus(player.PersonaState),
 			Optional: func() (o Optional) {
@@ -135,11 +137,12 @@ type Avatar struct {
 	Avatar64Url  string
 	Avatar184Url string
 	Hash         string
+	api          *Dota2
 }
 
 func (a Avatar) getUrl(url string) (img image.Image, err error) {
 	var ret []byte
-	ret, err = Get(url)
+	ret, err = a.api.Get(url)
 	if err != nil {
 		return
 	}
@@ -246,24 +249,27 @@ type PlayerAccount struct {
 	ProfileUrl               string
 	Avatar                   Avatar
 	UserStatus               UserStatus
+	PersonaStateFlag         int
 	Optional                 Optional
 }
 
 //Get player summaries
-func (d *Dota2) GetPlayerSummaries(steamIds []int64) (PlayerAccounts, error) {
+func (d *Dota2) GetPlayerSummaries(params ...Parameter) (PlayerAccounts, error) {
 	var playerAccounts PlayerAccounts
 	var playerSummaries playerSummariesJSON
 
-	param := map[string]interface{}{
-		"key":      d.steamApiKey,
-		"steamids": strings.Join(ArrayIntToStr(steamIds), ","),
+	param, err := getParameterMap([]int{parameterSteamIds}, nil, params)
+	if err != nil {
+		return playerAccounts, err
 	}
+	param["key"] = d.steamApiKey
+
 	url, err := parseUrl(getPlayerSummariesUrl(d), param)
 
 	if err != nil {
 		return playerAccounts, err
 	}
-	resp, err := Get(url)
+	resp, err := d.Get(url)
 	if err != nil {
 		return playerAccounts, err
 	}
@@ -273,5 +279,21 @@ func (d *Dota2) GetPlayerSummaries(steamIds []int64) (PlayerAccounts, error) {
 		return playerAccounts, err
 	}
 
-	return playerSummaries.toPlayerAccounts(), nil
+	return playerSummaries.toPlayerAccounts(d), nil
+}
+
+func ParameterSteamIds(ids ...SteamId) Parameter {
+	idsUint64 := make([]uint64, len(ids))
+	for i, id := range ids {
+		current, found := id.SteamId64()
+		if !found {
+			panic(errors.New("steam Ids must be 64 bits Ids"))
+		}
+		idsUint64[i] = current
+	}
+	return ParameterString{
+		k:       "steamids",
+		v:       ArrayIntToStr(idsUint64),
+		kindInt: parameterSteamIds,
+	}
 }

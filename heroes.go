@@ -143,7 +143,7 @@ func (d *Dota2) getHeroesFromAPI() (Heroes, error) {
 		if err != nil {
 			return heroes, err
 		}
-		resp, err := Get(url)
+		resp, err := d.Get(url)
 		if err != nil {
 			return heroes, err
 		}
@@ -188,7 +188,7 @@ func (d Dota2) GetHeroImage(hero Hero, size int) (image.Image, error) {
 		ext = "jpg"
 	}
 	url := fmt.Sprintf("%s/heroes/%s_%s.%s", d.dota2CDN, hero.Name.name, sizes[size], ext)
-	res, err := Get(url)
+	res, err := d.Get(url)
 	if err != nil {
 		return nil, err
 	}

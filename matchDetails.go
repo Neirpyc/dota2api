@@ -628,7 +628,7 @@ func (d *Dota2) GetMatchDetails(params ...Parameter) (MatchDetails, error) {
 	if err != nil {
 		return match, err
 	}
-	resp, err := Get(url)
+	resp, err := d.Get(url)
 	if err != nil {
 		return match, err
 	}

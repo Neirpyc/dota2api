@@ -1,38 +1,26 @@
 package dota2api
 
 import (
-	"context"
 	"fmt"
 	"io/ioutil"
-	"net"
 	"net/http"
 	"net/url"
-	"time"
+	"strconv"
 )
 
 //http get
-func Get(u string) ([]byte, error) {
+func (d Dota2) Get(u string) ([]byte, error) {
 	var body []byte
 
-	timeout := time.Duration(20) * time.Second
-
-	transport := &http.Transport{
-		ResponseHeaderTimeout: timeout,
-		DialContext: func(_ context.Context, network, addr string) (net.Conn, error) {
-			return net.DialTimeout(network, addr, timeout)
-		},
-		DisableKeepAlives: true,
-	}
-
-	client := &http.Client{
-		Transport: transport,
-	}
-
-	resp, err := client.Get(u)
+	request, err := http.NewRequest(http.MethodGet, u, nil)
 	if err != nil {
 		return body, err
 	}
+	resp, err := d.client.Do(request)
 	defer func() { _ = resp.Body.Close() }()
+	if err != nil {
+		return body, err
+	}
 
 	body, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -58,12 +46,16 @@ func parseUrl(u string, param map[string]interface{}) (string, error) {
 	return ur.String(), nil
 }
 
-func ArrayIntToStr(arr []int64) []string {
-	var strArr []string
+func ArrayIntToStr(arr []uint64) string {
+	var strArr string
+	strArr = "["
 
-	for _, v := range arr {
-		strArr = append(strArr, fmt.Sprintf("%d", v))
+	for i, v := range arr {
+		strArr += strconv.FormatUint(v, 10)
+		if i+1 < len(arr) {
+			strArr += ","
+		}
 	}
 
-	return strArr
+	return strArr + "]"
 }

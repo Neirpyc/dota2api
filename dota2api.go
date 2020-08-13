@@ -4,10 +4,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"strconv"
 )
 
 //go:generate ./genIterators -p dota2api -i genIterators.yaml -o iterators.go
+
+type HTTPClient interface {
+	Do(req *http.Request) (*http.Response, error)
+}
 
 type Dota2 struct {
 	// steam api url
@@ -39,6 +44,9 @@ type Dota2 struct {
 	//Caching
 	heroesCache *getHeroesCache
 	itemsCache  *getItemsCache
+
+	//http client
+	client HTTPClient
 }
 
 //Get steamId by username
@@ -53,7 +61,7 @@ func (d *Dota2) ResolveVanityUrl(vanityurl string) (int64, error) {
 	if err != nil {
 		return steamId, err
 	}
-	resp, err := Get(url)
+	resp, err := d.Get(url)
 	if err != nil {
 		return steamId, err
 	}
@@ -90,7 +98,7 @@ func (d *Dota2) GetFriendList(steamid int64) ([]Friend, error) {
 	if err != nil {
 		return friends, err
 	}
-	resp, err := Get(url)
+	resp, err := d.Get(url)
 	if err != nil {
 		return friends, err
 	}
@@ -116,7 +124,7 @@ func (d *Dota2) GetLeagueListing() (LeagueList, error) {
 	if err != nil {
 		return leagueList, err
 	}
-	resp, err := Get(url)
+	resp, err := d.Get(url)
 	if err != nil {
 		return leagueList, err
 	}
@@ -139,7 +147,7 @@ func (d *Dota2) GetLiveLeagueGames() (LiveGames, error) {
 	if err != nil {
 		return liveGames, err
 	}
-	resp, err := Get(url)
+	resp, err := d.Get(url)
 	if err != nil {
 		return liveGames, err
 	}
