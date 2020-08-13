@@ -4,7 +4,6 @@ import (
 	. "github.com/franela/goblin"
 	"io/ioutil"
 	"net/http"
-	"regexp"
 	"strings"
 	"testing"
 )
@@ -16,7 +15,7 @@ const (
 func TestDota2_GetPlayerSummaries(t *testing.T) {
 	g := Goblin(t)
 	mockClient := mockClient{}
-	api, _ := LoadConfig("config.yaml")
+	api := LoadConfig(GetTestConfig())
 	api.client = &mockClient
 	g.Describe("api.GetPlayerSummaries", func() {
 		g.Describe("Basic response", func() {
@@ -24,9 +23,7 @@ func TestDota2_GetPlayerSummaries(t *testing.T) {
 			var err error
 			g.It("Should call the correct request URI", func() {
 				mockClient.DoFunc = func(req *http.Request) (*http.Response, error) {
-					m, err := regexp.MatchString(getPlayerSummariesUrl(&api)+"\\?key=.*&steamids=%5B42%5D", req.URL.String())
-					g.Assert(err).IsNil()
-					g.Assert(m).IsTrue()
+					g.Assert(req.URL.String()).Equal(getPlayerSummariesUrl(&api) + "?key=keyTEST&steamids=%5B42%5D")
 					return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(strings.NewReader(response0))}, nil
 				}
 				sum, err = api.GetPlayerSummaries(ParameterSteamIds(NewSteamIdFrom64(42)))
@@ -38,6 +35,7 @@ func TestDota2_GetPlayerSummaries(t *testing.T) {
 				g.Assert(len(sum)).Equal(1)
 			})
 			g.It("Should parse non Optional flags", func() {
+				g.Assert(len(sum)).IsNotZero()
 				g.Assert(sum[0].SteamId).Equal(NewSteamIdFrom64(42))
 				g.Assert(sum[0].CommunityVisibilityState).Equal(VisibilityFriendsOfFriends)
 				g.Assert(sum[0].ProfileState).Equal(ProfileStateConfigured)

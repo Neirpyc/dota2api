@@ -7,7 +7,7 @@ import (
 
 func TestDota2_GetMatchHistory(t *testing.T) {
 	g := Goblin(t)
-	api, _ := LoadConfig("config.yaml")
+	api, _ := LoadConfigFromFile("config.yaml")
 	g.Describe("api.GetMatchHistory base", func() {
 		hist, err := api.GetMatchHistory()
 		g.It("Should return no error", func() {
@@ -47,7 +47,7 @@ func TestDota2_GetMatchHistory(t *testing.T) {
 
 func TestDota2_GetMatchHistory_Parameters(t *testing.T) {
 	g := Goblin(t)
-	api, _ := LoadConfig("config.yaml")
+	api, _ := LoadConfigFromFile("config.yaml")
 	g.Describe("api.GetMatchHistory parameters", func() {
 		g.It("Should refuse invalid parameters", func() {
 			_, err := api.GetMatchHistory(42, 37)
@@ -120,7 +120,7 @@ func TestDota2_GetMatchHistory_Parameters(t *testing.T) {
 
 func TestDota2_GetMatchHistory_Cursor(t *testing.T) {
 	g := Goblin(t)
-	api, _ := LoadConfig("config.yaml")
+	api, _ := LoadConfigFromFile("config.yaml")
 	g.Describe("api.GetMatchHistory cursor", func() {
 		c := NewCursor()
 		matches, err := api.GetMatchHistory(c, MatchesRequested(50))
@@ -155,7 +155,7 @@ func TestDota2_GetMatchHistory_Cursor(t *testing.T) {
 
 func TestDota2_GetMatchHistoryBySequenceNum(t *testing.T) {
 	g := Goblin(t)
-	api, _ := LoadConfig("config.yaml")
+	api, _ := LoadConfigFromFile("config.yaml")
 	g.Describe("api.TestDota2_GetMatchHistoryBySequenceNum", func() {
 		hist, err := api.GetMatchHistoryBySequenceNum()
 		g.It("Should return no error", func() {
@@ -195,7 +195,7 @@ func TestDota2_GetMatchHistoryBySequenceNum(t *testing.T) {
 
 func TestDota2_GetMatchHistoryBySequenceNum_Parameters(t *testing.T) {
 	g := Goblin(t)
-	api, _ := LoadConfig("config.yaml")
+	api, _ := LoadConfigFromFile("config.yaml")
 	g.Describe("api.GetMatchHistoryBySequenceNum Parameters", func() {
 		g.It("Should refuse invalid parameters", func() {
 			_, err := api.GetMatchHistoryBySequenceNum(42, 37)
@@ -230,7 +230,7 @@ func TestDota2_GetMatchHistoryBySequenceNum_Parameters(t *testing.T) {
 
 func TestDota2_GetMatchHistoryBySequenceNum_Cursor(t *testing.T) {
 	g := Goblin(t)
-	api, _ := LoadConfig("config.yaml")
+	api, _ := LoadConfigFromFile("config.yaml")
 	g.Describe("api.GetMatchHistoryBySequenceNum Cursor", func() {
 		g.Describe("Part 1", func() {
 			c := NewCursor()
@@ -265,7 +265,7 @@ func TestDota2_GetMatchHistoryBySequenceNum_Cursor(t *testing.T) {
 
 func TestDota2_GetMatchHistory_Teams(t *testing.T) {
 	g := Goblin(t)
-	api, _ := LoadConfig("config.yaml")
+	api, _ := LoadConfigFromFile("config.yaml")
 	matches, _ := api.GetMatchHistory(MatchesRequested(100), AccountId(76561198067618887))
 	check := func(player Player, p Player, f bool, checkAccountId bool) {
 		g.Assert(f).IsTrue()

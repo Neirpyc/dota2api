@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	dota2, err := dota2api.LoadConfig("../config.yaml")
+	dota2, err := dota2api.LoadConfigFromFile("../config.yaml")
 
 	if err != nil {
 		fmt.Println(err)

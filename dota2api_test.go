@@ -14,11 +14,18 @@ func (m *mockClient) Do(req *http.Request) (*http.Response, error) {
 	return m.DoFunc(req)
 }
 
+func GetTestConfig() Config {
+	return Config{
+		Timeout:     1,
+		SteamApiKey: "keyTEST",
+	}
+}
+
 func TestLoadConfig(t *testing.T) {
 	g := Goblin(t)
-	g.Describe("LoadConfig", func() {
+	g.Describe("LoadConfigFromFile", func() {
 		g.It("Should load without error", func() {
-			_, err := LoadConfig("config.yaml")
+			_, err := LoadConfigFromFile("config.yaml")
 			g.Assert(err).Equal(nil)
 		})
 	})

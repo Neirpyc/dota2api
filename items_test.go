@@ -11,7 +11,7 @@ import (
 
 func TestGetItems(t *testing.T) {
 	g := Goblin(t)
-	api, _ := LoadConfig("config.yaml")
+	api, _ := LoadConfigFromFile("config.yaml")
 	g.Describe("GetItems", func() {
 		g.It("Should return no error", func(done Done) {
 			go func() {
@@ -57,7 +57,7 @@ func TestGetItems(t *testing.T) {
 
 func TestItems_Name(t *testing.T) {
 	g := Goblin(t)
-	api, _ := LoadConfig("config.yaml")
+	api, _ := LoadConfigFromFile("config.yaml")
 	items, _ := api.GetItems()
 	g.Describe("Items Names", func() {
 		g.It("Should return the correct full name", func() {
@@ -78,7 +78,7 @@ func TestItems_Name(t *testing.T) {
 func TestDota2_GetItemImage(t *testing.T) {
 	g := Goblin(t)
 	var wg sync.WaitGroup
-	api, _ := LoadConfig("config.yaml")
+	api, _ := LoadConfigFromFile("config.yaml")
 	items, _ := api.GetItems()
 	g.Describe("api.GetHeroImage", func() {
 		g.It("Should return lg Images", func() {
@@ -102,7 +102,7 @@ func TestDota2_GetItemImage(t *testing.T) {
 
 func TestItems_ForEach(t *testing.T) {
 	g := Goblin(t)
-	api, _ := LoadConfig("config.yaml")
+	api, _ := LoadConfigFromFile("config.yaml")
 	items, _ := api.GetItems()
 	g.Describe("Item.ForEach", func() {
 		g.It("Should work on synchronous request", func() {
@@ -153,7 +153,7 @@ func TestItems_ForEach(t *testing.T) {
 
 func TestItems_GetById(t *testing.T) {
 	g := Goblin(t)
-	api, _ := LoadConfig("config.yaml")
+	api, _ := LoadConfigFromFile("config.yaml")
 	items, _ := api.GetItems()
 	g.Describe("Items.GetById", func() {
 		g.It("Should return the correct hero when ID is found", func() {
@@ -176,7 +176,7 @@ func TestItems_GetById(t *testing.T) {
 }
 
 func BenchmarkItems_GetById(b *testing.B) {
-	api, _ := LoadConfig("config.yaml")
+	api, _ := LoadConfigFromFile("config.yaml")
 	items, _ := api.GetItems()
 	ids := make([]int, b.N)
 	rand.Seed(time.Now().Unix())
@@ -192,7 +192,7 @@ func BenchmarkItems_GetById(b *testing.B) {
 
 func TestItems_GetByName(t *testing.T) {
 	g := Goblin(t)
-	api, _ := LoadConfig("config.yaml")
+	api, _ := LoadConfigFromFile("config.yaml")
 	items, _ := api.GetItems()
 	g.Describe("Items.GetById", func() {
 		g.It("Should return the correct hero when Name is found", func() {
@@ -211,7 +211,7 @@ func TestItems_GetByName(t *testing.T) {
 }
 
 func BenchmarkItems_GetByName(b *testing.B) {
-	api, _ := LoadConfig("config.yaml")
+	api, _ := LoadConfigFromFile("config.yaml")
 	items, _ := api.GetItems()
 	names := make([]string, b.N)
 	rand.Seed(time.Now().Unix())

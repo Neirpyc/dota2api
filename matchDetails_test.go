@@ -10,7 +10,7 @@ import (
 func TestDota2_GetMatchDetails1(t *testing.T) {
 	g := Goblin(t)
 	matchId := int64(5548608983)
-	api, _ := LoadConfig("config.yaml")
+	api, _ := LoadConfigFromFile("config.yaml")
 	g.Describe("GetMatchDetails parameters", func() {
 		g.It("Should error with no parameter", func() {
 			_, err := api.GetMatchDetails()
@@ -34,7 +34,7 @@ func TestDota2_GetMatchDetails1(t *testing.T) {
 func TestDota2_GetMatchDetails2(t *testing.T) {
 	g := Goblin(t)
 	matchId := int64(5548608983)
-	api, _ := LoadConfig("config.yaml")
+	api, _ := LoadConfigFromFile("config.yaml")
 	details, err := api.GetMatchDetails(MatchId(matchId))
 	g.Describe(fmt.Sprintf("GetMatchDetails %d", matchId), func() {
 		g.It("Should not error", func() {
