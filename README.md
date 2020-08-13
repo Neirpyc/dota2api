@@ -1,4 +1,5 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/Neirpyc/dota2api)](https://goreportcard.com/report/github.com/Neirpyc/dota2api)
+[![Stability: Experimental](https://masterminds.github.io/stability/experimental.svg)](https://masterminds.github.io/stability/experimental.html)
 # Dota2-API
 
 ## Introduction
