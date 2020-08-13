@@ -75,6 +75,7 @@ func (p playerSummariesJSON) toPlayerAccounts(api *Dota2) PlayerAccounts {
 			Optional: func() (o Optional) {
 				checkField := func(src json.RawMessage) (string, bool) {
 					if len(src) > 0 {
+						src = bytes.TrimRight(bytes.TrimLeft(src, "\""), "\"")
 						return string(src), true
 					}
 					return "", false
@@ -119,7 +120,7 @@ type CommunityVisibilityState int
 
 const (
 	VisibilityPrivate CommunityVisibilityState = iota + 1
-	VisibilityFriendOnly
+	VisibilityFriendsOnly
 	VisibilityFriendsOfFriends
 	VisibilityUsersOnly
 	VisibilityPublic
