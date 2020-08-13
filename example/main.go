@@ -52,11 +52,7 @@ func main() {
 	fmt.Println()
 	res21, _ := json.Marshal(matchDetails)
 	fmt.Println(string(res21))
-	//
-	steamIds := []int64{
-		76561198058479208,
-	}
-	players, err := dota2.GetPlayerSummaries(steamIds)
+	players, err := dota2.GetPlayerSummaries(dota2api.ParameterSteamIds(dota2api.NewSteamIdFrom64(76561198058479208)))
 	if err != nil {
 		fmt.Println(err)
 		return
