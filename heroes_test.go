@@ -90,9 +90,9 @@ func TestDota2_GetHeroImage(t *testing.T) {
 	api := LoadConfig(GetTestConfig())
 	api.client = &mockClient
 	var jpg bool
-	var s int
+	var currentSize HeroImageSize
 	mockClient.DoFunc = func(req *http.Request) (*http.Response, error) {
-		g.Assert(req.URL.String()).Equal(getHeroImageUrl(api, heroNameFromFullName(heroPrefix+"hero"), s))
+		g.Assert(req.URL.String()).Equal(getHeroImageUrl(api, heroNameFromFullName(heroPrefix+"hero"), currentSize))
 		var b []byte
 		if jpg {
 			b = getJpgTest()
@@ -103,8 +103,8 @@ func TestDota2_GetHeroImage(t *testing.T) {
 		}
 		return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(bytes.NewBuffer(b))}, nil
 	}
-	test := func(size int) {
-		s = size
+	test := func(size HeroImageSize) {
+		currentSize = size
 		for i := 0; i < 2; i++ {
 			img, err := api.GetHeroImage(Hero{
 				Name: heroNameFromFullName(heroPrefix + "hero"),

@@ -18,8 +18,10 @@ const (
 	heroPrefix = "npc_dota_hero_"
 )
 
+type HeroImageSize int
+
 const (
-	SizeLg = iota
+	SizeLg HeroImageSize = iota
 	SizeSb
 	SizeFull
 	SizeVert
@@ -184,7 +186,7 @@ func (h Heroes) Count() int {
 	return len(h.heroes)
 }
 
-func getHeroImageUrl(d Dota2, name heroName, size int) string {
+func getHeroImageUrl(d Dota2, name heroName, size HeroImageSize) string {
 	ext := "png"
 	if size == SizeVert {
 		ext = "jpg"
@@ -192,7 +194,7 @@ func getHeroImageUrl(d Dota2, name heroName, size int) string {
 	return fmt.Sprintf("%s/heroes/%s_%s.%s", d.dota2CDN, name.name, sizes[size], ext)
 }
 
-func (d Dota2) GetHeroImage(hero Hero, size int) (image.Image, error) {
+func (d Dota2) GetHeroImage(hero Hero, size HeroImageSize) (image.Image, error) {
 	url := getHeroImageUrl(d, hero.Name, size)
 	res, err := d.Get(url)
 	if err != nil {
