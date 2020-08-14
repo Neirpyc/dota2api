@@ -181,8 +181,6 @@ func getImageTest() image.Image {
 	return img
 }
 
-const zero8FirstBits = ((^uint32(0)) >> 8) << 8
-
 func TestAvatar_Avatar(t *testing.T) {
 	g := Goblin(t)
 	mockClient := mockClient{}

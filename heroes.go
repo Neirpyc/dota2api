@@ -81,9 +81,8 @@ func (h Heroes) GetByName(name string) (hero Hero, found bool) {
 }
 
 type heroName struct {
-	name   string
-	prefix string
-	full   string
+	name string
+	full string
 }
 
 func (hN heroName) GetName() string {
@@ -95,7 +94,14 @@ func (hN heroName) GetFullName() string {
 }
 
 func (hN heroName) GetPrefix() string {
-	return hN.prefix
+	return heroPrefix
+}
+
+func heroNameFromFullName(name string) heroName {
+	return heroName{
+		name: name[len(heroPrefix):],
+		full: name,
+	}
 }
 
 type Hero struct {
@@ -156,12 +162,8 @@ func (d *Dota2) getHeroesFromAPI() (Heroes, error) {
 		heroes.heroes = make([]Hero, len(heroesListJson.Result.Heroes))
 		for i, src := range heroesListJson.Result.Heroes {
 			heroes.heroes[i] = Hero{
-				ID: src.ID,
-				Name: heroName{
-					name:   src.Name[len(heroPrefix):],
-					prefix: heroPrefix,
-					full:   src.Name,
-				},
+				ID:   src.ID,
+				Name: heroNameFromFullName(src.Name),
 			}
 		}
 
