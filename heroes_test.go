@@ -21,7 +21,7 @@ func TestGetHeroes(t *testing.T) {
 	mockClient := mockClient{}
 	api := LoadConfig(GetTestConfig())
 	api.client = &mockClient
-	g.Describe("GetHeroes", func() {
+	g.Describe("api.GetHeroes", func() {
 		var heroes Heroes
 		var err error
 		g.It("Should call the correct URL", func() {

@@ -129,14 +129,12 @@ func (d *Dota2) GetHeroes() (Heroes, error) {
 	var err error
 
 	if atomic.LoadUint32(&d.heroesCache.fromCache) == 0 {
-		if d.heroesCache.heroes, err = d.getHeroesFromAPI(); err == nil {
-			atomic.StoreUint32(&d.heroesCache.fromCache, 1)
-		}
+		err = d.fillHeroesCache()
 	}
 	return d.heroesCache.heroes, err
 }
 
-func (d *Dota2) getHeroesFromAPI() (Heroes, error) {
+func (d *Dota2) fillHeroesCache() error {
 	d.heroesCache.mutex.Lock()
 	defer d.heroesCache.mutex.Unlock()
 	if d.heroesCache.fromCache == 0 {
@@ -149,16 +147,16 @@ func (d *Dota2) getHeroesFromAPI() (Heroes, error) {
 		url, err := parseUrl(getHeroesUrl(d), param)
 
 		if err != nil {
-			return heroes, err
+			return err
 		}
 		resp, err := d.Get(url)
 		if err != nil {
-			return heroes, err
+			return err
 		}
 
 		err = json.Unmarshal(resp, &heroesListJson)
 		if err != nil {
-			return heroes, err
+			return err
 		}
 
 		heroes.heroes = make([]Hero, len(heroesListJson.Result.Heroes))
@@ -173,13 +171,11 @@ func (d *Dota2) getHeroesFromAPI() (Heroes, error) {
 			return heroes.heroes[i].ID < heroes.heroes[j].ID
 		})
 
-		return heroes, nil
+		d.heroesCache.heroes = heroes
+		defer atomic.StoreUint32(&d.heroesCache.fromCache, 1)
+		return nil
 	}
-	return d.getHeroesFromCache()
-}
-
-func (d *Dota2) getHeroesFromCache() (Heroes, error) {
-	return d.heroesCache.heroes, nil
+	return nil
 }
 
 func (h Heroes) Count() int {

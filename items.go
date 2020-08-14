@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"image"
+	"image/jpeg"
 	"image/png"
+	"io"
 	"sort"
 	"sync"
 	"sync/atomic"
@@ -15,6 +17,10 @@ const itemPrefix = "item_"
 
 func getItemsUrl(dota2 *Dota2) string {
 	return fmt.Sprintf("%s/%s/%s/", dota2.dota2EconUrl, "GetGameItems", dota2.dota2ApiVersion)
+}
+
+func getItemImageUrl(d *Dota2, name itemName) string {
+	return fmt.Sprintf("%s/items/%s_lg.png", d.dota2CDN, name.name)
 }
 
 type itemsJSON struct {
@@ -48,7 +54,14 @@ func (iN itemName) GetFullName() string {
 }
 
 func (iN itemName) GetPrefix() string {
-	return iN.prefix
+	return itemPrefix
+}
+
+func itemNameFromFullName(name string) itemName {
+	return itemName{
+		name: name[len(itemPrefix):],
+		full: name,
+	}
 }
 
 type Item struct {
@@ -123,14 +136,12 @@ type getItemsCache struct {
 func (d *Dota2) GetItems() (Items, error) {
 	var err error
 	if atomic.LoadUint32(&d.itemsCache.fromCache) == 0 {
-		if d.itemsCache.items, err = d.getItemsFromAPI(); err == nil {
-			atomic.StoreUint32(&d.itemsCache.fromCache, 1)
-		}
+		err = d.fillItemsCache()
 	}
 	return d.itemsCache.items, err
 }
 
-func (d *Dota2) getItemsFromAPI() (Items, error) {
+func (d *Dota2) fillItemsCache() error {
 	d.itemsCache.mutex.Lock()
 	defer d.itemsCache.mutex.Unlock()
 	if d.itemsCache.fromCache == 0 {
@@ -143,27 +154,23 @@ func (d *Dota2) getItemsFromAPI() (Items, error) {
 		url, err := parseUrl(getItemsUrl(d), param)
 
 		if err != nil {
-			return items, err
+			return err
 		}
 		resp, err := d.Get(url)
 		if err != nil {
-			return items, err
+			return err
 		}
 
 		err = json.Unmarshal(resp, &itemsListJson)
 		if err != nil {
-			return items, err
+			return err
 		}
 
 		items.items = make([]Item, len(itemsListJson.Result.Items))
 		for i, src := range itemsListJson.Result.Items {
 			items.items[i] = Item{
-				ID: src.ID,
-				Name: itemName{
-					name:   src.Name[len(itemPrefix):],
-					prefix: itemPrefix,
-					full:   src.Name,
-				},
+				ID:         src.ID,
+				Name:       itemNameFromFullName(src.Name),
 				Cost:       0,
 				SecretShop: src.SecretShop == 1,
 				SideShop:   src.SideShop == 1,
@@ -175,9 +182,11 @@ func (d *Dota2) getItemsFromAPI() (Items, error) {
 			return items.items[i].ID < items.items[j].ID
 		})
 
-		return items, nil
+		d.itemsCache.items = items
+		defer atomic.StoreUint32(&d.itemsCache.fromCache, 1)
+		return nil
 	}
-	return d.getItemsFromCache()
+	return nil
 }
 
 func (d *Dota2) getItemsFromCache() (Items, error) {
@@ -188,13 +197,20 @@ func (i Items) Count() int {
 	return len(i.items)
 }
 
-func (d Dota2) GetItemImage(item Item) (image.Image, error) {
-	url := fmt.Sprintf("%s/items/%s_lg.png", d.dota2CDN, item.Name.name)
+func (d Dota2) GetItemImage(item Item) (img image.Image, err error) {
+	url := getItemImageUrl(&d, item.Name)
 	res, err := d.Get(url)
 	if err != nil {
 		return nil, err
 	}
-	var img image.Image
-	img, err = png.Decode(bytes.NewReader(res))
-	return img, err
+	r := bytes.NewReader(res)
+	img, err = png.Decode(r)
+	if err != nil {
+		_, err = r.Seek(0, io.SeekStart)
+		if err != nil {
+			return
+		}
+		img, err = jpeg.Decode(r)
+	}
+	return
 }
