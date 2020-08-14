@@ -19,8 +19,13 @@ func TestDota2_GetPlayerSummaries_Integration(t *testing.T) {
 			steamId1 := NewSteamIdFrom64(76561198048536965)
 			sum, err := api.GetPlayerSummaries(ParameterSteamIds(steamId0, steamId1))
 			g.Assert(err).IsNil()
-			g.Assert(sum[0].SteamId).Equal(steamId0)
-			g.Assert(sum[1].SteamId).Equal(steamId1)
+			if sum[0].SteamId == steamId0 {
+				g.Assert(sum[0].SteamId).Equal(steamId0)
+				g.Assert(sum[1].SteamId).Equal(steamId1)
+			} else {
+				g.Assert(sum[0].SteamId).Equal(steamId1)
+				g.Assert(sum[1].SteamId).Equal(steamId0)
+			}
 		})
 	})
 }

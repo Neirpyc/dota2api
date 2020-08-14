@@ -4,9 +4,6 @@ import (
 	"bytes"
 	. "github.com/franela/goblin"
 	"image"
-	"image/color"
-	"image/jpeg"
-	"image/png"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -170,17 +167,6 @@ func TestDota2_GetPlayerSummaries(t *testing.T) {
 	})
 }
 
-func getImageTest() image.Image {
-	img := image.NewNRGBA(image.Rect(0, 0, 1, 1))
-	img.Set(0, 0, color.RGBA{
-		R: 42,
-		G: 42 * 2,
-		B: 42 * 3,
-		A: 255,
-	})
-	return img
-}
-
 func TestAvatar_Avatar(t *testing.T) {
 	g := Goblin(t)
 	mockClient := mockClient{}
@@ -196,35 +182,17 @@ func TestAvatar_Avatar(t *testing.T) {
 		return func(req *http.Request) (*http.Response, error) {
 			g.Assert(req.URL.String()).Equal(name)
 			var b []byte
-			buf := bytes.NewBuffer(b)
 			if jpg {
-				_ = jpeg.Encode(buf, getImageTest(), &jpeg.Options{
-					Quality: 100,
-				})
+				b = getJpgTest()
 			} else {
-				_ = png.Encode(buf, getImageTest())
+				b = getPngTest()
 			}
-			return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(buf)}, nil
+			return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(bytes.NewBuffer(b))}, nil
 		}
 	}
 	check := func(img image.Image, err error) {
 		g.Assert(err).IsNil()
-		r0, g0, b0, _ := img.At(0, 0).RGBA()
-		r1, g1, b1, _ := color.RGBA{
-			R: 42,
-			G: 42 * 2,
-			B: 42 * 3,
-			A: 255,
-		}.RGBA()
-		isOk := func(a, b uint32) bool {
-			if a > b {
-				return a-b < 255
-			}
-			return b-a < 255
-		}
-		g.Assert(isOk(r0, r1)).IsTrue()
-		g.Assert(isOk(g0, g1)).IsTrue()
-		g.Assert(isOk(b0, b1)).IsTrue()
+		g.Assert(validateTestImage(img)).IsTrue()
 	}
 	var img image.Image
 	var err error
