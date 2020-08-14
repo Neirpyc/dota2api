@@ -1,6 +1,7 @@
 package dota2api
 
 import (
+	"bytes"
 	. "github.com/franela/goblin"
 	"io/ioutil"
 	"math/rand"
@@ -85,42 +86,45 @@ func TestHeroName(t *testing.T) {
 
 func TestDota2_GetHeroImage(t *testing.T) {
 	g := Goblin(t)
-	var wg sync.WaitGroup
-	api, _ := LoadConfigFromFile("config.yaml")
-	heroes, _ := api.GetHeroes()
-	doTest := func(size int) {
-		for i := 0; i < heroes.Count(); i += heroes.Count() / 10 {
-			if i > heroes.Count() {
-				continue
-			}
-			wg.Add(1)
-			i := i
-			go func() {
-				img, err := api.GetHeroImage(heroes.heroes[i], size)
-				g.Assert(err).Equal(nil)
-				g.Assert(img == nil).IsFalse()
-				g.Assert(img.Bounds().Dx() > 0).IsTrue()
-				wg.Done()
-			}()
+	mockClient := mockClient{}
+	api := LoadConfig(GetTestConfig())
+	api.client = &mockClient
+	var jpg bool
+	var s int
+	mockClient.DoFunc = func(req *http.Request) (*http.Response, error) {
+		g.Assert(req.URL.String()).Equal(getHeroImageUrl(api, heroNameFromFullName(heroPrefix+"hero"), s))
+		var b []byte
+		if jpg {
+			b = getJpgTest()
+			jpg = false
+		} else {
+			b = getPngTest()
+			jpg = true
 		}
-		wg.Wait()
+		return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(bytes.NewBuffer(b))}, nil
+	}
+	test := func(size int) {
+		s = size
+		for i := 0; i < 2; i++ {
+			img, err := api.GetHeroImage(Hero{
+				Name: heroNameFromFullName(heroPrefix + "hero"),
+			}, size)
+			g.Assert(err).IsNil()
+			g.Assert(validateTestImage(img)).IsTrue()
+		}
 	}
 	g.Describe("api.GetHeroImage", func() {
-		g.It("Should return lg Images", func(done Done) {
-			doTest(SizeLg)
-			done()
+		g.It("Should return lg Images", func() {
+			test(SizeLg)
 		})
-		g.It("Should return sb Images", func(done Done) {
-			doTest(SizeSb)
-			done()
+		g.It("Should return sb Images", func() {
+			test(SizeSb)
 		})
-		g.It("Should return full Images", func(done Done) {
-			doTest(SizeFull)
-			done()
+		g.It("Should return full Images", func() {
+			test(SizeVert)
 		})
-		g.It("Should return vert Images", func(done Done) {
-			doTest(SizeVert)
-			done()
+		g.It("Should return vert Images", func() {
+			test(SizeFull)
 		})
 	})
 }
