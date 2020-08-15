@@ -614,3 +614,89 @@ func BenchmarkAbilityUpgrades_GoForEachAbilityUpgrades(b *testing.B) {
 
 	})()
 }
+
+func TestFriends_Iterators(t *testing.T) {
+	g := Goblin(t)
+	g.Describe("TestFriends_Iterators", func() {
+		g.It("Has a working ForEach method", func() {
+			c := 0
+			fr := Friends{}
+			fr = make([]Friend, 10)
+
+			fr.ForEach(func(friend Friend) {
+				c++
+			})
+			g.Assert(c).Equal(10 * 1)
+		})
+		g.It("Has a working GoForEach method", func() {
+			fr := Friends{}
+			fr = make([]Friend, 10)
+
+			c := make(chan bool, 10*1)
+			fr.GoForEach(func(friend Friend) {
+				c <- true
+			})()
+			for i := 0; i < 10*1; i++ {
+				select {
+				case <-c:
+					continue
+				default:
+					g.Fail("Skipped element in for each")
+				}
+			}
+		})
+		g.It("Has a working ForEach methodI", func() {
+			c := 0
+			fr := Friends{}
+			fr = make([]Friend, 10)
+
+			fr.ForEachI(func(friend Friend, index int) {
+				g.Assert(index).Equal(c)
+				c++
+			})
+			g.Assert(c).Equal(10 * 1)
+		})
+		g.It("Has a working GoForEachI method", func() {
+			fr := Friends{}
+			fr = make([]Friend, 10)
+
+			c := make(chan int, 10*1)
+			fr.GoForEachI(func(friend Friend, index int) {
+				c <- index
+			})()
+			sum := 0
+			for i := 0; i < 10*1; i++ {
+				select {
+				case read := <-c:
+					sum += read
+					continue
+				default:
+					g.Fail("Skipped element in for each")
+				}
+			}
+			g.Assert(sum).Equal(10*1*(10*1+1)/2 - 10*1)
+		})
+	})
+}
+
+func BenchmarkFriends_ForEach(b *testing.B) {
+	fr := Friends{}
+	fr = make([]Friend, b.N)
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	fr.ForEach(func(friend Friend) {
+
+	})
+}
+
+func BenchmarkFriends_GoForEach(b *testing.B) {
+	fr := Friends{}
+	fr = make([]Friend, b.N)
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	fr.GoForEach(func(friend Friend) {
+
+	})()
+}

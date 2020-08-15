@@ -313,3 +313,47 @@ func (a AbilityUpgrades) GoForEachAbilityUpgrades(f func(abilityUpgrade AbilityU
 		f(abilityUpgrade)
 	})
 }
+
+func (fr Friends) ForEachI(f func(friend Friend, index int)) {
+	index := 0
+	iter := func(friend []Friend) {
+		for _, fr := range friend {
+			f(fr, index)
+			index++
+		}
+	}
+	iter([]Friend(fr))
+
+}
+
+func (fr Friends) GoForEachI(f func(friend Friend, index int)) func() {
+	var wg sync.WaitGroup
+	index := -1
+	iter := func(friend []Friend) {
+		wg.Add(len(friend))
+		for _, fr := range friend {
+			index++
+			index := index
+			fr := fr
+			go func() {
+				f(fr, index)
+				wg.Done()
+			}()
+		}
+	}
+	iter([]Friend(fr))
+
+	return wg.Wait
+}
+
+func (fr Friends) ForEach(f func(friend Friend)) {
+	fr.ForEachI(func(friend Friend, index int) {
+		f(friend)
+	})
+}
+
+func (fr Friends) GoForEach(f func(friend Friend)) func() {
+	return fr.GoForEachI(func(friend Friend, index int) {
+		f(friend)
+	})
+}

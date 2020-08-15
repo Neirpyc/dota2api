@@ -3,7 +3,6 @@ TestCount: 10
 List:
   - ReceiverName: h
     ReceiverType: Heroes
-    MethodNameExtension: ''
     FuncParameterName: hero
     FuncParameterType: Hero
     IterParamName: heroes
@@ -12,7 +11,6 @@ List:
       - .heroes
   - ReceiverName: i
     ReceiverType: Items
-    MethodNameExtension: ''
     FuncParameterName: item
     FuncParameterType: Item
     IterParamName: items
@@ -31,7 +29,6 @@ List:
       - .Dire
   - ReceiverName: t
     ReceiverType: Team
-    MethodNameExtension: ''
     FuncParameterName: player
     FuncParameterType: Player
     IterParamName: team
@@ -40,7 +37,6 @@ List:
       - .players
   - ReceiverName: t
     ReceiverType: TeamDetails
-    MethodNameExtension: ''
     FuncParameterName: player
     FuncParameterType: PlayerDetails
     IterParamName: team
@@ -66,5 +62,14 @@ List:
     IterParamName: abilityUpgrade
     ForVarName: aU
     CastTo: '[]AbilityUpgrade'
+    IterOnFields:
+      - ''
+  - ReceiverName: fr
+    ReceiverType: Friends
+    FuncParameterName: friend
+    FuncParameterType: Friend
+    IterParamName: friend
+    ForVarName: fr
+    CastTo: '[]Friend'
     IterOnFields:
       - ''

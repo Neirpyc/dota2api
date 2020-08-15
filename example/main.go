@@ -76,7 +76,7 @@ func main() {
 	fmt.Println(heroes)
 
 	//
-	friends, err := dota2.GetFriendList(76561198090402335)
+	friends, err := dota2.GetFriendList(dota2api.ParameterSteamId(dota2api.NewSteamIdFrom64(76561198090402335)))
 	if err != nil {
 		fmt.Println(err)
 		return
