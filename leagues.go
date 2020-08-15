@@ -278,12 +278,14 @@ func (p liveGamePlayerJSON) toPlayer(api *Dota2) (LiveGamePlayer, error) {
 		Team:      p.Team,
 	}
 
-	if h, err := api.GetHeroes(); err != nil {
-		return ret, err
-	} else {
-		var f bool
-		if ret.Hero, f = h.GetById(p.HeroID); !f {
-			return ret, errors.New("hero not found")
+	if p.HeroID != 0 {
+		if h, err := api.GetHeroes(); err != nil {
+			return ret, err
+		} else {
+			var f bool
+			if ret.Hero, f = h.GetById(p.HeroID); !f {
+				return ret, errors.New("hero not found")
+			}
 		}
 	}
 	return ret, nil
@@ -357,14 +359,19 @@ func (l livePlayerJSON) toLivePlayer(api *Dota2) (PlayerLive, error) {
 			spent:   l.NetWorth - l.Gold,
 		},
 	}
-	h, err := api.GetHeroes()
-	if err != nil {
-		return PlayerLive{}, err
-	}
+
 	var f bool
-	if p.Hero, f = h.GetById(l.HeroID); !f {
-		return p, errors.New("unknown hero id")
+
+	if l.HeroID != 0 {
+		h, err := api.GetHeroes()
+		if err != nil {
+			return PlayerLive{}, err
+		}
+		if p.Hero, f = h.GetById(l.HeroID); !f {
+			return p, errors.New("unknown hero id")
+		}
 	}
+
 	items, err := api.GetItems()
 	if err != nil {
 		return PlayerLive{}, err
@@ -372,10 +379,13 @@ func (l livePlayerJSON) toLivePlayer(api *Dota2) (PlayerLive, error) {
 	fields := []*Item{&p.Items.Item0, &p.Items.Item1, &p.Items.Item2, &p.Items.Item3, &p.Items.Item4, &p.Items.Item5}
 	src := []int{l.Item0, l.Item1, l.Item2, l.Item3, l.Item4, l.Item5}
 	for i, fi := range fields {
-		if *fi, f = items.GetById(src[i]); !f {
-			return p, errors.New("unknown item id")
+		if src[i] != 0 {
+			if *fi, f = items.GetById(src[i]); !f {
+				return p, errors.New("unknown item id")
+			}
 		}
 	}
+
 	return p, nil
 }
 
