@@ -172,7 +172,7 @@ func (d *Dota2) fillHeroesCache() error {
 		})
 
 		d.heroesCache.heroes = heroes
-		defer atomic.StoreUint32(&d.heroesCache.fromCache, 1)
+		atomic.StoreUint32(&d.heroesCache.fromCache, 1)
 		return nil
 	}
 	return nil

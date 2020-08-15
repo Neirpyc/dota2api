@@ -183,7 +183,7 @@ func (d *Dota2) fillItemsCache() error {
 		})
 
 		d.itemsCache.items = items
-		defer atomic.StoreUint32(&d.itemsCache.fromCache, 1)
+		atomic.StoreUint32(&d.itemsCache.fromCache, 1)
 		return nil
 	}
 	return nil
