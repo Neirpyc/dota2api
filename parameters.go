@@ -11,6 +11,7 @@ const (
 	parameterKindMatchId
 	parameterStartMatchAtSeqNum
 	parameterSteamIds
+	parameterSteamId
 )
 
 type Parameter interface {

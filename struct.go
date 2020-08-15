@@ -9,18 +9,6 @@ type VanityResp struct {
 	Success int    `json:"success"`
 }
 
-type FriendList struct {
-	Friendslist struct {
-		Friends []Friend `json:"friends"`
-	} `json:"friendslist"`
-}
-
-type Friend struct {
-	SteamId      string `json:"steamid"`
-	Relationship string `json:"relationship"`
-	FriendSince  int64  `bson:"friend_since" json:"friend_since"`
-}
-
 type LeagueList struct {
 	Result struct {
 		Leagues []struct {

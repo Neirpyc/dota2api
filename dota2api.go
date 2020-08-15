@@ -84,35 +84,6 @@ func (d *Dota2) ResolveVanityUrl(vanityurl string) (int64, error) {
 	return steamId, nil
 }
 
-//Get friend list
-func (d *Dota2) GetFriendList(steamid int64) ([]Friend, error) {
-	var friendList FriendList
-	var friends []Friend
-
-	param := map[string]interface{}{
-		"key":     d.steamApiKey,
-		"steamid": steamid,
-	}
-	url, err := parseUrl(getFriendListUrl(d), param)
-
-	if err != nil {
-		return friends, err
-	}
-	resp, err := d.Get(url)
-	if err != nil {
-		return friends, err
-	}
-
-	err = json.Unmarshal(resp, &friendList)
-	if err != nil {
-		return friends, err
-	}
-
-	friends = friendList.Friendslist.Friends
-
-	return friends, nil
-}
-
 func (d *Dota2) GetLeagueListing() (LeagueList, error) {
 	var leagueList LeagueList
 	param := map[string]interface{}{
