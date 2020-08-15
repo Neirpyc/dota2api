@@ -26,17 +26,12 @@ type Game struct {
 	LobbyID           int64       `json:"lobby_id" bson:"lobby_id"`
 	MatchID           int64       `json:"match_id" bson:"match_id"`
 	Spectators        int         `json:"spectators" bson:"spectators"`
-	SeriesID          int         `json:"series_id" bson:"series_id"`
-	GameNumber        int         `json:"game_number" bson:"game_number"`
 	LeagueID          int         `json:"league_id" bson:"league_id"`
+	LeagueNodeId      int         `json:"league_node_id" bson:"league_node_id"`
 	StreamDelayS      int         `json:"stream_delay_s" bson:"steam_delay_s"`
 	RadiantSeriesWins int         `json:"radiant_series_wins" bson:"radiant_series_wins"`
 	DireSeriesWins    int         `json:"dire_series_wins" bson:"dire_series_win"`
 	SeriesType        int         `json:"series_type" bson:"series_type"`
-	LeagueSeriesID    int         `json:"league_series_id" bson:"league_series_id"`
-	LeagueGameID      int         `json:"league_game_id" bson:"league_game_id"`
-	StageName         string      `json:"stage_name" bson:"stage_name"`
-	LeagueTier        int         `json:"league_tier" bson:"league_tier"`
 	Scoreboard        Scoreboard  `json:"scoreboard" bson:"scoreboard"`
 	DireTeam          PlayersTeam `json:"dire_team,omitempty" bson:"dire_team"`
 	RadiantTeam       PlayersTeam `json:"radiant_team,omitempty" bson:"radiant_team"`
@@ -50,35 +45,18 @@ type PlayersTeam struct {
 }
 
 type Scoreboard struct {
-	Duration           float64     `json:"duration" bson:"duration"`
-	RoshanRespawnTimer int         `json:"roshan_respawn_timer" bson:"roshan_respawn"`
-	Radiant            RadiantJSON `json:"radiant" bson:"radiant"`
-	Dire               DireJSON    `json:"dire" bson:"dire"`
+	Duration           float64  `json:"duration" bson:"duration"`
+	RoshanRespawnTimer int      `json:"roshan_respawn_timer" bson:"roshan_respawn"`
+	Radiant            SideJSON `json:"radiant" bson:"radiant"`
+	Dire               SideJSON `json:"dire" bson:"dire"`
 }
 
-type RadiantJSON struct {
+type SideJSON struct {
 	Score         int `json:"score" bson:"score"`
 	TowerState    int `json:"tower_state" bson:"tower_state"`
 	BarracksState int `json:"barracks_state" bson:"barracks_state"`
 	Picks         []struct {
 		HeroID int `json:"hero_id" bson:"hero_id"`
-	} `json:"picks" bson:"picks"`
-	Bans []struct {
-		HeroID int `json:"hero_id" bson:"hero_id"`
-	} `json:"bans" bson:"bans"`
-	Players   []LivePlayer `json:"players" bson:"players"`
-	Abilities []struct {
-		AbilityID    int `json:"ability_id" bson:"ability_id"`
-		AbilityLevel int `json:"ability_level" bson:"ability_level"`
-	} `json:"abilities" bson:"abilities"`
-}
-
-type DireJSON struct {
-	Score         int `json:"score" bson:"score"`
-	TowerState    int `json:"tower_state" bson:"tower_state"`
-	BarracksState int `json:"barracks_state" bson:"barracks_state"`
-	Picks         []struct {
-		HeroID int `json:"hero_id" bson:"heor_id"`
 	} `json:"picks" bson:"picks"`
 	Bans []struct {
 		HeroID int `json:"hero_id" bson:"hero_id"`
