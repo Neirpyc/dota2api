@@ -84,29 +84,6 @@ func (d *Dota2) ResolveVanityUrl(vanityurl string) (int64, error) {
 	return steamId, nil
 }
 
-func (d *Dota2) GetLeagueListing() (LeagueList, error) {
-	var leagueList LeagueList
-	param := map[string]interface{}{
-		"key": d.steamApiKey,
-	}
-
-	url, err := parseUrl(getLeagueListUrl(d), param)
-	fmt.Println(url)
-	if err != nil {
-		return leagueList, err
-	}
-	resp, err := d.Get(url)
-	if err != nil {
-		return leagueList, err
-	}
-
-	err = json.Unmarshal(resp, &leagueList)
-	if err != nil {
-		return leagueList, err
-	}
-	return leagueList, nil
-}
-
 func (d *Dota2) GetLiveLeagueGames() (LiveGames, error) {
 	var liveGames LiveGames
 	param := map[string]interface{}{

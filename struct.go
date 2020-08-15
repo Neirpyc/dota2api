@@ -9,18 +9,6 @@ type VanityResp struct {
 	Success int    `json:"success"`
 }
 
-type LeagueList struct {
-	Result struct {
-		Leagues []struct {
-			Name          string `json:"name" bson:"name"`
-			Leagueid      int    `json:"leagueid" bson:"league_id"`
-			Description   string `json:"description" bson:"description"`
-			TournamentURL string `json:"tournament_url" bson:"tournament_url"`
-			Itemdef       int    `json:"itemdef" bson:"item_def"`
-		} `json:"leagues" bson:"leagues"`
-	} `json:"result" bson:"result"`
-}
-
 type LiveGames struct {
 	Result struct {
 		Games  []Game `json:"games" bson:"games"`
