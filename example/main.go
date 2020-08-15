@@ -89,17 +89,6 @@ func main() {
 	friendObject, _ := json.Marshal(friends)
 	fmt.Println(string(friendObject))
 
-	leagueList, err := dota2.GetLeagueListing()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	fmt.Println()
-	fmt.Println("#### League Listing ####")
-	fmt.Println()
-	leagueListObject, _ := json.Marshal(leagueList)
-	fmt.Println(string(leagueListObject))
-
 	liveGames, err := dota2.GetLiveLeagueGames()
 	if err != nil {
 		fmt.Println(err)

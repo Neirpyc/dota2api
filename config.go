@@ -11,6 +11,8 @@ import (
 	"time"
 )
 
+//go:generate ./genIterators -p dota2api -i genIterators.yaml -o iterators.go
+
 type Config struct {
 	Timeout         int    `yaml:"Timeout"`
 	SteamApiKey     string `yaml:"SteamApiKey"`
@@ -21,6 +23,45 @@ type Config struct {
 	Dota2Econ       string `yaml:"Dota2Econ"`
 	Dota2CDN        string `yaml:"Dota2CDN"`
 	Dota2ApiVersion string `yaml:"Dota2ApiVersion"`
+}
+
+type HTTPClient interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
+type Dota2 struct {
+	// steam api url
+	steamApi string
+	// steam api key: http://steamcommunity.com/dev/apikey
+	steamApiKey string
+	//Steam User
+	steamUser string
+	// api version
+	steamApiVersion string
+
+	// dota2 name in api
+	dota2Match string
+	dota2Econ  string
+
+	// dota2 cdn
+	dota2CDN string `yaml:"Dota2CDN"`
+
+	// api version
+	dota2ApiVersion string
+
+	// http request timeout
+	timeout int
+
+	dota2MatchUrl string
+	dota2EconUrl  string
+	steamUserUrl  string
+
+	//Caching
+	heroesCache *getHeroesCache
+	itemsCache  *getItemsCache
+
+	//http client
+	client HTTPClient
 }
 
 func applyDefaultValue(value string, def string) string {
