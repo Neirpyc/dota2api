@@ -5,46 +5,6 @@ import (
 	"testing"
 )
 
-func TestDota2_GetMatchHistory(t *testing.T) {
-	g := Goblin(t)
-	api, _ := LoadConfigFromFile("config.yaml")
-	g.Describe("api.GetMatchHistory base", func() {
-		hist, err := api.GetMatchHistory()
-		g.It("Should return no error", func() {
-			g.Assert(err == nil).IsTrue()
-		})
-		g.It("Should return at least one result", func() {
-			g.Assert(hist.Count() > 0).IsTrue()
-		})
-		g.It("Should return a match seq num for each result", func() {
-			for _, match := range hist.Matches {
-				g.Assert(match.MatchSeqNum != 0).IsTrue()
-			}
-		})
-		g.It("Should return a match ID for each result", func() {
-			for _, match := range hist.Matches {
-				g.Assert(match.MatchId != 0).IsTrue()
-			}
-		})
-		g.It("Should return a start time for each result", func() {
-			for _, match := range hist.Matches {
-				g.Assert(match.StartTime.Unix() != 0).IsTrue()
-			}
-		})
-		g.It("Should return a working LobbyType for each result", func() {
-			for _, match := range hist.Matches {
-				match.LobbyType.GetId()
-				g.Assert(match.LobbyType.GetName() != "").IsTrue()
-			}
-		})
-		g.It("Should return a team for each result", func() {
-			for _, match := range hist.Matches {
-				g.Assert(match.Radiant.players != nil || match.Dire.players != nil).IsTrue()
-			}
-		})
-	})
-}
-
 func TestDota2_GetMatchHistory_Parameters(t *testing.T) {
 	g := Goblin(t)
 	api, _ := LoadConfigFromFile("config.yaml")
