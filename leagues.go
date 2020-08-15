@@ -2,6 +2,7 @@ package dota2api
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 )
@@ -18,24 +19,28 @@ type liveGamesJSON struct {
 }
 
 type liveGameJSON struct {
-	Players []struct {
-		AccountID int64  `json:"account_id" bson:"account_id"`
-		Name      string `json:"name" bson:"name"`
-		HeroID    int    `json:"hero_id" bson:"hero_id"`
-		Team      int    `json:"team" bson:"team"`
-	} `json:"players" bson:"players"`
-	LobbyID           int64           `json:"lobby_id" bson:"lobby_id"`
-	MatchID           int64           `json:"match_id" bson:"match_id"`
-	Spectators        int             `json:"spectators" bson:"spectators"`
-	LeagueID          int             `json:"league_id" bson:"league_id"`
-	LeagueNodeId      int             `json:"league_node_id" bson:"league_node_id"`
-	StreamDelayS      int             `json:"stream_delay_s" bson:"steam_delay_s"`
-	RadiantSeriesWins int             `json:"radiant_series_wins" bson:"radiant_series_wins"`
-	DireSeriesWins    int             `json:"dire_series_wins" bson:"dire_series_win"`
-	SeriesType        int             `json:"series_type" bson:"series_type"`
-	Scoreboard        scoreboardJSON  `json:"scoreboard" bson:"scoreboard"`
-	DireTeam          playersTeamJSON `json:"dire_team,omitempty" bson:"dire_team"`
-	RadiantTeam       playersTeamJSON `json:"radiant_team,omitempty" bson:"radiant_team"`
+	Players           liveGamePlayersJSON `json:"players" bson:"players"`
+	LobbyID           int64               `json:"lobby_id" bson:"lobby_id"`
+	MatchID           int64               `json:"match_id" bson:"match_id"`
+	Spectators        int                 `json:"spectators" bson:"spectators"`
+	LeagueID          int                 `json:"league_id" bson:"league_id"`
+	LeagueNodeId      int                 `json:"league_node_id" bson:"league_node_id"`
+	StreamDelayS      int                 `json:"stream_delay_s" bson:"steam_delay_s"`
+	RadiantSeriesWins int                 `json:"radiant_series_wins" bson:"radiant_series_wins"`
+	DireSeriesWins    int                 `json:"dire_series_wins" bson:"dire_series_win"`
+	SeriesType        int                 `json:"series_type" bson:"series_type"`
+	Scoreboard        scoreboardJSON      `json:"scoreboard" bson:"scoreboard"`
+	DireTeam          playersTeamJSON     `json:"dire_team,omitempty" bson:"dire_team"`
+	RadiantTeam       playersTeamJSON     `json:"radiant_team,omitempty" bson:"radiant_team"`
+}
+
+type liveGamePlayersJSON []liveGamePlayerJSON
+
+type liveGamePlayerJSON struct {
+	AccountID int64  `json:"account_id" bson:"account_id"`
+	Name      string `json:"name" bson:"name"`
+	HeroID    int    `json:"hero_id" bson:"hero_id"`
+	Team      int    `json:"team" bson:"team"`
 }
 
 type playersTeamJSON struct {
@@ -53,25 +58,27 @@ type scoreboardJSON struct {
 }
 
 type sideJSON struct {
-	Score         int `json:"score" bson:"score"`
-	TowerState    int `json:"tower_state" bson:"tower_state"`
-	BarracksState int `json:"barracks_state" bson:"barracks_state"`
-	Picks         []struct {
-		HeroID int `json:"hero_id" bson:"hero_id"`
-	} `json:"picks" bson:"picks"`
-	Bans []struct {
-		HeroID int `json:"hero_id" bson:"hero_id"`
-	} `json:"bans" bson:"bans"`
-	Players   []livePlayerJSON `json:"players" bson:"players"`
-	Abilities LiveAbilities    `json:"abilities" bson:"abilities"`
+	Score         int             `json:"score" bson:"score"`
+	TowerState    uint16          `json:"tower_state" bson:"tower_state"`
+	BarracksState uint8           `json:"barracks_state" bson:"barracks_state"`
+	Picks         picksOrBansJSON `json:"picks" bson:"picks"`
+	Bans          picksOrBansJSON `json:"bans" bson:"bans"`
+	Players       livePlayersJSON `json:"players" bson:"players"`
+	Abilities     LiveAbilities   `json:"abilities" bson:"abilities"`
 }
+
+type picksOrBansJSON []struct {
+	HeroID int `json:"hero_id" bson:"hero_id"`
+}
+
+type livePlayersJSON []livePlayerJSON
 
 type livePlayerJSON struct {
 	PlayerSlot       int     `json:"player_slot" bson:"player_slot"`
 	AccountID        int64   `json:"account_id" bson:"account_id"`
 	HeroID           int     `json:"hero_id" bson:"hero_id"`
 	Kills            int     `json:"kills" bson:"kills"`
-	Death            int     `json:"death" bson:"death"`
+	Deaths           int     `json:"death" bson:"death"`
 	Assists          int     `json:"assists" bson:"assists"`
 	LastHits         int     `json:"last_hits" bson:"last_hits"`
 	Denies           int     `json:"denies" bson:"denies"`
@@ -101,7 +108,7 @@ type LiveGame struct {
 	League      League
 	StreamDelay time.Duration
 	Series      Series
-	Teams       LiveTeam
+	Teams       LiveTeams
 	ScoreBoard  ScoreBoard
 }
 
@@ -146,7 +153,7 @@ type Sides struct {
 
 type SideLive struct {
 	Score          int
-	BuildingsState BuildingsState
+	BuildingsState TeamBuildingsState
 	Picks          []Hero
 	Bans           []Hero
 	Players        PlayersLive
@@ -167,7 +174,7 @@ type PlayerLive struct {
 	Items        LivePlayerItems
 	RespawnTimer time.Duration
 	Position     Position
-	NetWorth     int
+	Gold         PlayerGold
 }
 
 type PlayersLive []PlayerLive
@@ -178,9 +185,6 @@ type PlayerStatsLive struct {
 	GoldPerMinute int
 	XpPerMinute   int
 	Level         int
-	HeroDamage    Damage
-	TowerDamage   Damage
-	HeroHealing   Damage
 }
 
 type UltimateState struct {
@@ -208,25 +212,213 @@ type LiveAbility struct {
 
 type LiveAbilities []LiveAbility
 
-func (d *Dota2) GetLiveLeagueGames() (liveGamesJSON, error) {
-	var liveGames liveGamesJSON
-	param := map[string]interface{}{
-		"key": d.steamApiKey,
+func (l liveGamesJSON) toLiveGames(api *Dota2) (LiveGames, error) {
+	ret := make(LiveGames, len(l.Result.Games))
+	for i, g := range l.Result.Games {
+		var err error
+		if ret[i], err = g.toLiveGame(api); err != nil {
+			return nil, err
+		}
 	}
+	return ret, nil
+}
+
+func (g liveGameJSON) toLiveGame(api *Dota2) (LiveGame, error) {
+	ret := LiveGame{
+		LobbyId:    g.LobbyID,
+		MatchId:    g.MatchID,
+		Spectators: g.Spectators,
+		League: League{
+			LeagueId:     g.LeagueID,
+			LeagueNodeId: g.LeagueNodeId,
+		},
+		StreamDelay: time.Duration(g.StreamDelayS) * time.Second,
+		Series: Series{
+			Radiant: g.RadiantSeriesWins,
+			Dire:    g.DireSeriesWins,
+		},
+		Teams: LiveTeams{
+			Radiant: LiveTeam{
+				TeamName: g.RadiantTeam.TeamName,
+				TeamId:   g.RadiantTeam.TeamID,
+				TeamLogo: g.RadiantTeam.TeamLogo,
+				Complete: g.RadiantTeam.Complete,
+			},
+			Dire: LiveTeam{
+				TeamName: g.DireTeam.TeamName,
+				TeamId:   g.DireTeam.TeamID,
+				TeamLogo: g.DireTeam.TeamLogo,
+				Complete: g.DireTeam.Complete,
+			},
+		},
+	}
+	var err error
+	if ret.Players, err = g.Players.toPlayers(api); err != nil {
+		return ret, err
+	}
+	ret.ScoreBoard, err = g.Scoreboard.toScoreBoard(api)
+	return ret, err
+}
+
+func (p liveGamePlayersJSON) toPlayers(api *Dota2) (LiveGamePlayers, error) {
+	l := make(LiveGamePlayers, len(p))
+	for i, player := range p {
+		var err error
+		if l[i], err = player.toPlayer(api); err != nil {
+			return nil, err
+		}
+	}
+	return l, nil
+}
+
+func (p liveGamePlayerJSON) toPlayer(api *Dota2) (LiveGamePlayer, error) {
+	ret := LiveGamePlayer{
+		AccountId: p.AccountID,
+		Name:      p.Name,
+		Team:      p.Team,
+	}
+
+	if h, err := api.GetHeroes(); err != nil {
+		return ret, err
+	} else {
+		var f bool
+		if ret.Hero, f = h.GetById(p.HeroID); !f {
+			return ret, errors.New("hero not found")
+		}
+	}
+	return ret, nil
+}
+
+func (s scoreboardJSON) toScoreBoard(api *Dota2) (ScoreBoard, error) {
+	ret := ScoreBoard{
+		Duration:           time.Duration(s.Duration * float64(time.Second)),
+		RoshanRespawnTimer: time.Duration(s.RoshanRespawnTimer) * time.Second,
+		Sides:              Sides{},
+	}
+	var err error
+	if ret.Sides.Radiant, err = s.Radiant.toSideLive(api); err != nil {
+		return ret, err
+	}
+	ret.Sides.Dire, err = s.Dire.toSideLive(api)
+	return ret, err
+}
+
+func (s sideJSON) toSideLive(api *Dota2) (SideLive, error) {
+	ret := SideLive{
+		Score:          s.Score,
+		BuildingsState: TeamBuildingsState{}.from(s.TowerState, s.BarracksState),
+		Abilities:      s.Abilities,
+	}
+	var err error
+	if ret.Picks, err = s.Picks.toHeroSlice(api); err != nil {
+		return ret, err
+	}
+	if ret.Bans, err = s.Bans.toHeroSlice(api); err != nil {
+		return ret, err
+	}
+	ret.Players, err = s.Players.toLivePlayers(api)
+	return ret, err
+}
+
+func (l livePlayersJSON) toLivePlayers(api *Dota2) (PlayersLive, error) {
+	ret := make(PlayersLive, len(l))
+	for i, player := range l {
+		var err error
+		if ret[i], err = player.toLivePlayer(api); err != nil {
+			return nil, err
+		}
+	}
+	return ret, nil
+}
+
+func (l livePlayerJSON) toLivePlayer(api *Dota2) (PlayerLive, error) {
+	p := PlayerLive{
+		PlayerSlot: l.PlayerSlot,
+		AccountID:  l.AccountID,
+		KDA: KDA{
+			Kills:   l.Kills,
+			Deaths:  l.Deaths,
+			Assists: l.Assists,
+		},
+		Stats: PlayerStatsLive{
+			LastHits:      l.LastHits,
+			Denies:        l.Denies,
+			GoldPerMinute: l.GoldPerMin,
+			XpPerMinute:   l.XpPerMin,
+			Level:         l.Level,
+		},
+		RespawnTimer: time.Duration(l.RespawnTimer) * time.Second,
+		Position: Position{
+			X: l.PositionX,
+			Y: l.PositionY,
+		},
+		Gold: PlayerGold{
+			current: l.Gold,
+			spent:   l.NetWorth - l.Gold,
+		},
+	}
+	h, err := api.GetHeroes()
+	if err != nil {
+		return PlayerLive{}, err
+	}
+	var f bool
+	if p.Hero, f = h.GetById(l.HeroID); !f {
+		return p, errors.New("unknown hero id")
+	}
+	items, err := api.GetItems()
+	if err != nil {
+		return PlayerLive{}, err
+	}
+	fields := []*Item{&p.Items.Item0, &p.Items.Item1, &p.Items.Item2, &p.Items.Item3, &p.Items.Item4, &p.Items.Item5}
+	src := []int{l.Item0, l.Item1, l.Item2, l.Item3, l.Item4, l.Item5}
+	for i, fi := range fields {
+		if *fi, f = items.GetById(src[i]); !f {
+			return p, errors.New("unknown item id")
+		}
+	}
+	return p, nil
+}
+
+func (p picksOrBansJSON) toHeroSlice(api *Dota2) ([]Hero, error) {
+	h, err := api.GetHeroes()
+	if err != nil {
+		return nil, err
+	}
+	ret := make([]Hero, len(p))
+	for i, choice := range p {
+		var f bool
+		if ret[i], f = h.GetById(choice.HeroID); !f {
+			return nil, err
+		}
+	}
+	return ret, nil
+}
+
+func (d *Dota2) GetLiveLeagueGames(params ...Parameter) (LiveGames, error) {
+	var liveGames liveGamesJSON
+
+	param, err := getParameterMap(nil, nil, params)
+	if err != nil {
+		return LiveGames{}, err
+	}
+	param["key"] = d.steamApiKey
 
 	url, err := parseUrl(getLiveGamesUrl(d), param)
 	fmt.Println(url)
 	if err != nil {
-		return liveGames, err
+		return LiveGames{}, err
 	}
 	resp, err := d.Get(url)
 	if err != nil {
-		return liveGames, err
+		return LiveGames{}, err
 	}
 
 	err = json.Unmarshal(resp, &liveGames)
 	if err != nil {
-		return liveGames, err
+		return LiveGames{}, err
 	}
-	return liveGames, nil
+	if liveGames.Result.Status != 200 {
+		return LiveGames{}, errors.New("non 200 status")
+	}
+	return liveGames.toLiveGames(d)
 }
