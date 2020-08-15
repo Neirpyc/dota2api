@@ -52,18 +52,16 @@ type matchSummaryJSON struct {
 }
 
 func (m MatchHistoryJSON) toMatchSummary(d *Dota2) (MatchHistory, error) {
-	var res MatchHistory
-
-	res.Matches = make([]MatchSummary, len(m.Result.Matches))
+	res := make([]MatchSummary, len(m.Result.Matches))
 	for i, src := range m.Result.Matches {
-		res.Matches[i].LobbyType = LobbyType(src.LobbyType)
-		res.Matches[i].StartTime = time.Unix(src.StartTime, 0)
-		res.Matches[i].MatchId = src.MatchID
-		res.Matches[i].MatchSeqNum = src.MatchSeqNum
-		res.Matches[i].Radiant = Team{
+		res[i].LobbyType = LobbyType(src.LobbyType)
+		res[i].StartTime = time.Unix(src.StartTime, 0)
+		res[i].MatchId = src.MatchID
+		res[i].MatchSeqNum = src.MatchSeqNum
+		res[i].Radiant = Team{
 			Id: src.RadiantTeamID,
 		}
-		res.Matches[i].Dire = Team{
+		res[i].Dire = Team{
 			Id: src.DireTeamID,
 		}
 		heroes, err := d.GetHeroes()
@@ -83,9 +81,9 @@ func (m MatchHistoryJSON) toMatchSummary(d *Dota2) (MatchHistory, error) {
 				Hero:      h,
 			}
 			if p.PlayerSlot&128 > 0 {
-				res.Matches[i].Dire.players = append(res.Matches[i].Dire.players, player)
+				res[i].Dire.players = append(res[i].Dire.players, player)
 			} else {
-				res.Matches[i].Radiant.players = append(res.Matches[i].Radiant.players, player)
+				res[i].Radiant.players = append(res[i].Radiant.players, player)
 			}
 		}
 	}
@@ -98,12 +96,10 @@ type playerSummaryJSON struct {
 	HeroID     int `json:"hero_id" bson:"hero_id"`
 }
 
-type MatchHistory struct {
-	Matches []MatchSummary
-}
+type MatchHistory []MatchSummary
 
 func (m MatchHistory) Count() int {
-	return len(m.Matches)
+	return len(m)
 }
 
 type MatchSummary struct {
@@ -266,7 +262,9 @@ func (d *Dota2) GetMatchHistory(params ...interface{}) (MatchHistory, error) {
 		return res, err
 	}
 	if c.c != nil {
-		c.c.begin--
+		if c.c.begin > 0 {
+			c.c.begin--
+		}
 		if _, f := param["start_at_match_id"]; !f {
 			param["start_at_match_id"] = c.c.begin
 		}

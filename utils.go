@@ -17,10 +17,10 @@ func (d Dota2) Get(u string) ([]byte, error) {
 		return body, err
 	}
 	resp, err := d.client.Do(request)
-	defer func() { _ = resp.Body.Close() }()
 	if err != nil {
 		return body, err
 	}
+	defer func() { _ = resp.Body.Close() }()
 
 	body, err = ioutil.ReadAll(resp.Body)
 	if err != nil {

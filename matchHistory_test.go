@@ -1,331 +1,172 @@
 package dota2api
 
 import (
+	"errors"
 	. "github.com/franela/goblin"
+	"io/ioutil"
+	"net/http"
+	"strings"
 	"testing"
+	"time"
 )
 
-func TestDota2_GetMatchHistory_Parameters(t *testing.T) {
-	g := Goblin(t)
-	api, _ := LoadConfigFromFile("config.yaml")
-	g.Describe("api.GetMatchHistory parameters", func() {
-		g.It("Should refuse invalid parameters", func() {
-			_, err := api.GetMatchHistory(42, 37)
-			g.Assert(err != nil).IsTrue()
-		})
-		g.It("Should refuse forbidden parameters", func() {
-			_, err := api.GetMatchHistory(MatchId(0))
-			g.Assert(err != nil).IsTrue()
-		})
-		g.It("Should refuse even one invalid parameter", func() {
-			_, err := api.GetMatchHistory(MatchesRequested(52), 37)
-			g.Assert(err != nil).IsTrue()
-		})
-		g.It("Should duplicated forbidden parameters", func() {
-			_, err := api.GetMatchHistory(MatchesRequested(0), MatchesRequested(0))
-			g.Assert(err != nil).IsTrue()
-		})
-		matches, err := api.GetMatchHistory(MatchesRequested(42))
-		g.It("Should accept a valid parameter", func() {
-			g.Assert(err == nil).IsTrue()
-		})
-		g.It("Should work with matchesRequested parameter", func() {
-			g.Assert(matches.Count() == 42).IsTrue()
-		})
-		g.It("Should work with accountId, minPlayers and heroId parameter", func() {
-			id := int64(76561198067618887)
-			matches, err := api.GetMatchHistory(AccountId(id), HeroId(42), MatchesRequested(100), MinPlayers(10))
-			g.Assert(err == nil).IsTrue()
-			if err != nil {
-				return
-			}
-			g.Assert(matches.Count() <= 100).IsTrue()
-		topLoop:
-			for _, match := range matches.Matches {
-				g.Assert(match.PlayerCount() >= 10).IsTrue()
-				flag := 0
-				for i := 0; ; i++ {
-					if p, found := match.GetPlayer(i); found {
-						if p.AccountId == int(int32(id)) {
-							flag++
-						}
-						if p.Hero.ID == 42 {
-							flag++
-						}
-						if flag == 2 {
-							continue topLoop
-						}
-					} else {
-						break
-					}
-				}
-				g.Fail("Could not find requested accountId and/or heroId")
-			}
-		})
-		g.It("Should work with startAtMatchId parameter", func() {
-			id := matches.Matches[matches.Count()/2].MatchId
-			matches, err := api.GetMatchHistory(StartAtMatchId(id))
-			g.Assert(err == nil).IsTrue()
-			if err != nil {
-				return
-			}
-			for _, match := range matches.Matches {
-				if match.MatchId > id {
-					g.Fail("Match with previous ID returned")
-				}
-			}
-		})
-	})
-}
+const (
+	matchHistoryResponse0 = "{\n\"result\":{\n\"status\":1,\n\"num_results\":2,\n\"total_results\":500,\n\"results_remaining\":498,\n\"matches\":[\n{\n\"match_id\":5569057130,\n\"match_seq_num\":4674249362,\n\"start_time\":1597496593,\n\"lobby_type\":12,\n\"radiant_team_id\":0,\n\"dire_team_id\":0,\n\"players\":[\n{\n\"account_id\":241341785,\n\"player_slot\":0,\n\"hero_id\":128\n},\n{\n\"account_id\":198212358,\n\"player_slot\":1,\n\"hero_id\":47\n},\n{\n\"account_id\":196978137,\n\"player_slot\":2,\n\"hero_id\":63\n},\n{\n\"account_id\":209793761,\n\"player_slot\":3,\n\"hero_id\":35\n}\n]\n\n},\n{\n\"match_id\":5569057115,\n\"match_seq_num\":4674248663,\n\"start_time\":1597496594,\n\"lobby_type\":12,\n\"radiant_team_id\":0,\n\"dire_team_id\":0,\n\"players\":[\n{\n\"account_id\":142181463,\n\"player_slot\":0,\n\"hero_id\":70\n},\n{\n\"account_id\":153072049,\n\"player_slot\":1,\n\"hero_id\":35\n},\n{\n\"account_id\":183925783,\n\"player_slot\":2,\n\"hero_id\":129\n},\n{\n\"account_id\":103439564,\n\"player_slot\":3,\n\"hero_id\":63\n}\n]\n\n}]}}"
+	matchHistoryResponse1 = "{\n\"result\":{\n\"status\":1,\n\"num_results\":2,\n\"total_results\":500,\n\"results_remaining\":496,\n\"matches\":[{\"match_id\":43, \"match_seq_num\":45},{\"match_id\":42, \"match_seq_num\":44}]}}"
+)
 
-func TestDota2_GetMatchHistory_Cursor(t *testing.T) {
+func TestDota2_GetMatchHistory(t *testing.T) {
 	g := Goblin(t)
-	api, _ := LoadConfigFromFile("config.yaml")
-	g.Describe("api.GetMatchHistory cursor", func() {
-		c := NewCursor()
-		matches, err := api.GetMatchHistory(c, MatchesRequested(50))
-		g.It("Should accept a cursor parameter", func() {
-			g.Assert(err == nil).IsTrue()
+	mockClient := mockClient{}
+	api := LoadConfig(GetTestConfig())
+	api.client = &mockClient
+	var matches MatchHistory
+	var err error
+	g.Describe("api.GetMatchHistory", func() {
+		g.Describe("Basic test", func() {
+			g.It("Should call the correct URL", func() {
+				mockClient.DoFunc = func(req *http.Request) (*http.Response, error) {
+					switch req.URL.String() {
+					case getMatchHistoryUrl(&api) + "?key=keyTEST":
+						return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(strings.NewReader(matchHistoryResponse0))}, nil
+					case getHeroesUrl(&api) + "?key=keyTEST":
+						return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(strings.NewReader(heroesResponse))}, nil
+					default:
+						g.Fail("Unnecessary API call " + req.URL.String())
+					}
+					return nil, nil
+				}
+				matches, err = api.GetMatchHistory()
+			})
+			g.It("Should return no error", func() {
+				g.Assert(err).IsNil()
+			})
+			g.It("Should return 2 matches", func() {
+				g.Assert(matches.Count()).Equal(2)
+			})
+			g.It("Should return a valid content", func() {
+				if matches.Count() != 2 {
+					g.Fail("Wrong match count")
+				}
+				g.Assert(matches[0].MatchId).Equal(int64(5569057130))
+				g.Assert(matches[0].MatchSeqNum).Equal(int64(4674249362))
+				g.Assert(matches[0].StartTime.Equal(time.Unix(1597496593, 0))).IsTrue()
+				g.Assert(matches[0].LobbyType).Equal(LobbyType(12))
+				g.Assert(matches[0].Radiant.Id).Equal(0)
+				g.Assert(matches[0].Dire.Id).Equal(0)
+				g.Assert(matches[0].Radiant.players[2].AccountId).Equal(196978137)
+				g.Assert(matches[1].MatchId).Equal(int64(5569057115))
+			})
 		})
-		g.It("Should modify the cursor parameter", func() {
-			g.Assert(c.c != nil).IsTrue()
-		})
-		g.It("Should modify correctly the cursor", func() {
-			g.Assert(matches.Matches[matches.Count()-1].MatchId == c.GetLastReceivedMatch()).IsTrue()
-		})
-		old := c.GetLastReceivedMatch()
-		matches, _ = api.GetMatchHistory(c, MatchesRequested(50))
-		g.It("Should modify correctly the cursor when reusing a cursor", func() {
-			g.Assert(matches.Matches[matches.Count()-1].MatchId == c.GetLastReceivedMatch()).IsTrue()
-		})
-		g.It("Should send a new batch of matches when reusing a cursor", func() {
-			for _, match := range matches.Matches {
-				g.Assert(match.MatchId < old).IsTrue()
-			}
-		})
-		g.It("Should not error when no match is remaining", func() {
-			for c.GetRemaining() > 0 {
-				_, _ = api.GetMatchHistory(c, MatchesRequested(c.GetRemaining()))
-			}
-			matches, err = api.GetMatchHistory(c, MatchesRequested(10))
-			g.Assert(err == nil).IsTrue()
+		g.Describe("Test with cursor", func() {
+			g.Before(func() {
+				mockClient.DoFunc = func(req *http.Request) (*http.Response, error) {
+					switch req.URL.String() {
+					case getMatchHistoryUrl(&api) + "?key=keyTEST&start_at_match_id=-1":
+						return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(strings.NewReader(matchHistoryResponse0))}, nil
+					case getMatchHistoryUrl(&api) + "?key=keyTEST&start_at_match_id=5569057114":
+						return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(strings.NewReader(matchHistoryResponse1))}, nil
+					case getHeroesUrl(&api) + "?key=keyTEST":
+						return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(strings.NewReader(heroesResponse))}, nil
+					default:
+						g.Fail("Unnecessary API call " + req.URL.String())
+					}
+					return nil, errors.New("unnecessary API call " + req.URL.String())
+				}
+			})
+			c := NewCursor()
+			g.It("Should accept an empty cursor", func() {
+				_, err := api.GetMatchHistory(c)
+				g.Assert(err).IsNil()
+			})
+			g.It("Should return an initialized cursor", func() {
+				g.Assert(c.GetLastReceivedMatch()).Equal(int64(5569057115))
+			})
+			g.It("Should accept an existing cursor", func() {
+				_, err = api.GetMatchHistory(c)
+				g.Assert(err).IsNil()
+			})
+			g.It("Should update an initialized cursor", func() {
+				g.Assert(c.GetLastReceivedMatch()).Equal(int64(42))
+			})
 		})
 	})
 }
 
 func TestDota2_GetMatchHistoryBySequenceNum(t *testing.T) {
 	g := Goblin(t)
-	api, _ := LoadConfigFromFile("config.yaml")
-	g.Describe("api.TestDota2_GetMatchHistoryBySequenceNum", func() {
-		hist, err := api.GetMatchHistoryBySequenceNum()
-		g.It("Should return no error", func() {
-			g.Assert(err == nil).IsTrue()
-		})
-		g.It("Should return at least one result", func() {
-			g.Assert(hist.Count() > 0).IsTrue()
-		})
-		g.It("Should return a match seq num for each result", func() {
-			for _, match := range hist.Matches {
-				g.Assert(match.MatchSeqNum != 0).IsTrue()
-			}
-		})
-		g.It("Should return a match ID for each result", func() {
-			for _, match := range hist.Matches {
-				g.Assert(match.MatchId != 0).IsTrue()
-			}
-		})
-		g.It("Should return a start time for each result", func() {
-			for _, match := range hist.Matches {
-				g.Assert(match.StartTime.Unix() != 0).IsTrue()
-			}
-		})
-		g.It("Should return a working LobbyType for each result", func() {
-			for _, match := range hist.Matches {
-				match.LobbyType.GetId()
-				g.Assert(match.LobbyType.GetName() != "").IsTrue()
-			}
-		})
-		g.It("Should return a team for each result", func() {
-			for _, match := range hist.Matches {
-				g.Assert(match.Radiant.players != nil || match.Dire.players != nil).IsTrue()
-			}
-		})
-	})
-}
-
-func TestDota2_GetMatchHistoryBySequenceNum_Parameters(t *testing.T) {
-	g := Goblin(t)
-	api, _ := LoadConfigFromFile("config.yaml")
-	g.Describe("api.GetMatchHistoryBySequenceNum Parameters", func() {
-		g.It("Should refuse invalid parameters", func() {
-			_, err := api.GetMatchHistoryBySequenceNum(42, 37)
-			g.Assert(err != nil).IsTrue()
-		})
-		g.It("Should refuse forbidden parameters", func() {
-			_, err := api.GetMatchHistoryBySequenceNum(MatchId(0))
-			g.Assert(err != nil).IsTrue()
-		})
-		g.It("Should duplicated forbidden parameters", func() {
-			_, err := api.GetMatchHistoryBySequenceNum(MatchesRequested(0), MatchesRequested(0))
-			g.Assert(err != nil).IsTrue()
-		})
-		g.It("Should refuse even one invalid parameter", func() {
-			_, err := api.GetMatchHistoryBySequenceNum(MatchesRequested(52), 37)
-			g.Assert(err != nil).IsTrue()
-		})
-		matches, err := api.GetMatchHistoryBySequenceNum(MatchesRequested(42), StartAtMatchSeqNum(424242))
-		g.It("Should accept a valid parameter", func() {
-			g.Assert(err == nil).IsTrue()
-		})
-		g.It("Should work with matchesRequested parameter", func() {
-			g.Assert(matches.Count() == 42).IsTrue()
-		})
-		g.It("Should work with startAtMatchSeqNum parameter", func() {
-			for _, match := range matches.Matches {
-				g.Assert(match.MatchSeqNum > 424242).IsTrue()
-			}
-		})
-	})
-}
-
-func TestDota2_GetMatchHistoryBySequenceNum_Cursor(t *testing.T) {
-	g := Goblin(t)
-	api, _ := LoadConfigFromFile("config.yaml")
-	g.Describe("api.GetMatchHistoryBySequenceNum Cursor", func() {
-		g.Describe("Part 1", func() {
-			c := NewCursor()
-			matches, err := api.GetMatchHistoryBySequenceNum(c, MatchesRequested(50))
-			g.It("Should accept a cursor parameter", func() {
-				g.Assert(err == nil).IsTrue()
-			})
-			g.It("Should modify the cursor parameter", func() {
-				g.Assert(c.c != nil).IsTrue()
-			})
-			g.It("Should modify correctly the cursor", func() {
-				g.Assert(matches.Matches[matches.Count()-1].MatchSeqNum == c.GetLastReceivedMatch()).IsTrue()
-			})
-		})
-		g.Describe("Part 2", func() {
-			c := NewCursor()
-			matches, _ := api.GetMatchHistoryBySequenceNum(c, MatchesRequested(50))
-			old := c.GetLastReceivedMatch() + 5000
-			c.SetBegin(old)
-			matches, _ = api.GetMatchHistoryBySequenceNum(c, MatchesRequested(50))
-			g.It("Should modify correctly the cursor when reusing a cursor", func() {
-				g.Assert(matches.Matches[matches.Count()-1].MatchSeqNum == c.GetLastReceivedMatch()).IsTrue()
-			})
-			g.It("Should send a new batch of matches when reusing a cursor", func() {
-				for _, match := range matches.Matches {
-					g.Assert(match.MatchSeqNum > old).IsTrue()
-				}
-			})
-		})
-	})
-}
-
-func TestDota2_GetMatchHistory_Teams(t *testing.T) {
-	g := Goblin(t)
-	api, _ := LoadConfigFromFile("config.yaml")
-	matches, _ := api.GetMatchHistory(MatchesRequested(100), AccountId(76561198067618887))
-	check := func(player Player, p Player, f bool, checkAccountId bool) {
-		g.Assert(f).IsTrue()
-		if checkAccountId {
-			g.Assert(p.AccountId == player.AccountId).IsTrue()
-		}
-		g.Assert(p.Hero.ID == player.Hero.ID).IsTrue()
-	}
-	g.Describe("Teams", func() {
-		g.It("Should return found=false on non found pos", func() {
-			for _, match := range matches.Matches {
-				_, f := match.GetPlayer(match.Radiant.Count() + match.Dire.Count() + 1)
-				g.Assert(f).IsFalse()
-			}
-		})
-		heroes, _ := api.GetHeroes()
-		nonPlayedHero := func(match MatchSummary) Hero {
-		heroLoop:
-			for _, hero := range heroes.heroes {
-				for _, player := range match.Radiant.players {
-					if player.Hero.ID == hero.ID {
-						continue heroLoop
+	mockClient := mockClient{}
+	api := LoadConfig(GetTestConfig())
+	api.client = &mockClient
+	var matches MatchHistory
+	var err error
+	g.Describe("api.GetMatchHistoryBySequenceNum", func() {
+		g.Describe("Basic test", func() {
+			g.It("Should call the correct URL", func() {
+				mockClient.DoFunc = func(req *http.Request) (*http.Response, error) {
+					switch req.URL.String() {
+					case getMatchHistoryBySequenceNumUrl(&api) + "?key=keyTEST":
+						return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(strings.NewReader(matchHistoryResponse0))}, nil
+					case getHeroesUrl(&api) + "?key=keyTEST":
+						return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(strings.NewReader(heroesResponse))}, nil
+					default:
+						g.Fail("Unnecessary API call " + req.URL.String())
 					}
+					return nil, nil
 				}
-				for _, player := range match.Dire.players {
-					if player.Hero.ID == hero.ID {
-						continue heroLoop
+				matches, err = api.GetMatchHistoryBySequenceNum()
+			})
+			g.It("Should return no error", func() {
+				g.Assert(err).IsNil()
+			})
+			g.It("Should return 2 matches", func() {
+				g.Assert(matches.Count()).Equal(2)
+			})
+			g.It("Should return a valid content", func() {
+				if matches.Count() != 2 {
+					g.Fail("Wrong match count")
+				}
+				g.Assert(matches[0].MatchId).Equal(int64(5569057130))
+				g.Assert(matches[0].MatchSeqNum).Equal(int64(4674249362))
+				g.Assert(matches[0].StartTime.Equal(time.Unix(1597496593, 0))).IsTrue()
+				g.Assert(matches[0].LobbyType).Equal(LobbyType(12))
+				g.Assert(matches[0].Radiant.Id).Equal(0)
+				g.Assert(matches[0].Dire.Id).Equal(0)
+				g.Assert(matches[0].Radiant.players[2].AccountId).Equal(196978137)
+				g.Assert(matches[1].MatchId).Equal(int64(5569057115))
+			})
+		})
+		g.Describe("Test with cursor", func() {
+			g.Before(func() {
+				mockClient.DoFunc = func(req *http.Request) (*http.Response, error) {
+					switch req.URL.String() {
+					case getMatchHistoryBySequenceNumUrl(&api) + "?key=keyTEST&start_at_match_seq_num=0":
+						return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(strings.NewReader(matchHistoryResponse0))}, nil
+					case getMatchHistoryBySequenceNumUrl(&api) + "?key=keyTEST&start_at_match_seq_num=4674248664":
+						return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(strings.NewReader(matchHistoryResponse1))}, nil
+					case getHeroesUrl(&api) + "?key=keyTEST":
+						return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(strings.NewReader(heroesResponse))}, nil
+					default:
+						g.Fail("Unnecessary API call " + req.URL.String())
 					}
+					return nil, errors.New("unnecessary API call " + req.URL.String())
 				}
-				return hero
-			}
-			return Hero{}
-		}
-		g.It("Should return found=false on non hero", func() {
-			for _, match := range matches.Matches {
-				_, f := match.GetByHero(nonPlayedHero(match))
-				g.Assert(f).IsFalse()
-			}
-		})
-		g.It("Should return found=false on non heroId", func() {
-			for _, match := range matches.Matches {
-				_, f := match.GetByHeroId(nonPlayedHero(match).ID)
-				g.Assert(f).IsFalse()
-			}
-		})
-		g.It("Should find player by pos", func() {
-			for _, match := range matches.Matches {
-				c := 0
-				loopF := func(player Player) {
-					p, f := match.GetPlayer(c)
-					check(player, p, f, true)
-					c++
-				}
-				for _, player := range match.Radiant.players {
-					loopF(player)
-				}
-				for _, player := range match.Dire.players {
-					loopF(player)
-				}
-			}
-		})
-		g.It("Should find player by Hero", func() {
-			for _, match := range matches.Matches {
-				loopF := func(player Player) {
-					p, f := match.GetByHero(player.Hero)
-					check(player, p, f, false)
-				}
-				for _, player := range match.Radiant.players {
-					loopF(player)
-				}
-				for _, player := range match.Dire.players {
-					loopF(player)
-				}
-			}
-		})
-		g.It("Should find player by HeroId", func() {
-			for _, match := range matches.Matches {
-				loopF := func(player Player) {
-					p, f := match.GetByHeroId(player.Hero.ID)
-					check(player, p, f, false)
-				}
-				for _, player := range match.Radiant.players {
-					loopF(player)
-				}
-				for _, player := range match.Dire.players {
-					loopF(player)
-				}
-			}
-		})
-		g.It("Should find player by Team.getByHero", func() {
-			for _, match := range matches.Matches {
-				for _, player := range match.Radiant.players {
-					p, f := match.Radiant.GetByHero(player.Hero)
-					check(player, p, f, false)
-				}
-				for _, player := range match.Dire.players {
-					p, f := match.Dire.GetByHero(player.Hero)
-					check(player, p, f, false)
-				}
-			}
+			})
+			c := NewCursor()
+			g.It("Should accept an empty cursor", func() {
+				_, err := api.GetMatchHistoryBySequenceNum(c)
+				g.Assert(err).IsNil()
+			})
+			g.It("Should return an initialized cursor", func() {
+				g.Assert(c.GetLastReceivedMatch()).Equal(int64(4674248663))
+			})
+			g.It("Should accept an existing cursor", func() {
+				_, err = api.GetMatchHistoryBySequenceNum(c)
+				g.Assert(err).IsNil()
+			})
+			g.It("Should update an initialized cursor", func() {
+				g.Assert(c.GetLastReceivedMatch()).Equal(int64(44))
+			})
 		})
 	})
 }
