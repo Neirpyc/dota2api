@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 	"testing"
+	"time"
 )
 
 const (
@@ -32,7 +33,12 @@ func TestDota2_GetFriendList(t *testing.T) {
 		})
 		g.It("Should return the correct values", func() {
 			g.Assert(friends.Count()).Equal(2)
-			//g.Assert(friends[])
+			g.Assert(friends[0].SteamId).Equal(NewSteamIdFrom64(42))
+			g.Assert(friends[0].FriendsSince).Equal(time.Unix(1551817569, 0))
+			g.Assert(friends[0].RelationShip).Equal("friend")
+			g.Assert(friends[1].SteamId).Equal(NewSteamIdFrom64(43))
+			g.Assert(friends[1].FriendsSince).Equal(time.Unix(1548161655, 0))
+			g.Assert(friends[1].RelationShip).Equal("friend")
 		})
 	})
 }

@@ -2,7 +2,9 @@ package dota2api
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"sort"
 	"strconv"
 	"time"
 )
@@ -32,7 +34,30 @@ func (f friendListJSON) ToFriends() Friends {
 			FriendsSince: time.Unix(friend.FriendSince, 0),
 		}
 	}
+	sort.Slice(friends, func(i, j int) bool {
+		return friends[i].SteamId.id < friends[j].SteamId.id
+	})
 	return friends
+}
+
+func (fr Friends) GetBySteamId(s SteamId) (Friend, error) {
+	id, f := s.SteamId64()
+	if !f {
+		return Friend{}, errors.New("steamId64 required")
+	}
+	beg, end := 0, len(fr)-1
+	for beg <= end {
+		curr := (beg + end) / 2
+		if fr[curr].SteamId.id == id {
+			return fr[curr], nil
+		}
+		if id > fr[curr].SteamId.id {
+			beg = curr + 1
+		} else {
+			end = curr - 1
+		}
+	}
+	return Friend{}, errors.New("not found")
 }
 
 type friendJSON struct {
@@ -49,8 +74,8 @@ type Friend struct {
 
 type Friends []Friend
 
-func (f Friends) Count() int {
-	return len(f)
+func (fr Friends) Count() int {
+	return len(fr)
 }
 
 //Get friend list
