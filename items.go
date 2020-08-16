@@ -141,12 +141,37 @@ func (api *Dota2) GetItems() (Items, error) {
 	return api.itemsCache.items, err
 }
 
+func (i itemsJSON) toItems() Items {
+	var items Items
+	items.items = make([]Item, len(i.Result.Items))
+	for i, item := range i.Result.Items {
+		items.items[i] = item.toItem()
+	}
+	sort.Slice(items.items, func(i, j int) bool {
+		return items.items[i].ID < items.items[j].ID
+	})
+	return items
+}
+
+func (i ItemJSON) toItem() Item {
+	return Item{
+		ID: i.ID,
+		Name: itemName{
+			name: i.Name[len(itemPrefix):],
+			full: i.Name,
+		},
+		Cost:       i.Cost,
+		SecretShop: i.SecretShop == 1,
+		SideShop:   i.SideShop == 1,
+		Recipe:     i.Recipe == 1,
+	}
+}
+
 func (api *Dota2) fillItemsCache() error {
 	api.itemsCache.mutex.Lock()
 	defer api.itemsCache.mutex.Unlock()
 	if api.itemsCache.fromCache == 0 {
 		var itemsListJson itemsJSON
-		var items Items
 
 		param := map[string]interface{}{
 			"key": api.steamApiKey,
@@ -169,23 +194,7 @@ func (api *Dota2) fillItemsCache() error {
 			return errors.New("non 200 status code")
 		}
 
-		items.items = make([]Item, len(itemsListJson.Result.Items))
-		for i, src := range itemsListJson.Result.Items {
-			items.items[i] = Item{
-				ID:         src.ID,
-				Name:       itemNameFromFullName(src.Name),
-				Cost:       0,
-				SecretShop: src.SecretShop == 1,
-				SideShop:   src.SideShop == 1,
-				Recipe:     src.Recipe == 1,
-			}
-		}
-
-		sort.Slice(items.items, func(i, j int) bool {
-			return items.items[i].ID < items.items[j].ID
-		})
-
-		api.itemsCache.items = items
+		api.itemsCache.items = itemsListJson.toItems()
 		atomic.StoreUint32(&api.itemsCache.fromCache, 1)
 		return nil
 	}

@@ -18,44 +18,48 @@ type matchDetailsJSON struct {
 }
 
 type matchJSON struct {
-	Error                 string          `json:"error" json:"error" bson:"error"`
-	Players               []playerJSON    `json:"players" bson:"players"`
-	RadiantWin            bool            `json:"radiant_win" bson:"radiant_win"`
-	Duration              int             `json:"duration" bson:"duration"`
-	PreGameDuration       int             `json:"pre_game_duration" bson:"pre_game_duration"`
-	StartTime             int64           `json:"start_time" bson:"start_time"`
-	MatchID               int64           `json:"match_id" bson:"match_id"`
-	MatchSeqNum           int64           `json:"match_seq_num" bson:"match_seq_num"`
-	TowerStatusRadiant    uint16          `json:"tower_status_radiant" bson:"tower_status_radiant"`
-	TowerStatusDire       uint16          `json:"tower_status_dire" bson:"tower_status_dire"`
-	BarracksStatusRadiant uint8           `json:"barracks_status_radiant" bson:"barracks_status_radiant"`
-	BarracksStatusDire    uint8           `json:"barracks_status_dire" bson:"barracks_status_dire"`
-	Cluster               int             `json:"cluster" bson:"cluster"`
-	FirstBloodTime        int             `json:"first_blood_time" bson:"first_blood_time"`
-	LobbyType             int             `json:"lobby_type" bson:"lobby_type"`
-	HumanPlayers          int             `json:"human_players" bson:"human_players"`
-	Leagueid              int             `json:"league_id" bson:"league_id"`
-	PositiveVotes         int             `json:"positive_votes" bson:"positive_votes"`
-	NegativeVotes         int             `json:"negative_votes" bson:"negative_votes"`
-	GameMode              int             `json:"game_mode" bson:"game_mode"`
-	Flags                 int             `json:"flags" bson:"flags"`
-	Engine                int             `json:"engine" bson:"engine"`
-	RadiantScore          int             `json:"radiant_score" bson:"radiant_score"`
-	DireScore             int             `json:"dire_score" bson:"dire_score"`
-	TournamentID          int             `json:"tournament_id" bson:"tournament_id"`
-	TournamentRound       int             `json:"tournament_round" bson:"tournament_round"`
-	RadiantTeamID         int             `json:"radiant_team_id" bson:"radiant_team_id"`
-	RadiantName           string          `json:"radiant_name" bson:"radiant_name"`
-	RadiantLogo           int             `json:"radiant_logo" bson:"radiant_logo"`
-	RadiantTeamComplete   int             `json:"radiant_team_complete" bson:"radiant_team_complete"`
-	DireTeamID            int             `json:"dire_team_id" bson:"dire_team_id"`
-	DireName              string          `json:"dire_name" bson:"dire_name"`
-	DireLogo              int             `json:"dire_logo" bson:"dire_logo"`
-	DireTeamComplete      int             `json:"dire_team_complete" bson:"dire_team_complete"`
-	RadiantCaptain        int             `json:"radiant_captain" bson:"radian_captain"`
-	DireCaptain           int             `json:"dire_captain" bson:"dire_captain"`
-	PicksBans             []picksBansJSON `json:"picks_bans" bson:"picks_bans"`
+	Error                 string               `json:"error" json:"error" bson:"error"`
+	Players               playersJSON          `json:"players" bson:"players"`
+	RadiantWin            bool                 `json:"radiant_win" bson:"radiant_win"`
+	Duration              int                  `json:"duration" bson:"duration"`
+	PreGameDuration       int                  `json:"pre_game_duration" bson:"pre_game_duration"`
+	StartTime             int64                `json:"start_time" bson:"start_time"`
+	MatchID               int64                `json:"match_id" bson:"match_id"`
+	MatchSeqNum           int64                `json:"match_seq_num" bson:"match_seq_num"`
+	TowerStatusRadiant    uint16               `json:"tower_status_radiant" bson:"tower_status_radiant"`
+	TowerStatusDire       uint16               `json:"tower_status_dire" bson:"tower_status_dire"`
+	BarracksStatusRadiant uint8                `json:"barracks_status_radiant" bson:"barracks_status_radiant"`
+	BarracksStatusDire    uint8                `json:"barracks_status_dire" bson:"barracks_status_dire"`
+	Cluster               int                  `json:"cluster" bson:"cluster"`
+	FirstBloodTime        int                  `json:"first_blood_time" bson:"first_blood_time"`
+	LobbyType             int                  `json:"lobby_type" bson:"lobby_type"`
+	HumanPlayers          int                  `json:"human_players" bson:"human_players"`
+	Leagueid              int                  `json:"league_id" bson:"league_id"`
+	PositiveVotes         int                  `json:"positive_votes" bson:"positive_votes"`
+	NegativeVotes         int                  `json:"negative_votes" bson:"negative_votes"`
+	GameMode              int                  `json:"game_mode" bson:"game_mode"`
+	Flags                 int                  `json:"flags" bson:"flags"`
+	Engine                int                  `json:"engine" bson:"engine"`
+	RadiantScore          int                  `json:"radiant_score" bson:"radiant_score"`
+	DireScore             int                  `json:"dire_score" bson:"dire_score"`
+	TournamentID          int                  `json:"tournament_id" bson:"tournament_id"`
+	TournamentRound       int                  `json:"tournament_round" bson:"tournament_round"`
+	RadiantTeamID         int                  `json:"radiant_team_id" bson:"radiant_team_id"`
+	RadiantName           string               `json:"radiant_name" bson:"radiant_name"`
+	RadiantLogo           int                  `json:"radiant_logo" bson:"radiant_logo"`
+	RadiantTeamComplete   int                  `json:"radiant_team_complete" bson:"radiant_team_complete"`
+	DireTeamID            int                  `json:"dire_team_id" bson:"dire_team_id"`
+	DireName              string               `json:"dire_name" bson:"dire_name"`
+	DireLogo              int                  `json:"dire_logo" bson:"dire_logo"`
+	DireTeamComplete      int                  `json:"dire_team_complete" bson:"dire_team_complete"`
+	RadiantCaptain        int                  `json:"radiant_captain" bson:"radian_captain"`
+	DireCaptain           int                  `json:"dire_captain" bson:"dire_captain"`
+	PicksBans             multiplePickBansJSON `json:"picks_bans" bson:"picks_bans"`
 }
+
+type multiplePickBansJSON []picksBansJSON
+
+type playersJSON []playerJSON
 
 type playerJSON struct {
 	AccountID         int                  `json:"account_id" bson:"account_id"`
@@ -612,6 +616,106 @@ func (a abilityUpgradesJSON) toAbilityUpgrade() AbilityUpgrades {
 	return ret
 }
 
+func (p playersJSON) toTeamDetails(api Dota2) (radiant TeamDetails, dire TeamDetails, err error) {
+	var heroes Heroes
+	var items Items
+	if heroes, err = api.GetHeroes(); err != nil {
+		return
+	}
+	if items, err = api.GetItems(); err != nil {
+		return
+	}
+	for _, player := range p {
+		p := player.toPlayerDetails(heroes, items)
+
+		p.AbilityUpgrades = abilityUpgradesJSON(player.AbilityUpgrades).toAbilityUpgrade()
+
+		sort.Slice(p.AbilityUpgrades, func(i, j int) bool {
+			return p.AbilityUpgrades[i].Level < p.AbilityUpgrades[j].Level
+		})
+
+		if player.PlayerSlot&128 == 0 {
+			radiant = append(radiant, p)
+		} else {
+			dire = append(dire, p)
+		}
+	}
+	return
+}
+
+func (p multiplePickBansJSON) toPicksBans(api Dota2) (PicksBans, error) {
+	picksBans := make(PicksBans, len(p))
+	var err error
+	for i, pickBan := range p {
+		if picksBans[i], err = pickBan.toPicksBans(api); err != nil {
+			return nil, err
+		}
+	}
+	return picksBans, nil
+}
+
+func (p picksBansJSON) toPicksBans(api Dota2) (PickBan, error) {
+	heroes, err := api.GetHeroes()
+	if err != nil {
+		return PickBan{}, err
+	}
+	h, f := heroes.GetById(p.HeroId)
+	if !f {
+		return PickBan{}, errors.New("hero id not found")
+	}
+	return PickBan{
+		isPick: p.IsPick,
+		Hero:   h,
+		team:   p.Team,
+		Order:  p.Order,
+	}, nil
+}
+
+func (m matchDetailsJSON) toMatchDetails(api Dota2) (MatchDetails, error) {
+	mD := MatchDetails{
+		Radiant: make([]PlayerDetails, 0),
+		Dire:    make([]PlayerDetails, 0),
+		Victory: func() Victory {
+			if m.Result.RadiantWin {
+				return RadiantVictory
+			}
+			return DireVictory
+		}(),
+		Duration:        time.Duration(int64(m.Result.Duration) * int64(time.Second)),
+		PreGameDuration: time.Duration(int64(m.Result.PreGameDuration) * int64(time.Second)),
+		StartTime:       time.Unix(m.Result.StartTime, 0),
+		MatchID:         m.Result.MatchID,
+		MatchSeqNum:     m.Result.MatchSeqNum,
+		BuildingsState: BuildingsState{
+			Dire: TeamBuildingsState{}.from(m.Result.TowerStatusDire,
+				m.Result.BarracksStatusDire),
+			Radiant: TeamBuildingsState{}.from(m.Result.TowerStatusRadiant,
+				m.Result.BarracksStatusRadiant),
+		},
+		Cluster:        m.Result.Cluster,
+		FirstBloodTime: time.Duration(int64(m.Result.FirstBloodTime) * int64(time.Second)),
+		LobbyType:      LobbyType(m.Result.LobbyType),
+		HumanPlayers:   m.Result.HumanPlayers,
+		Votes: Votes{
+			PositiveVotes: m.Result.PositiveVotes,
+			NegativeVotes: m.Result.NegativeVotes,
+		},
+		GameMode: GameMode(m.Result.GameMode),
+		Flags:    m.Result.Flags,
+		Engine:   Engine(m.Result.Engine),
+		Score: Score{
+			RadiantScore: m.Result.RadiantScore,
+			DireScore:    m.Result.DireScore,
+		},
+	}
+	var err error
+	if mD.Radiant, mD.Dire, err = m.Result.Players.toTeamDetails(api); err != nil {
+		return mD, err
+	}
+	mD.PicksBans, err = m.Result.PicksBans.toPicksBans(api)
+	return mD, err
+}
+
 //Get match details
 func (api Dota2) GetMatchDetails(params ...Parameter) (MatchDetails, error) {
 
@@ -642,80 +746,7 @@ func (api Dota2) GetMatchDetails(params ...Parameter) (MatchDetails, error) {
 		return match, errors.New(matchDetails.Result.Error)
 	}
 
-	match = MatchDetails{
-		Radiant: make([]PlayerDetails, 0),
-		Dire:    make([]PlayerDetails, 0),
-		Victory: func() Victory {
-			if matchDetails.Result.RadiantWin {
-				return RadiantVictory
-			}
-			return DireVictory
-		}(),
-		Duration:        time.Duration(int64(matchDetails.Result.Duration) * int64(time.Second)),
-		PreGameDuration: time.Duration(int64(matchDetails.Result.PreGameDuration) * int64(time.Second)),
-		StartTime:       time.Unix(matchDetails.Result.StartTime, 0),
-		MatchID:         matchDetails.Result.MatchID,
-		MatchSeqNum:     matchDetails.Result.MatchSeqNum,
-		BuildingsState: BuildingsState{
-			Dire: TeamBuildingsState{}.from(matchDetails.Result.TowerStatusDire,
-				matchDetails.Result.BarracksStatusDire),
-			Radiant: TeamBuildingsState{}.from(matchDetails.Result.TowerStatusRadiant,
-				matchDetails.Result.BarracksStatusRadiant),
-		},
-		Cluster:        matchDetails.Result.Cluster,
-		FirstBloodTime: time.Duration(int64(matchDetails.Result.FirstBloodTime) * int64(time.Second)),
-		LobbyType:      LobbyType(matchDetails.Result.LobbyType),
-		HumanPlayers:   matchDetails.Result.HumanPlayers,
-		Votes: Votes{
-			PositiveVotes: matchDetails.Result.PositiveVotes,
-			NegativeVotes: matchDetails.Result.NegativeVotes,
-		},
-		GameMode: GameMode(matchDetails.Result.GameMode),
-		Flags:    matchDetails.Result.Flags,
-		Engine:   Engine(matchDetails.Result.Engine),
-		Score: Score{
-			RadiantScore: matchDetails.Result.RadiantScore,
-			DireScore:    matchDetails.Result.DireScore,
-		},
-	}
-
-	heroes, err := api.GetHeroes()
-	if err != nil {
-		return match, err
-	}
-
-	items, err := api.GetItems()
-	if err != nil {
-		return match, err
-	}
-
-	for _, player := range matchDetails.Result.Players {
-		p := player.toPlayerDetails(heroes, items)
-
-		p.AbilityUpgrades = abilityUpgradesJSON(player.AbilityUpgrades).toAbilityUpgrade()
-
-		sort.Slice(p.AbilityUpgrades, func(i, j int) bool {
-			return p.AbilityUpgrades[i].Level < p.AbilityUpgrades[j].Level
-		})
-
-		if player.PlayerSlot&128 == 0 {
-			match.Radiant = append(match.Radiant, p)
-		} else {
-			match.Dire = append(match.Dire, p)
-		}
-	}
-
-	for _, pickBan := range matchDetails.Result.PicksBans {
-		h, _ := heroes.GetById(pickBan.HeroId)
-		match.PicksBans = append(match.PicksBans, PickBan{
-			isPick: pickBan.IsPick,
-			Hero:   h,
-			team:   pickBan.Team,
-			Order:  pickBan.Order,
-		})
-	}
-
-	return match, nil
+	return matchDetails.toMatchDetails(api)
 }
 
 func MatchId(matchId int64) ParameterInt64 {

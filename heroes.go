@@ -135,12 +135,33 @@ func (api *Dota2) GetHeroes() (Heroes, error) {
 	return api.heroesCache.heroes, err
 }
 
-func (api *Dota2) fillHeroesCache() error {
+func (h heroesJSON) toHeroes() Heroes {
+	var heroes Heroes
+	heroes.heroes = make([]Hero, len(h.Result.Heroes))
+	for i, hero := range h.Result.Heroes {
+		heroes.heroes[i] = hero.toHero()
+	}
+	sort.Slice(heroes.heroes, func(i, j int) bool {
+		return heroes.heroes[i].ID < heroes.heroes[j].ID
+	})
+	return heroes
+}
+
+func (h heroJSON) toHero() Hero {
+	return Hero{
+		ID: h.ID,
+		Name: heroName{
+			name: h.Name[len(heroPrefix):],
+			full: h.Name,
+		},
+	}
+}
+
+func (api Dota2) fillHeroesCache() error {
 	api.heroesCache.mutex.Lock()
 	defer api.heroesCache.mutex.Unlock()
 	if api.heroesCache.fromCache == 0 {
 		var heroesListJson heroesJSON
-		var heroes Heroes
 
 		param := map[string]interface{}{
 			"key": api.steamApiKey,
@@ -162,19 +183,7 @@ func (api *Dota2) fillHeroesCache() error {
 			return errors.New("non 200 status code")
 		}
 
-		heroes.heroes = make([]Hero, len(heroesListJson.Result.Heroes))
-		for i, src := range heroesListJson.Result.Heroes {
-			heroes.heroes[i] = Hero{
-				ID:   src.ID,
-				Name: heroNameFromFullName(src.Name),
-			}
-		}
-
-		sort.Slice(heroes.heroes, func(i, j int) bool {
-			return heroes.heroes[i].ID < heroes.heroes[j].ID
-		})
-
-		api.heroesCache.heroes = heroes
+		api.heroesCache.heroes = heroesListJson.toHeroes()
 		atomic.StoreUint32(&api.heroesCache.fromCache, 1)
 		return nil
 	}
