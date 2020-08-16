@@ -51,8 +51,8 @@ type matchSummaryJSON struct {
 	Players       []playerSummaryJSON `json:"players" bson:"players"`
 }
 
-func (m MatchHistoryJSON) toMatchSummary(d Dota2) (MatchHistory, error) {
-	res := make([]MatchSummary, len(m.Result.Matches))
+func (m MatchHistoryJSON) toMatchSummary(d Dota2) (res MatchHistory, err error) {
+	res = make([]MatchSummary, len(m.Result.Matches))
 	for i, src := range m.Result.Matches {
 		res[i].LobbyType = LobbyType(src.LobbyType)
 		res[i].StartTime = time.Unix(src.StartTime, 0)
@@ -70,11 +70,10 @@ func (m MatchHistoryJSON) toMatchSummary(d Dota2) (MatchHistory, error) {
 		}
 		for _, p := range src.Players {
 			var h Hero
-			var found bool
 			if p.HeroID == 0 {
 				h.ID = 0
-			} else if h, found = heroes.GetById(p.HeroID); !found {
-				return res, errors.New("hero ID not found")
+			} else if h, err = heroes.GetById(p.HeroID); err != nil {
+				return res, err
 			}
 			player := Player{
 				AccountId: p.AccountID,
@@ -87,7 +86,7 @@ func (m MatchHistoryJSON) toMatchSummary(d Dota2) (MatchHistory, error) {
 			}
 		}
 	}
-	return res, nil
+	return
 }
 
 type playerSummaryJSON struct {

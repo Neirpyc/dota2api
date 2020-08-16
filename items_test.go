@@ -126,8 +126,8 @@ func TestItems_GetById(t *testing.T) {
 	g.Describe("Items.GetById", func() {
 		g.It("Should return the correct hero when ID is found", func() {
 			for _, item := range items.items {
-				i, found := items.GetById(item.ID)
-				g.Assert(found).IsTrue()
+				i, err := items.GetById(item.ID)
+				g.Assert(err).IsNil()
 				g.Assert(i.ID).Equal(item.ID)
 				g.Assert(i.Name).Equal(item.Name)
 			}
@@ -137,8 +137,8 @@ func TestItems_GetById(t *testing.T) {
 			for _, hero := range items.items {
 				missingId += hero.ID
 			}
-			_, found := items.GetById(missingId)
-			g.Assert(found).IsFalse()
+			_, err := items.GetById(missingId)
+			g.Assert(err).IsNotNil()
 		})
 	})
 }
@@ -165,15 +165,15 @@ func TestItems_GetByName(t *testing.T) {
 	g.Describe("Items.GetById", func() {
 		g.It("Should return the correct hero when Name is found", func() {
 			for _, item := range items.items {
-				i, found := items.GetByName(item.Name.GetFullName())
-				g.Assert(found).IsTrue()
+				i, err := items.GetByName(item.Name.GetFullName())
+				g.Assert(err).IsNil()
 				g.Assert(i.ID).Equal(item.ID)
 				g.Assert(i.Name).Equal(item.Name)
 			}
 		})
 		g.It("Should return Error when Name is not found", func() {
-			_, found := items.GetByName("irNe9GNzJm")
-			g.Assert(found).IsFalse()
+			_, err := items.GetByName("irNe9GNzJm")
+			g.Assert(err).IsNotNil()
 		})
 	})
 }

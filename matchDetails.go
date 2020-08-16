@@ -646,22 +646,22 @@ func (p playersJSON) toTeamDetails(api Dota2) (radiant TeamDetails, dire TeamDet
 func (p multiplePickBansJSON) toPicksBans(api Dota2) (PicksBans, error) {
 	picksBans := make(PicksBans, len(p))
 	var err error
+	heroes, err := api.GetHeroes()
+	if err != nil {
+		return nil, err
+	}
 	for i, pickBan := range p {
-		if picksBans[i], err = pickBan.toPicksBans(api); err != nil {
+		if picksBans[i], err = pickBan.toPicksBans(heroes); err != nil {
 			return nil, err
 		}
 	}
 	return picksBans, nil
 }
 
-func (p picksBansJSON) toPicksBans(api Dota2) (PickBan, error) {
-	heroes, err := api.GetHeroes()
+func (p picksBansJSON) toPicksBans(heroes Heroes) (PickBan, error) {
+	h, err := heroes.GetById(p.HeroId)
 	if err != nil {
 		return PickBan{}, err
-	}
-	h, f := heroes.GetById(p.HeroId)
-	if !f {
-		return PickBan{}, errors.New("hero id not found")
 	}
 	return PickBan{
 		isPick: p.IsPick,

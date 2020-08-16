@@ -82,17 +82,17 @@ type Items struct {
 //
 // First tries with the index [id-1] which sometimes works, and is very fast to test
 // If it doesn't work, it then run a dichotomy search.
-func (i Items) GetById(id int) (item Item, found bool) {
+func (i Items) GetById(id int) (Item, error) {
 	if id < len(i.items) && id > 0 {
 		if i.items[id-1].ID == id {
-			return i.items[id-1], true
+			return i.items[id-1], nil
 		}
 	}
 	beg, end := 0, len(i.items)-1
 	for beg <= end {
 		curr := (beg + end) / 2
 		if i.items[curr].ID == id {
-			return i.items[curr], true
+			return i.items[curr], nil
 		}
 		if id > i.items[curr].ID {
 			beg = curr + 1
@@ -100,7 +100,7 @@ func (i Items) GetById(id int) (item Item, found bool) {
 			end = curr - 1
 		}
 	}
-	return
+	return Item{}, errors.New(fmt.Sprintf("item with id %d not found", id))
 }
 
 func (i Items) GetByPos(pos int) Item {
@@ -111,13 +111,13 @@ func (i Items) GetByPos(pos int) Item {
 // If no matching item is found, found = false, otherwise, found = true
 //
 // Runs a linear search
-func (i Items) GetByName(name string) (item Item, found bool) {
+func (i Items) GetByName(name string) (Item, error) {
 	for _, currentItem := range i.items {
 		if currentItem.Name.full == name {
-			return currentItem, true
+			return currentItem, nil
 		}
 	}
-	return Item{}, false
+	return Item{}, errors.New(fmt.Sprintf("item with name %s not found", name))
 }
 
 func (i Items) Item(pos int) Item {

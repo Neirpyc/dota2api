@@ -49,17 +49,17 @@ type Heroes struct {
 //
 // First tries with the index [id-1] which sometimes works, and is very fast to test
 // If it doesn't work, it then run a dichotomy search.
-func (h Heroes) GetById(id int) (hero Hero, found bool) {
+func (h Heroes) GetById(id int) (Hero, error) {
 	if id < len(h.heroes) && id > 0 {
 		if h.heroes[id-1].ID == id {
-			return h.heroes[id-1], true
+			return h.heroes[id-1], nil
 		}
 	}
 	beg, end := 0, len(h.heroes)-1
 	for beg <= end {
 		curr := (beg + end) / 2
 		if h.heroes[curr].ID == id {
-			return h.heroes[curr], true
+			return h.heroes[curr], nil
 		}
 		if id > h.heroes[curr].ID {
 			beg = curr + 1
@@ -67,20 +67,20 @@ func (h Heroes) GetById(id int) (hero Hero, found bool) {
 			end = curr - 1
 		}
 	}
-	return Hero{}, false
+	return Hero{}, errors.New(fmt.Sprintf("hero with id %d not found", id))
 }
 
 // Returns the hero which has the given name
 // If no matching hero is found, found = false, otherwise, found = true
 //
 // Runs a linear search
-func (h Heroes) GetByName(name string) (hero Hero, found bool) {
+func (h Heroes) GetByName(name string) (Hero, error) {
 	for _, currentHero := range h.heroes {
 		if currentHero.Name.full == name {
-			return currentHero, true
+			return currentHero, nil
 		}
 	}
-	return Hero{}, false
+	return Hero{}, errors.New(fmt.Sprintf("item with name %s not found", name))
 }
 
 type heroName struct {

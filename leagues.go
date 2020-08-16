@@ -263,33 +263,32 @@ func (g liveGameJSON) toLiveGame(api Dota2) (LiveGame, error) {
 
 func (p liveGamePlayersJSON) toPlayers(api Dota2) (LiveGamePlayers, error) {
 	l := make(LiveGamePlayers, len(p))
+	heroes, err := api.GetHeroes()
+	if err != nil {
+		return l, err
+	}
 	for i, player := range p {
 		var err error
-		if l[i], err = player.toPlayer(api); err != nil {
+		if l[i], err = player.toPlayer(heroes); err != nil {
 			return nil, err
 		}
 	}
 	return l, nil
 }
 
-func (p liveGamePlayerJSON) toPlayer(api Dota2) (LiveGamePlayer, error) {
-	ret := LiveGamePlayer{
+func (p liveGamePlayerJSON) toPlayer(heroes Heroes) (lGP LiveGamePlayer, err error) {
+	lGP = LiveGamePlayer{
 		AccountId: p.AccountID,
 		Name:      p.Name,
 		Team:      p.Team,
 	}
 
 	if p.HeroID != 0 {
-		if h, err := api.GetHeroes(); err != nil {
-			return ret, err
-		} else {
-			var f bool
-			if ret.Hero, f = h.GetById(p.HeroID); !f {
-				return ret, errors.New("hero not found")
-			}
+		if lGP.Hero, err = heroes.GetById(p.HeroID); err != nil {
+			return
 		}
 	}
-	return ret, nil
+	return
 }
 
 func (s scoreboardJSON) toScoreBoard(api Dota2) (ScoreBoard, error) {
@@ -313,29 +312,37 @@ func (s sideJSON) toSideLive(api Dota2) (SideLive, error) {
 		Abilities:      s.Abilities,
 	}
 	var err error
-	if ret.Picks, err = s.Picks.toHeroSlice(api); err != nil {
+	heroes, err := api.GetHeroes()
+	if err != nil {
 		return ret, err
 	}
-	if ret.Bans, err = s.Bans.toHeroSlice(api); err != nil {
+	items, err := api.GetItems()
+	if err != nil {
 		return ret, err
 	}
-	ret.Players, err = s.Players.toLivePlayers(api)
+	if ret.Picks, err = s.Picks.toHeroSlice(heroes); err != nil {
+		return ret, err
+	}
+	if ret.Bans, err = s.Bans.toHeroSlice(heroes); err != nil {
+		return ret, err
+	}
+	ret.Players, err = s.Players.toLivePlayers(heroes, items)
 	return ret, err
 }
 
-func (l livePlayersJSON) toLivePlayers(api Dota2) (PlayersLive, error) {
+func (l livePlayersJSON) toLivePlayers(heroes Heroes, items Items) (PlayersLive, error) {
 	ret := make(PlayersLive, len(l))
 	for i, player := range l {
 		var err error
-		if ret[i], err = player.toLivePlayer(api); err != nil {
+		if ret[i], err = player.toLivePlayer(heroes, items); err != nil {
 			return nil, err
 		}
 	}
 	return ret, nil
 }
 
-func (l livePlayerJSON) toLivePlayer(api Dota2) (PlayerLive, error) {
-	p := PlayerLive{
+func (l livePlayerJSON) toLivePlayer(heroes Heroes, items Items) (pL PlayerLive, err error) {
+	pL = PlayerLive{
 		PlayerSlot: l.PlayerSlot,
 		AccountID:  l.AccountID,
 		KDA: KDA{
@@ -365,48 +372,33 @@ func (l livePlayerJSON) toLivePlayer(api Dota2) (PlayerLive, error) {
 		},
 	}
 
-	var f bool
-
 	if l.HeroID != 0 {
-		h, err := api.GetHeroes()
-		if err != nil {
-			return PlayerLive{}, err
-		}
-		if p.Hero, f = h.GetById(l.HeroID); !f {
-			return p, errors.New("unknown hero id")
+		if pL.Hero, err = heroes.GetById(l.HeroID); err != nil {
+			return
 		}
 	}
 
-	items, err := api.GetItems()
-	if err != nil {
-		return PlayerLive{}, err
-	}
-	fields := []*Item{&p.Items.Item0, &p.Items.Item1, &p.Items.Item2, &p.Items.Item3, &p.Items.Item4, &p.Items.Item5}
+	fields := []*Item{&pL.Items.Item0, &pL.Items.Item1, &pL.Items.Item2, &pL.Items.Item3, &pL.Items.Item4, &pL.Items.Item5}
 	src := []int{l.Item0, l.Item1, l.Item2, l.Item3, l.Item4, l.Item5}
 	for i, fi := range fields {
 		if src[i] != 0 {
-			if *fi, f = items.GetById(src[i]); !f {
-				return p, errors.New("unknown item id")
+			if *fi, err = items.GetById(src[i]); err != nil {
+				return
 			}
 		}
 	}
 
-	return p, nil
+	return
 }
 
-func (p picksOrBansJSON) toHeroSlice(api Dota2) ([]Hero, error) {
-	h, err := api.GetHeroes()
-	if err != nil {
-		return nil, err
-	}
-	ret := make([]Hero, len(p))
+func (p picksOrBansJSON) toHeroSlice(heroes Heroes) (ret []Hero, err error) {
+	ret = make([]Hero, len(p))
 	for i, choice := range p {
-		var f bool
-		if ret[i], f = h.GetById(choice.HeroID); !f {
-			return nil, err
+		if ret[i], err = heroes.GetById(choice.HeroID); err != nil {
+			return
 		}
 	}
-	return ret, nil
+	return
 }
 
 func (api Dota2) GetLiveLeagueGames(params ...Parameter) (LiveGames, error) {
