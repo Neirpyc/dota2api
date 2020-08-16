@@ -21,13 +21,15 @@ type VanityResp struct {
 }
 
 //Get steamId by username
-func (d *Dota2) ResolveVanityUrl(vanityurl string) (int64, error) {
-	var steamId int64
+func (d *Dota2) ResolveVanityUrl(params ...Parameter) (SteamId, error) {
+	var steamId SteamId
 
-	param := map[string]interface{}{
-		"key":       d.steamApiKey,
-		"vanityurl": vanityurl,
+	param, err := getParameterMap([]int{parameterVanityUrl}, nil, params)
+	if err != nil {
+		return steamId, err
 	}
+	param["key"] = d.steamApiKey
+
 	url, err := parseUrl(getResolveVanityUrl(d), param)
 	if err != nil {
 		return steamId, err
@@ -47,10 +49,18 @@ func (d *Dota2) ResolveVanityUrl(vanityurl string) (int64, error) {
 		return steamId, errors.New(string(resp))
 	}
 
-	steamId, err = strconv.ParseInt(vanity.Response.SteamId, 10, 64)
+	steamId.id, err = strconv.ParseUint(vanity.Response.SteamId, 10, 64)
 	if err != nil {
 		return steamId, err
 	}
-
+	steamId.isId64 = true
 	return steamId, nil
+}
+
+func VanityUrl(url string) ParameterString {
+	return ParameterString{
+		k:       "vanityurl",
+		v:       url,
+		kindInt: parameterVanityUrl,
+	}
 }

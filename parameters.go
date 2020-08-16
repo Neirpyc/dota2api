@@ -12,6 +12,7 @@ const (
 	parameterStartMatchAtSeqNum
 	parameterSteamIds
 	parameterSteamId
+	parameterVanityUrl
 )
 
 type Parameter interface {
