@@ -29,7 +29,7 @@ func (api Dota2) getMatchHistoryBySequenceNumUrl() string {
 	return fmt.Sprintf("%s/%s/%s/", api.dota2MatchUrl, "GetMatchHistoryBySequenceNum", api.dota2ApiVersion)
 }
 
-type MatchHistoryJSON struct {
+type matchHistoryJSON struct {
 	Result matchHistoryResultJSON `json:"result"`
 }
 
@@ -51,7 +51,7 @@ type matchSummaryJSON struct {
 	Players       []playerSummaryJSON `json:"players" bson:"players"`
 }
 
-func (m MatchHistoryJSON) toMatchSummary(d Dota2) (res MatchHistory, err error) {
+func (m matchHistoryJSON) toMatchSummary(d Dota2) (res MatchHistory, err error) {
 	res = make([]MatchSummary, len(m.Result.Matches))
 	for i, src := range m.Result.Matches {
 		res[i].LobbyType = LobbyType(src.LobbyType)
@@ -236,7 +236,7 @@ func (c Cursor) GetRemaining() int {
 }
 
 func (api Dota2) GetMatchHistory(params ...interface{}) (MatchHistory, error) {
-	var matchHistory MatchHistoryJSON
+	var matchHistory matchHistoryJSON
 	var res MatchHistory
 	var c Cursor
 
@@ -298,7 +298,7 @@ func (api Dota2) GetMatchHistory(params ...interface{}) (MatchHistory, error) {
 }
 
 func (api Dota2) GetMatchHistoryBySequenceNum(params ...interface{}) (MatchHistory, error) {
-	var matchHistory MatchHistoryJSON
+	var matchHistory matchHistoryJSON
 	var res MatchHistory
 	var c Cursor
 

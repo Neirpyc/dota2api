@@ -26,12 +26,12 @@ func getItemImageUrl(d *Dota2, name itemName) string {
 
 type itemsJSON struct {
 	Result struct {
-		Items  []ItemJSON `json:"items" bson:"items"`
+		Items  []itemJSON `json:"items" bson:"items"`
 		Status int        `json:"status" bson:"status"`
 	}
 }
 
-type ItemJSON struct {
+type itemJSON struct {
 	ID         int    `json:"id" bson:"id"`
 	Name       string `json:"name" bson:"name"`
 	Cost       int    `json:"cost" bson:"cost"`
@@ -153,7 +153,7 @@ func (i itemsJSON) toItems() Items {
 	return items
 }
 
-func (i ItemJSON) toItem() Item {
+func (i itemJSON) toItem() Item {
 	return Item{
 		ID: i.ID,
 		Name: itemName{
