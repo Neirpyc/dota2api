@@ -9,8 +9,8 @@ import (
 	"time"
 )
 
-func getMatchDetailsUrl(dota2 *Dota2) string {
-	return fmt.Sprintf("%s/%s/%s/", dota2.dota2MatchUrl, "GetMatchDetails", dota2.dota2ApiVersion)
+func (api Dota2) getMatchDetailsUrl() string {
+	return fmt.Sprintf("%s/%s/%s/", api.dota2MatchUrl, "GetMatchDetails", api.dota2ApiVersion)
 }
 
 type matchDetailsJSON struct {
@@ -613,7 +613,7 @@ func (a abilityUpgradesJSON) toAbilityUpgrade() AbilityUpgrades {
 }
 
 //Get match details
-func (d *Dota2) GetMatchDetails(params ...Parameter) (MatchDetails, error) {
+func (api Dota2) GetMatchDetails(params ...Parameter) (MatchDetails, error) {
 
 	var matchDetails matchDetailsJSON
 	var match MatchDetails
@@ -622,13 +622,13 @@ func (d *Dota2) GetMatchDetails(params ...Parameter) (MatchDetails, error) {
 	if err != nil {
 		return match, err
 	}
-	param["key"] = d.steamApiKey
-	url, err := parseUrl(getMatchDetailsUrl(d), param)
+	param["key"] = api.steamApiKey
+	url, err := parseUrl(api.getMatchDetailsUrl(), param)
 
 	if err != nil {
 		return match, err
 	}
-	resp, err := d.Get(url)
+	resp, err := api.Get(url)
 	if err != nil {
 		return match, err
 	}
@@ -679,12 +679,12 @@ func (d *Dota2) GetMatchDetails(params ...Parameter) (MatchDetails, error) {
 		},
 	}
 
-	heroes, err := d.GetHeroes()
+	heroes, err := api.GetHeroes()
 	if err != nil {
 		return match, err
 	}
 
-	items, err := d.GetItems()
+	items, err := api.GetItems()
 	if err != nil {
 		return match, err
 	}

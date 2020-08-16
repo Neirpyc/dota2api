@@ -9,14 +9,14 @@ import (
 )
 
 //http get
-func (d Dota2) Get(u string) ([]byte, error) {
+func (api Dota2) Get(u string) ([]byte, error) {
 	var body []byte
 
 	request, err := http.NewRequest(http.MethodGet, u, nil)
 	if err != nil {
 		return body, err
 	}
-	resp, err := d.client.Do(request)
+	resp, err := api.client.Do(request)
 	if err != nil {
 		return body, err
 	}

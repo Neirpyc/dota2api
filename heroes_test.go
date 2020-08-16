@@ -26,7 +26,7 @@ func TestGetHeroes(t *testing.T) {
 		var err error
 		g.It("Should call the correct URL", func() {
 			mockClient.DoFunc = func(req *http.Request) (*http.Response, error) {
-				g.Assert(req.URL.String()).Equal(getHeroesUrl(&api) + "?key=keyTEST")
+				g.Assert(req.URL.String()).Equal(api.getHeroesUrl() + "?key=keyTEST")
 				return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(strings.NewReader(heroesResponse))}, nil
 			}
 			heroes, err = api.GetHeroes()
@@ -44,7 +44,7 @@ func TestGetHeroes(t *testing.T) {
 			api.heroesCache.fromCache = 0
 
 			mockClient.DoFunc = func(req *http.Request) (*http.Response, error) {
-				g.Assert(req.URL.String()).Equal(getHeroesUrl(&api) + "?key=keyTEST")
+				g.Assert(req.URL.String()).Equal(api.getHeroesUrl() + "?key=keyTEST")
 				calledMutex.Lock()
 				defer calledMutex.Unlock()
 				g.Assert(called).IsFalse()

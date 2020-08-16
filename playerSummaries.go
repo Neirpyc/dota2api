@@ -13,8 +13,8 @@ import (
 	"time"
 )
 
-func getPlayerSummariesUrl(dota2 *Dota2) string {
-	return fmt.Sprintf("%s/%s/%s/", dota2.steamUserUrl, "GetPlayerSummaries", "V002")
+func (api Dota2) getPlayerSummariesUrl() string {
+	return fmt.Sprintf("%s/%s/%s/", api.steamUserUrl, "GetPlayerSummaries", "V002")
 }
 
 type playerSummariesJSON struct {
@@ -260,7 +260,7 @@ type PlayerAccount struct {
 }
 
 //Get player summaries
-func (d *Dota2) GetPlayerSummaries(params ...Parameter) (PlayerAccounts, error) {
+func (api *Dota2) GetPlayerSummaries(params ...Parameter) (PlayerAccounts, error) {
 	var playerAccounts PlayerAccounts
 	var playerSummaries playerSummariesJSON
 
@@ -268,14 +268,14 @@ func (d *Dota2) GetPlayerSummaries(params ...Parameter) (PlayerAccounts, error) 
 	if err != nil {
 		return playerAccounts, err
 	}
-	param["key"] = d.steamApiKey
+	param["key"] = api.steamApiKey
 
-	url, err := parseUrl(getPlayerSummariesUrl(d), param)
+	url, err := parseUrl(api.getPlayerSummariesUrl(), param)
 
 	if err != nil {
 		return playerAccounts, err
 	}
-	resp, err := d.Get(url)
+	resp, err := api.Get(url)
 	if err != nil {
 		return playerAccounts, err
 	}
@@ -285,7 +285,7 @@ func (d *Dota2) GetPlayerSummaries(params ...Parameter) (PlayerAccounts, error) 
 		return playerAccounts, err
 	}
 
-	return playerSummaries.toPlayerAccounts(d), nil
+	return playerSummaries.toPlayerAccounts(api), nil
 }
 
 func ParameterSteamIds(ids ...SteamId) Parameter {

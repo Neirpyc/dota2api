@@ -15,8 +15,8 @@ import (
 
 const itemPrefix = "item_"
 
-func getItemsUrl(dota2 *Dota2) string {
-	return fmt.Sprintf("%s/%s/%s/", dota2.dota2EconUrl, "GetGameItems", dota2.dota2ApiVersion)
+func (api Dota2) getItemsUrl() string {
+	return fmt.Sprintf("%s/%s/%s/", api.dota2EconUrl, "GetGameItems", api.dota2ApiVersion)
 }
 
 func getItemImageUrl(d *Dota2, name itemName) string {
@@ -132,30 +132,30 @@ type getItemsCache struct {
 // This function calls the API to get the list of the items
 // Once a call has succeeded, the result is stored, and no further API call is made
 // Instead, it returns a copy of the cached result
-func (d *Dota2) GetItems() (Items, error) {
+func (api *Dota2) GetItems() (Items, error) {
 	var err error
-	if atomic.LoadUint32(&d.itemsCache.fromCache) == 0 {
-		err = d.fillItemsCache()
+	if atomic.LoadUint32(&api.itemsCache.fromCache) == 0 {
+		err = api.fillItemsCache()
 	}
-	return d.itemsCache.items, err
+	return api.itemsCache.items, err
 }
 
-func (d *Dota2) fillItemsCache() error {
-	d.itemsCache.mutex.Lock()
-	defer d.itemsCache.mutex.Unlock()
-	if d.itemsCache.fromCache == 0 {
+func (api *Dota2) fillItemsCache() error {
+	api.itemsCache.mutex.Lock()
+	defer api.itemsCache.mutex.Unlock()
+	if api.itemsCache.fromCache == 0 {
 		var itemsListJson itemsJSON
 		var items Items
 
 		param := map[string]interface{}{
-			"key": d.steamApiKey,
+			"key": api.steamApiKey,
 		}
-		url, err := parseUrl(getItemsUrl(d), param)
+		url, err := parseUrl(api.getItemsUrl(), param)
 
 		if err != nil {
 			return err
 		}
-		resp, err := d.Get(url)
+		resp, err := api.Get(url)
 		if err != nil {
 			return err
 		}
@@ -181,24 +181,24 @@ func (d *Dota2) fillItemsCache() error {
 			return items.items[i].ID < items.items[j].ID
 		})
 
-		d.itemsCache.items = items
-		atomic.StoreUint32(&d.itemsCache.fromCache, 1)
+		api.itemsCache.items = items
+		atomic.StoreUint32(&api.itemsCache.fromCache, 1)
 		return nil
 	}
 	return nil
 }
 
-func (d *Dota2) getItemsFromCache() (Items, error) {
-	return d.itemsCache.items, nil
+func (api *Dota2) getItemsFromCache() (Items, error) {
+	return api.itemsCache.items, nil
 }
 
 func (i Items) Count() int {
 	return len(i.items)
 }
 
-func (d Dota2) GetItemImage(item Item) (img image.Image, err error) {
-	url := getItemImageUrl(&d, item.Name)
-	res, err := d.Get(url)
+func (api Dota2) GetItemImage(item Item) (img image.Image, err error) {
+	url := getItemImageUrl(&api, item.Name)
+	res, err := api.Get(url)
 	if err != nil {
 		return nil, err
 	}

@@ -9,8 +9,8 @@ import (
 	"time"
 )
 
-func getFriendListUrl(dota2 *Dota2) string {
-	return fmt.Sprintf("%s/%s/%s/", dota2.steamUserUrl, "GetFriendList", dota2.steamApiVersion)
+func (api Dota2) getFriendListUrl() string {
+	return fmt.Sprintf("%s/%s/%s/", api.steamUserUrl, "GetFriendList", api.steamApiVersion)
 }
 
 type friendListJSON struct {
@@ -79,7 +79,7 @@ func (fr Friends) Count() int {
 }
 
 //Get friend list
-func (d *Dota2) GetFriendList(params ...Parameter) (Friends, error) {
+func (api Dota2) GetFriendList(params ...Parameter) (Friends, error) {
 	var friendList friendListJSON
 
 	param, err := getParameterMap([]int{parameterSteamId}, nil, params)
@@ -87,13 +87,13 @@ func (d *Dota2) GetFriendList(params ...Parameter) (Friends, error) {
 		return Friends{}, err
 	}
 
-	param["key"] = d.steamApiKey
-	url, err := parseUrl(getFriendListUrl(d), param)
+	param["key"] = api.steamApiKey
+	url, err := parseUrl(api.getFriendListUrl(), param)
 	if err != nil {
 		return Friends{}, err
 	}
 
-	resp, err := d.Get(url)
+	resp, err := api.Get(url)
 	if err != nil {
 		return Friends{}, err
 	}

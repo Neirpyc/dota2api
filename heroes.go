@@ -27,8 +27,8 @@ const (
 	SizeVert
 )
 
-func getHeroesUrl(dota2 *Dota2) string {
-	return fmt.Sprintf("%s/%s/%s/", dota2.dota2EconUrl, "GetHeroes", dota2.dota2ApiVersion)
+func (api Dota2) getHeroesUrl() string {
+	return fmt.Sprintf("%s/%s/%s/", api.dota2EconUrl, "GetHeroes", api.dota2ApiVersion)
 }
 
 type heroesJSON struct {
@@ -125,31 +125,31 @@ type getHeroesCache struct {
 // This function calls the API to get the list of the heroes
 // Once a call has succeeded, the result is stored, and no further API call is made
 // Instead, it returns a copy of the cached result
-func (d *Dota2) GetHeroes() (Heroes, error) {
+func (api *Dota2) GetHeroes() (Heroes, error) {
 	var err error
 
-	if atomic.LoadUint32(&d.heroesCache.fromCache) == 0 {
-		err = d.fillHeroesCache()
+	if atomic.LoadUint32(&api.heroesCache.fromCache) == 0 {
+		err = api.fillHeroesCache()
 	}
-	return d.heroesCache.heroes, err
+	return api.heroesCache.heroes, err
 }
 
-func (d *Dota2) fillHeroesCache() error {
-	d.heroesCache.mutex.Lock()
-	defer d.heroesCache.mutex.Unlock()
-	if d.heroesCache.fromCache == 0 {
+func (api *Dota2) fillHeroesCache() error {
+	api.heroesCache.mutex.Lock()
+	defer api.heroesCache.mutex.Unlock()
+	if api.heroesCache.fromCache == 0 {
 		var heroesListJson heroesJSON
 		var heroes Heroes
 
 		param := map[string]interface{}{
-			"key": d.steamApiKey,
+			"key": api.steamApiKey,
 		}
-		url, err := parseUrl(getHeroesUrl(d), param)
+		url, err := parseUrl(api.getHeroesUrl(), param)
 
 		if err != nil {
 			return err
 		}
-		resp, err := d.Get(url)
+		resp, err := api.Get(url)
 		if err != nil {
 			return err
 		}
@@ -171,8 +171,8 @@ func (d *Dota2) fillHeroesCache() error {
 			return heroes.heroes[i].ID < heroes.heroes[j].ID
 		})
 
-		d.heroesCache.heroes = heroes
-		atomic.StoreUint32(&d.heroesCache.fromCache, 1)
+		api.heroesCache.heroes = heroes
+		atomic.StoreUint32(&api.heroesCache.fromCache, 1)
 		return nil
 	}
 	return nil
@@ -190,9 +190,9 @@ func getHeroImageUrl(d Dota2, name heroName, size HeroImageSize) string {
 	return fmt.Sprintf("%s/heroes/%s_%s.%s", d.dota2CDN, name.name, sizes[size], ext)
 }
 
-func (d Dota2) GetHeroImage(hero Hero, size HeroImageSize) (image.Image, error) {
-	url := getHeroImageUrl(d, hero.Name, size)
-	res, err := d.Get(url)
+func (api Dota2) GetHeroImage(hero Hero, size HeroImageSize) (image.Image, error) {
+	url := getHeroImageUrl(api, hero.Name, size)
+	res, err := api.Get(url)
 	if err != nil {
 		return nil, err
 	}

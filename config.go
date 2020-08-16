@@ -108,7 +108,6 @@ func LoadConfig(conf Config) Dota2 {
 }
 
 func LoadConfigFromFile(file string) (Dota2, error) {
-
 	settingFile, err := ioutil.ReadFile(file)
 	if err != nil {
 		return Dota2{}, err

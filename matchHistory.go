@@ -21,12 +21,12 @@ const (
 	LobbySoloMid1vs1
 )
 
-func getMatchHistoryUrl(dota2 *Dota2) string {
-	return fmt.Sprintf("%s/%s/%s/", dota2.dota2MatchUrl, "GetMatchHistory", dota2.dota2ApiVersion)
+func (api Dota2) getMatchHistoryUrl() string {
+	return fmt.Sprintf("%s/%s/%s/", api.dota2MatchUrl, "GetMatchHistory", api.dota2ApiVersion)
 }
 
-func getMatchHistoryBySequenceNumUrl(dota2 *Dota2) string {
-	return fmt.Sprintf("%s/%s/%s/", dota2.dota2MatchUrl, "GetMatchHistoryBySequenceNum", dota2.dota2ApiVersion)
+func (api Dota2) getMatchHistoryBySequenceNumUrl() string {
+	return fmt.Sprintf("%s/%s/%s/", api.dota2MatchUrl, "GetMatchHistoryBySequenceNum", api.dota2ApiVersion)
 }
 
 type MatchHistoryJSON struct {
@@ -51,7 +51,7 @@ type matchSummaryJSON struct {
 	Players       []playerSummaryJSON `json:"players" bson:"players"`
 }
 
-func (m MatchHistoryJSON) toMatchSummary(d *Dota2) (MatchHistory, error) {
+func (m MatchHistoryJSON) toMatchSummary(d Dota2) (MatchHistory, error) {
 	res := make([]MatchSummary, len(m.Result.Matches))
 	for i, src := range m.Result.Matches {
 		res[i].LobbyType = LobbyType(src.LobbyType)
@@ -236,7 +236,7 @@ func (c Cursor) GetRemaining() int {
 	return c.c.remaining
 }
 
-func (d *Dota2) GetMatchHistory(params ...interface{}) (MatchHistory, error) {
+func (api Dota2) GetMatchHistory(params ...interface{}) (MatchHistory, error) {
 	var matchHistory MatchHistoryJSON
 	var res MatchHistory
 	var c Cursor
@@ -269,12 +269,12 @@ func (d *Dota2) GetMatchHistory(params ...interface{}) (MatchHistory, error) {
 			param["start_at_match_id"] = c.c.begin
 		}
 	}
-	param["key"] = d.steamApiKey
-	url, err := parseUrl(getMatchHistoryUrl(d), param)
+	param["key"] = api.steamApiKey
+	url, err := parseUrl(api.getMatchHistoryUrl(), param)
 	if err != nil {
 		return res, err
 	}
-	resp, err := d.Get(url)
+	resp, err := api.Get(url)
 	if err != nil {
 		return res, err
 	}
@@ -293,12 +293,12 @@ func (d *Dota2) GetMatchHistory(params ...interface{}) (MatchHistory, error) {
 		c.c.remaining = matchHistory.Result.ResultsRemaining
 	}
 
-	res, err = matchHistory.toMatchSummary(d)
+	res, err = matchHistory.toMatchSummary(api)
 
 	return res, err
 }
 
-func (d *Dota2) GetMatchHistoryBySequenceNum(params ...interface{}) (MatchHistory, error) {
+func (api Dota2) GetMatchHistoryBySequenceNum(params ...interface{}) (MatchHistory, error) {
 	var matchHistory MatchHistoryJSON
 	var res MatchHistory
 	var c Cursor
@@ -326,12 +326,12 @@ func (d *Dota2) GetMatchHistoryBySequenceNum(params ...interface{}) (MatchHistor
 			param["start_at_match_seq_num"] = c.c.begin
 		}
 	}
-	param["key"] = d.steamApiKey
-	url, err := parseUrl(getMatchHistoryBySequenceNumUrl(d), param)
+	param["key"] = api.steamApiKey
+	url, err := parseUrl(api.getMatchHistoryBySequenceNumUrl(), param)
 	if err != nil {
 		return res, err
 	}
-	resp, err := d.Get(url)
+	resp, err := api.Get(url)
 	if err != nil {
 		return res, err
 	}
@@ -349,7 +349,7 @@ func (d *Dota2) GetMatchHistoryBySequenceNum(params ...interface{}) (MatchHistor
 		}
 	}
 
-	res, err = matchHistory.toMatchSummary(d)
+	res, err = matchHistory.toMatchSummary(api)
 
 	return res, err
 }

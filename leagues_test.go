@@ -24,11 +24,11 @@ func TestDota2_GetLiveLeagueGames(t *testing.T) {
 		g.It("Should call the correct URL", func() {
 			mockClient.DoFunc = func(req *http.Request) (*http.Response, error) {
 				switch req.URL.String() {
-				case getLiveGamesUrl(&api) + "?key=keyTEST":
+				case api.getLiveGamesUrl() + "?key=keyTEST":
 					return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(strings.NewReader(leaguesGamesResponse))}, nil
-				case getHeroesUrl(&api) + "?key=keyTEST":
+				case api.getHeroesUrl() + "?key=keyTEST":
 					return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(strings.NewReader(heroesResponse))}, nil
-				case getItemsUrl(&api) + "?key=keyTEST":
+				case api.getItemsUrl() + "?key=keyTEST":
 					return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(strings.NewReader(itemsResponse))}, nil
 				default:
 					g.Fail("Unnecessary API call")

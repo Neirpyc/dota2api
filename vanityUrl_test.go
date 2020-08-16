@@ -22,7 +22,7 @@ func TestDota2_ResolveVanityUrl(t *testing.T) {
 		var err error
 		g.It("Should call the correct URL", func() {
 			mockClient.DoFunc = func(req *http.Request) (*http.Response, error) {
-				g.Assert(req.URL.String()).Equal(getResolveVanityUrl(&api) + "?key=keyTEST&vanityurl=vanityurl")
+				g.Assert(req.URL.String()).Equal(api.getResolveVanityUrl() + "?key=keyTEST&vanityurl=vanityurl")
 				return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(strings.NewReader(vanityUrlResponse))}, nil
 			}
 			id, err = api.ResolveVanityUrl(VanityUrl("vanityurl"))

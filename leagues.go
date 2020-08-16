@@ -7,8 +7,8 @@ import (
 	"time"
 )
 
-func getLiveGamesUrl(dota2 *Dota2) string {
-	return fmt.Sprintf("%s/%s/%s/", dota2.dota2MatchUrl, "GetLiveLeagueGames", dota2.steamApiVersion)
+func (api Dota2) getLiveGamesUrl() string {
+	return fmt.Sprintf("%s/%s/%s/", api.dota2MatchUrl, "GetLiveLeagueGames", api.steamApiVersion)
 }
 
 type liveGamesJSON struct {
@@ -213,7 +213,7 @@ type LiveAbility struct {
 
 type LiveAbilities []LiveAbility
 
-func (l liveGamesJSON) toLiveGames(api *Dota2) (LiveGames, error) {
+func (l liveGamesJSON) toLiveGames(api Dota2) (LiveGames, error) {
 	ret := make(LiveGames, len(l.Result.Games))
 	for i, g := range l.Result.Games {
 		var err error
@@ -224,7 +224,7 @@ func (l liveGamesJSON) toLiveGames(api *Dota2) (LiveGames, error) {
 	return ret, nil
 }
 
-func (g liveGameJSON) toLiveGame(api *Dota2) (LiveGame, error) {
+func (g liveGameJSON) toLiveGame(api Dota2) (LiveGame, error) {
 	ret := LiveGame{
 		LobbyId:    g.LobbyID,
 		MatchId:    g.MatchID,
@@ -261,7 +261,7 @@ func (g liveGameJSON) toLiveGame(api *Dota2) (LiveGame, error) {
 	return ret, err
 }
 
-func (p liveGamePlayersJSON) toPlayers(api *Dota2) (LiveGamePlayers, error) {
+func (p liveGamePlayersJSON) toPlayers(api Dota2) (LiveGamePlayers, error) {
 	l := make(LiveGamePlayers, len(p))
 	for i, player := range p {
 		var err error
@@ -272,7 +272,7 @@ func (p liveGamePlayersJSON) toPlayers(api *Dota2) (LiveGamePlayers, error) {
 	return l, nil
 }
 
-func (p liveGamePlayerJSON) toPlayer(api *Dota2) (LiveGamePlayer, error) {
+func (p liveGamePlayerJSON) toPlayer(api Dota2) (LiveGamePlayer, error) {
 	ret := LiveGamePlayer{
 		AccountId: p.AccountID,
 		Name:      p.Name,
@@ -292,7 +292,7 @@ func (p liveGamePlayerJSON) toPlayer(api *Dota2) (LiveGamePlayer, error) {
 	return ret, nil
 }
 
-func (s scoreboardJSON) toScoreBoard(api *Dota2) (ScoreBoard, error) {
+func (s scoreboardJSON) toScoreBoard(api Dota2) (ScoreBoard, error) {
 	ret := ScoreBoard{
 		Duration:           time.Duration(s.Duration * float64(time.Second)),
 		RoshanRespawnTimer: time.Duration(s.RoshanRespawnTimer) * time.Second,
@@ -306,7 +306,7 @@ func (s scoreboardJSON) toScoreBoard(api *Dota2) (ScoreBoard, error) {
 	return ret, err
 }
 
-func (s sideJSON) toSideLive(api *Dota2) (SideLive, error) {
+func (s sideJSON) toSideLive(api Dota2) (SideLive, error) {
 	ret := SideLive{
 		Score:          s.Score,
 		BuildingsState: TeamBuildingsState{}.from(s.TowerState, s.BarracksState),
@@ -323,7 +323,7 @@ func (s sideJSON) toSideLive(api *Dota2) (SideLive, error) {
 	return ret, err
 }
 
-func (l livePlayersJSON) toLivePlayers(api *Dota2) (PlayersLive, error) {
+func (l livePlayersJSON) toLivePlayers(api Dota2) (PlayersLive, error) {
 	ret := make(PlayersLive, len(l))
 	for i, player := range l {
 		var err error
@@ -334,7 +334,7 @@ func (l livePlayersJSON) toLivePlayers(api *Dota2) (PlayersLive, error) {
 	return ret, nil
 }
 
-func (l livePlayerJSON) toLivePlayer(api *Dota2) (PlayerLive, error) {
+func (l livePlayerJSON) toLivePlayer(api Dota2) (PlayerLive, error) {
 	p := PlayerLive{
 		PlayerSlot: l.PlayerSlot,
 		AccountID:  l.AccountID,
@@ -394,7 +394,7 @@ func (l livePlayerJSON) toLivePlayer(api *Dota2) (PlayerLive, error) {
 	return p, nil
 }
 
-func (p picksOrBansJSON) toHeroSlice(api *Dota2) ([]Hero, error) {
+func (p picksOrBansJSON) toHeroSlice(api Dota2) ([]Hero, error) {
 	h, err := api.GetHeroes()
 	if err != nil {
 		return nil, err
@@ -409,21 +409,21 @@ func (p picksOrBansJSON) toHeroSlice(api *Dota2) ([]Hero, error) {
 	return ret, nil
 }
 
-func (d *Dota2) GetLiveLeagueGames(params ...Parameter) (LiveGames, error) {
+func (api Dota2) GetLiveLeagueGames(params ...Parameter) (LiveGames, error) {
 	var liveGames liveGamesJSON
 
 	param, err := getParameterMap(nil, nil, params)
 	if err != nil {
 		return LiveGames{}, err
 	}
-	param["key"] = d.steamApiKey
+	param["key"] = api.steamApiKey
 
-	url, err := parseUrl(getLiveGamesUrl(d), param)
+	url, err := parseUrl(api.getLiveGamesUrl(), param)
 	fmt.Println(url)
 	if err != nil {
 		return LiveGames{}, err
 	}
-	resp, err := d.Get(url)
+	resp, err := api.Get(url)
 	if err != nil {
 		return LiveGames{}, err
 	}
@@ -435,5 +435,5 @@ func (d *Dota2) GetLiveLeagueGames(params ...Parameter) (LiveGames, error) {
 	if liveGames.Result.Status != 200 {
 		return LiveGames{}, errors.New("non 200 status")
 	}
-	return liveGames.toLiveGames(d)
+	return liveGames.toLiveGames(api)
 }

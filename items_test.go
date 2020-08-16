@@ -26,7 +26,7 @@ func TestGetItems(t *testing.T) {
 		var err error
 		g.It("Should call the correct URL", func() {
 			mockClient.DoFunc = func(req *http.Request) (*http.Response, error) {
-				g.Assert(req.URL.String()).Equal(getItemsUrl(&api) + "?key=keyTEST")
+				g.Assert(req.URL.String()).Equal(api.getItemsUrl() + "?key=keyTEST")
 				return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(strings.NewReader(itemsResponse))}, nil
 			}
 			items, err = api.GetItems()
@@ -44,7 +44,7 @@ func TestGetItems(t *testing.T) {
 			api.itemsCache.fromCache = 0
 
 			mockClient.DoFunc = func(req *http.Request) (*http.Response, error) {
-				g.Assert(req.URL.String()).Equal(getItemsUrl(&api) + "?key=keyTEST")
+				g.Assert(req.URL.String()).Equal(api.getItemsUrl() + "?key=keyTEST")
 				calledMutex.Lock()
 				defer calledMutex.Unlock()
 				g.Assert(called).IsFalse()

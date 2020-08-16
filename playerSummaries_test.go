@@ -28,7 +28,7 @@ func TestDota2_GetPlayerSummaries(t *testing.T) {
 			var err error
 			g.It("Should call the correct request URI", func() {
 				mockClient.DoFunc = func(req *http.Request) (*http.Response, error) {
-					g.Assert(req.URL.String()).Equal(getPlayerSummariesUrl(&api) + "?key=keyTEST&steamids=%5B42%5D")
+					g.Assert(req.URL.String()).Equal(api.getPlayerSummariesUrl() + "?key=keyTEST&steamids=%5B42%5D")
 					return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(strings.NewReader(response0))}, nil
 				}
 				sum, err = api.GetPlayerSummaries(ParameterSteamIds(NewSteamIdFrom64(42)))
@@ -60,7 +60,7 @@ func TestDota2_GetPlayerSummaries(t *testing.T) {
 			var err error
 			g.It("Should call the correct request URI", func() {
 				mockClient.DoFunc = func(req *http.Request) (*http.Response, error) {
-					g.Assert(req.URL.String()).Equal(getPlayerSummariesUrl(&api) + "?key=keyTEST&steamids=%5B42%2C43%5D")
+					g.Assert(req.URL.String()).Equal(api.getPlayerSummariesUrl() + "?key=keyTEST&steamids=%5B42%2C43%5D")
 					return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(strings.NewReader(response1))}, nil
 				}
 				sum, err = api.GetPlayerSummaries(ParameterSteamIds(NewSteamIdFrom64(42), NewSteamIdFrom64(43)))

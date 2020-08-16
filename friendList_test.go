@@ -23,7 +23,7 @@ func TestDota2_GetFriendList(t *testing.T) {
 		var err error
 		g.It("Should call the correct URL", func() {
 			mockClient.DoFunc = func(req *http.Request) (*http.Response, error) {
-				g.Assert(req.URL.String()).Equal(getFriendListUrl(&api) + "?key=keyTEST&steamid=42")
+				g.Assert(req.URL.String()).Equal(api.getFriendListUrl() + "?key=keyTEST&steamid=42")
 				return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(strings.NewReader(getFriendListResponse))}, nil
 			}
 			friends, err = api.GetFriendList(ParameterSteamId(NewSteamIdFrom64(42)))

@@ -7,8 +7,8 @@ import (
 	"strconv"
 )
 
-func getResolveVanityUrl(dota2 *Dota2) string {
-	return fmt.Sprintf("%s/%s/%s/", dota2.steamUserUrl, "ResolveVanityURL", dota2.steamApiVersion)
+func (api Dota2) getResolveVanityUrl() string {
+	return fmt.Sprintf("%s/%s/%s/", api.steamUserUrl, "ResolveVanityURL", api.steamApiVersion)
 }
 
 type Vanity struct {
@@ -21,20 +21,20 @@ type VanityResp struct {
 }
 
 //Get steamId by username
-func (d *Dota2) ResolveVanityUrl(params ...Parameter) (SteamId, error) {
+func (api Dota2) ResolveVanityUrl(params ...Parameter) (SteamId, error) {
 	var steamId SteamId
 
 	param, err := getParameterMap([]int{parameterVanityUrl}, nil, params)
 	if err != nil {
 		return steamId, err
 	}
-	param["key"] = d.steamApiKey
+	param["key"] = api.steamApiKey
 
-	url, err := parseUrl(getResolveVanityUrl(d), param)
+	url, err := parseUrl(api.getResolveVanityUrl(), param)
 	if err != nil {
 		return steamId, err
 	}
-	resp, err := d.Get(url)
+	resp, err := api.Get(url)
 	if err != nil {
 		return steamId, err
 	}

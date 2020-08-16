@@ -27,9 +27,9 @@ func TestDota2_GetMatchHistory(t *testing.T) {
 			g.It("Should call the correct URL", func() {
 				mockClient.DoFunc = func(req *http.Request) (*http.Response, error) {
 					switch req.URL.String() {
-					case getMatchHistoryUrl(&api) + "?key=keyTEST":
+					case api.getMatchHistoryUrl() + "?key=keyTEST":
 						return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(strings.NewReader(matchHistoryResponse0))}, nil
-					case getHeroesUrl(&api) + "?key=keyTEST":
+					case api.getHeroesUrl() + "?key=keyTEST":
 						return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(strings.NewReader(heroesResponse))}, nil
 					default:
 						g.Fail("Unnecessary API call " + req.URL.String())
@@ -62,11 +62,11 @@ func TestDota2_GetMatchHistory(t *testing.T) {
 			g.Before(func() {
 				mockClient.DoFunc = func(req *http.Request) (*http.Response, error) {
 					switch req.URL.String() {
-					case getMatchHistoryUrl(&api) + "?key=keyTEST&start_at_match_id=-1":
+					case api.getMatchHistoryUrl() + "?key=keyTEST&start_at_match_id=-1":
 						return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(strings.NewReader(matchHistoryResponse0))}, nil
-					case getMatchHistoryUrl(&api) + "?key=keyTEST&start_at_match_id=5569057114":
+					case api.getMatchHistoryUrl() + "?key=keyTEST&start_at_match_id=5569057114":
 						return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(strings.NewReader(matchHistoryResponse1))}, nil
-					case getHeroesUrl(&api) + "?key=keyTEST":
+					case api.getHeroesUrl() + "?key=keyTEST":
 						return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(strings.NewReader(heroesResponse))}, nil
 					default:
 						g.Fail("Unnecessary API call " + req.URL.String())
@@ -105,9 +105,9 @@ func TestDota2_GetMatchHistoryBySequenceNum(t *testing.T) {
 			g.It("Should call the correct URL", func() {
 				mockClient.DoFunc = func(req *http.Request) (*http.Response, error) {
 					switch req.URL.String() {
-					case getMatchHistoryBySequenceNumUrl(&api) + "?key=keyTEST":
+					case api.getMatchHistoryBySequenceNumUrl() + "?key=keyTEST":
 						return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(strings.NewReader(matchHistoryResponse0))}, nil
-					case getHeroesUrl(&api) + "?key=keyTEST":
+					case api.getHeroesUrl() + "?key=keyTEST":
 						return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(strings.NewReader(heroesResponse))}, nil
 					default:
 						g.Fail("Unnecessary API call " + req.URL.String())
@@ -140,11 +140,11 @@ func TestDota2_GetMatchHistoryBySequenceNum(t *testing.T) {
 			g.Before(func() {
 				mockClient.DoFunc = func(req *http.Request) (*http.Response, error) {
 					switch req.URL.String() {
-					case getMatchHistoryBySequenceNumUrl(&api) + "?key=keyTEST&start_at_match_seq_num=0":
+					case api.getMatchHistoryBySequenceNumUrl() + "?key=keyTEST&start_at_match_seq_num=0":
 						return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(strings.NewReader(matchHistoryResponse0))}, nil
-					case getMatchHistoryBySequenceNumUrl(&api) + "?key=keyTEST&start_at_match_seq_num=4674248664":
+					case api.getMatchHistoryBySequenceNumUrl() + "?key=keyTEST&start_at_match_seq_num=4674248664":
 						return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(strings.NewReader(matchHistoryResponse1))}, nil
-					case getHeroesUrl(&api) + "?key=keyTEST":
+					case api.getHeroesUrl() + "?key=keyTEST":
 						return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(strings.NewReader(heroesResponse))}, nil
 					default:
 						g.Fail("Unnecessary API call " + req.URL.String())
