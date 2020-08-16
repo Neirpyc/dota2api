@@ -40,19 +40,24 @@ func TestDota2_GetPlayerSummaries(t *testing.T) {
 				g.Assert(len(sum)).Equal(1)
 			})
 			g.It("Should parse non Optional flags", func() {
-				g.Assert(len(sum)).IsNotZero()
-				g.Assert(sum[0].SteamId).Equal(NewSteamIdFrom64(42))
-				g.Assert(sum[0].CommunityVisibilityState).Equal(VisibilityFriendsOfFriends)
-				g.Assert(sum[0].ProfileState).Equal(ProfileStateConfigured)
-				g.Assert(sum[0].DisplayName).Equal("userNAME")
-				g.Assert(sum[0].ProfileUrl).Equal("profileURL")
-				g.Assert(sum[0].Avatar.Avatar32Url).Equal("avatar32URL")
-				g.Assert(sum[0].Avatar.Avatar64Url).Equal("avatar64URL")
-				g.Assert(sum[0].Avatar.Avatar184Url).Equal("avatar184URL")
-				g.Assert(sum[0].Avatar.Hash).Equal("avatarHASH")
-				g.Assert(sum[0].LastLogOff.Equal(time.Unix(42, 0)))
-				g.Assert(sum[0].UserStatus).Equal(UserStatusAway)
-				g.Assert(sum[0].PersonaStateFlag).Equal(64)
+				g.Assert(sum).Equal(PlayerAccounts{PlayerAccount{
+					SteamId:                  NewSteamIdFrom64(42),
+					CommunityVisibilityState: VisibilityFriendsOfFriends,
+					ProfileState:             ProfileStateConfigured,
+					DisplayName:              "userNAME",
+					LastLogOff:               time.Unix(42, 0),
+					ProfileUrl:               "profileURL",
+					Avatar: Avatar{
+						Avatar32Url:  "avatar32URL",
+						Avatar64Url:  "avatar64URL",
+						Avatar184Url: "avatar184URL",
+						Hash:         "avatarHASH",
+						api:          &api,
+					},
+					UserStatus:       UserStatusAway,
+					PersonaStateFlag: 64,
+					Optional:         Optional{},
+				}})
 			})
 		})
 		g.Describe("Double response", func() {
@@ -72,33 +77,41 @@ func TestDota2_GetPlayerSummaries(t *testing.T) {
 				g.Assert(len(sum)).Equal(2)
 			})
 			g.It("Should parse non Optional flags", func() {
-				g.Assert(len(sum) > 1).IsTrue()
-				//user
-				g.Assert(sum[0].SteamId).Equal(NewSteamIdFrom64(42))
-				g.Assert(sum[0].CommunityVisibilityState).Equal(VisibilityFriendsOfFriends)
-				g.Assert(sum[0].ProfileState).Equal(ProfileStateConfigured)
-				g.Assert(sum[0].DisplayName).Equal("userNAME")
-				g.Assert(sum[0].ProfileUrl).Equal("profileURL")
-				g.Assert(sum[0].Avatar.Avatar32Url).Equal("avatar32URL")
-				g.Assert(sum[0].Avatar.Avatar64Url).Equal("avatar64URL")
-				g.Assert(sum[0].Avatar.Avatar184Url).Equal("avatar184URL")
-				g.Assert(sum[0].Avatar.Hash).Equal("avatarHASH")
-				g.Assert(sum[0].LastLogOff.Equal(time.Unix(42, 0)))
-				g.Assert(sum[0].UserStatus).Equal(UserStatusAway)
-				g.Assert(sum[0].PersonaStateFlag).Equal(64)
-				//user0
-				g.Assert(sum[1].SteamId).Equal(NewSteamIdFrom64(43))
-				g.Assert(sum[1].CommunityVisibilityState).Equal(VisibilityFriendsOnly)
-				g.Assert(sum[1].ProfileState).Equal(ProfileStateEmpty)
-				g.Assert(sum[1].DisplayName).Equal("userNAME0")
-				g.Assert(sum[1].ProfileUrl).Equal("profileURL0")
-				g.Assert(sum[1].Avatar.Avatar32Url).Equal("avatar32URL0")
-				g.Assert(sum[1].Avatar.Avatar64Url).Equal("avatar64URL0")
-				g.Assert(sum[1].Avatar.Avatar184Url).Equal("avatar184URL0")
-				g.Assert(sum[1].Avatar.Hash).Equal("avatarHASH0")
-				g.Assert(sum[1].LastLogOff.Equal(time.Unix(43, 0)))
-				g.Assert(sum[1].UserStatus).Equal(UserStatusBusy)
-				g.Assert(sum[1].PersonaStateFlag).Equal(65)
+				g.Assert(sum).Equal(PlayerAccounts{PlayerAccount{
+					SteamId:                  NewSteamIdFrom64(42),
+					CommunityVisibilityState: VisibilityFriendsOfFriends,
+					ProfileState:             ProfileStateConfigured,
+					DisplayName:              "userNAME",
+					LastLogOff:               time.Unix(42, 0),
+					ProfileUrl:               "profileURL",
+					Avatar: Avatar{
+						Avatar32Url:  "avatar32URL",
+						Avatar64Url:  "avatar64URL",
+						Avatar184Url: "avatar184URL",
+						Hash:         "avatarHASH",
+						api:          &api,
+					},
+					UserStatus:       UserStatusAway,
+					PersonaStateFlag: 64,
+					Optional:         Optional{},
+				}, PlayerAccount{
+					SteamId:                  NewSteamIdFrom64(43),
+					CommunityVisibilityState: VisibilityFriendsOnly,
+					ProfileState:             ProfileStateEmpty,
+					DisplayName:              "userNAME0",
+					LastLogOff:               time.Unix(43, 0),
+					ProfileUrl:               "profileURL0",
+					Avatar: Avatar{
+						Avatar32Url:  "avatar32URL0",
+						Avatar64Url:  "avatar64URL0",
+						Avatar184Url: "avatar184URL0",
+						Hash:         "avatarHASH0",
+						api:          &api,
+					},
+					UserStatus:       UserStatusBusy,
+					PersonaStateFlag: 65,
+					Optional:         Optional{},
+				}})
 			})
 		})
 		g.Describe("Optional fields", func() {
@@ -107,61 +120,34 @@ func TestDota2_GetPlayerSummaries(t *testing.T) {
 					return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(strings.NewReader(response0))}, nil
 				}
 				sum, _ := api.GetPlayerSummaries(ParameterSteamIds(NewSteamIdFrom64(42)))
-				_, f := sum[0].Optional.GameName()
-				g.Assert(f).IsFalse()
-				_, f = sum[0].Optional.GameId()
-				g.Assert(f).IsFalse()
-				_, f = sum[0].Optional.RealName()
-				g.Assert(f).IsFalse()
-				_, f = sum[0].Optional.PrimaryClanId()
-				g.Assert(f).IsFalse()
-				f = sum[0].Optional.CommentPermission()
-				g.Assert(f).IsFalse()
-				_, f = sum[0].Optional.TimeCreated()
-				g.Assert(f).IsFalse()
-				_, f = sum[0].Optional.LocCityId()
-				g.Assert(f).IsFalse()
-				_, f = sum[0].Optional.LocStateCode()
-				g.Assert(f).IsFalse()
-				_, f = sum[0].Optional.LocCountryCode()
-				g.Assert(f).IsFalse()
-				_, f = sum[0].Optional.GameServerIp()
-				g.Assert(f).IsFalse()
+				g.Assert(sum[0].Optional).Equal(Optional{})
 			})
 			g.It("Should return correct values when found", func() {
 				mockClient.DoFunc = func(req *http.Request) (*http.Response, error) {
 					return &http.Response{StatusCode: 200, Body: ioutil.NopCloser(strings.NewReader(responseWithOpt))}, nil
 				}
 				sum, _ := api.GetPlayerSummaries(ParameterSteamIds(NewSteamIdFrom64(42)))
-				str, f := sum[0].Optional.GameName()
-				g.Assert(f).IsTrue()
-				g.Assert(str).Equal("gameEXTRAinfo")
-				str, f = sum[0].Optional.GameId()
-				g.Assert(f).IsTrue()
-				g.Assert(str).Equal("gameID")
-				str, f = sum[0].Optional.RealName()
-				g.Assert(f).IsTrue()
-				g.Assert(str).Equal("realNAME")
-				i, f := sum[0].Optional.PrimaryClanId()
-				g.Assert(f).IsTrue()
-				g.Assert(i == 42).IsTrue()
-				f = sum[0].Optional.CommentPermission()
-				g.Assert(f).IsTrue()
-				t, f := sum[0].Optional.TimeCreated()
-				g.Assert(f).IsTrue()
-				g.Assert(t.Equal(time.Unix(43, 0))).IsTrue()
-				i, f = sum[0].Optional.LocCityId()
-				g.Assert(f).IsTrue()
-				g.Assert(i == 44).IsTrue()
-				str, f = sum[0].Optional.LocStateCode()
-				g.Assert(f).IsTrue()
-				g.Assert(str).Equal("locSTATEcode")
-				str, f = sum[0].Optional.LocCountryCode()
-				g.Assert(f).IsTrue()
-				g.Assert(str).Equal("locCOUNTRYcode")
-				str, f = sum[0].Optional.GameServerIp()
-				g.Assert(f).IsTrue()
-				g.Assert(str).Equal("gameSERVERip")
+				g.Assert(sum[0].Optional).Equal(Optional{
+					gameIdPresent:            true,
+					gameId:                   "gameID",
+					gameNamePresent:          true,
+					gameName:                 "gameEXTRAinfo",
+					primaryClanIdPresent:     true,
+					primaryClanId:            42,
+					commentPermissionPresent: true,
+					timeCreatedPresent:       true,
+					timeCreated:              time.Unix(43, 0),
+					locCountryCodePresent:    true,
+					locCountryCode:           "locCOUNTRYcode",
+					locStateCodePresent:      true,
+					locStateCode:             "locSTATEcode",
+					locCityIdPresent:         true,
+					locCityId:                44,
+					gameServerIpPresent:      true,
+					gameServerIp:             "gameSERVERip",
+					realNamePresent:          true,
+					realName:                 "realNAME",
+				})
 			})
 		})
 	})
