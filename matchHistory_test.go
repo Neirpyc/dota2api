@@ -123,9 +123,6 @@ func TestDota2_GetMatchHistoryBySequenceNum(t *testing.T) {
 				g.Assert(matches.Count()).Equal(2)
 			})
 			g.It("Should return a valid content", func() {
-				if matches.Count() != 2 {
-					g.Fail("Wrong match count")
-				}
 				g.Assert(matches[0].MatchId).Equal(int64(5569057130))
 				g.Assert(matches[0].MatchSeqNum).Equal(int64(4674249362))
 				g.Assert(matches[0].StartTime.Equal(time.Unix(1597496593, 0))).IsTrue()

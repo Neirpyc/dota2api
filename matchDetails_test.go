@@ -80,42 +80,58 @@ func TestDota2_GetMatchDetails(t *testing.T) {
 			g.Assert(details.PreGameDuration).Equal(90 * time.Second)
 		})
 		g.It("Should return correct BuildingState", func() {
-			//Radiant
-			g.Assert(details.BuildingsState.Radiant.Top.RangedBarrack).IsTrue()
-			g.Assert(details.BuildingsState.Radiant.Top.MeleeBarrack).IsTrue()
-			g.Assert(details.BuildingsState.Radiant.Top.T1Tower).IsFalse()
-			g.Assert(details.BuildingsState.Radiant.Top.T2Tower).IsTrue()
-			g.Assert(details.BuildingsState.Radiant.Top.T3Tower).IsTrue()
-			g.Assert(details.BuildingsState.Radiant.Mid.RangedBarrack).IsFalse()
-			g.Assert(details.BuildingsState.Radiant.Mid.MeleeBarrack).IsFalse()
-			g.Assert(details.BuildingsState.Radiant.Mid.T1Tower).IsFalse()
-			g.Assert(details.BuildingsState.Radiant.Mid.T2Tower).IsFalse()
-			g.Assert(details.BuildingsState.Radiant.Mid.T3Tower).IsFalse()
-			g.Assert(details.BuildingsState.Radiant.Bot.RangedBarrack).IsTrue()
-			g.Assert(details.BuildingsState.Radiant.Bot.MeleeBarrack).IsTrue()
-			g.Assert(details.BuildingsState.Radiant.Bot.T1Tower).IsFalse()
-			g.Assert(details.BuildingsState.Radiant.Bot.T2Tower).IsFalse()
-			g.Assert(details.BuildingsState.Radiant.Bot.T3Tower).IsTrue()
-			g.Assert(details.BuildingsState.Radiant.T4TowerBot).IsFalse()
-			g.Assert(details.BuildingsState.Radiant.T4TowerTop).IsFalse()
-			//Dire
-			g.Assert(details.BuildingsState.Dire.Top.RangedBarrack).IsTrue()
-			g.Assert(details.BuildingsState.Dire.Top.MeleeBarrack).IsTrue()
-			g.Assert(details.BuildingsState.Dire.Top.T1Tower).IsFalse()
-			g.Assert(details.BuildingsState.Dire.Top.T2Tower).IsTrue()
-			g.Assert(details.BuildingsState.Dire.Top.T3Tower).IsTrue()
-			g.Assert(details.BuildingsState.Dire.Mid.RangedBarrack).IsTrue()
-			g.Assert(details.BuildingsState.Dire.Mid.MeleeBarrack).IsTrue()
-			g.Assert(details.BuildingsState.Dire.Mid.T1Tower).IsFalse()
-			g.Assert(details.BuildingsState.Dire.Mid.T2Tower).IsTrue()
-			g.Assert(details.BuildingsState.Dire.Mid.T3Tower).IsTrue()
-			g.Assert(details.BuildingsState.Dire.Bot.RangedBarrack).IsTrue()
-			g.Assert(details.BuildingsState.Dire.Bot.MeleeBarrack).IsTrue()
-			g.Assert(details.BuildingsState.Dire.Bot.T1Tower).IsFalse()
-			g.Assert(details.BuildingsState.Dire.Bot.T2Tower).IsTrue()
-			g.Assert(details.BuildingsState.Dire.Bot.T3Tower).IsTrue()
-			g.Assert(details.BuildingsState.Dire.T4TowerBot).IsTrue()
-			g.Assert(details.BuildingsState.Dire.T4TowerTop).IsTrue()
+			g.Assert(details.BuildingsState).Equal(BuildingsState{
+				Dire: TeamBuildingsState{
+					Top: LaneBuildingsState{
+						T1Tower:       false,
+						T2Tower:       true,
+						T3Tower:       true,
+						MeleeBarrack:  true,
+						RangedBarrack: true,
+					},
+					Mid: LaneBuildingsState{
+						T1Tower:       false,
+						T2Tower:       true,
+						T3Tower:       true,
+						MeleeBarrack:  true,
+						RangedBarrack: true,
+					},
+					Bot: LaneBuildingsState{
+						T1Tower:       false,
+						T2Tower:       true,
+						T3Tower:       true,
+						MeleeBarrack:  true,
+						RangedBarrack: true,
+					},
+					T4TowerBot: true,
+					T4TowerTop: true,
+				},
+				Radiant: TeamBuildingsState{
+					Top: LaneBuildingsState{
+						T1Tower:       false,
+						T2Tower:       true,
+						T3Tower:       true,
+						MeleeBarrack:  true,
+						RangedBarrack: true,
+					},
+					Mid: LaneBuildingsState{
+						T1Tower:       false,
+						T2Tower:       false,
+						T3Tower:       false,
+						MeleeBarrack:  false,
+						RangedBarrack: false,
+					},
+					Bot: LaneBuildingsState{
+						T1Tower:       false,
+						T2Tower:       false,
+						T3Tower:       true,
+						MeleeBarrack:  true,
+						RangedBarrack: true,
+					},
+					T4TowerBot: false,
+					T4TowerTop: false,
+				},
+			})
 		})
 		g.It("Should return correct time stamps", func() {
 			g.Assert(details.Duration).Equal(2552 * time.Second)
