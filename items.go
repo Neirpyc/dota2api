@@ -3,6 +3,7 @@ package dota2api
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"image"
 	"image/jpeg"
@@ -160,9 +161,12 @@ func (api *Dota2) fillItemsCache() error {
 			return err
 		}
 
-		err = json.Unmarshal(resp, &itemsListJson)
-		if err != nil {
+		if err = json.Unmarshal(resp, &itemsListJson); err != nil {
 			return err
+		}
+
+		if itemsListJson.Result.Status != 200 {
+			return errors.New("non 200 status code")
 		}
 
 		items.items = make([]Item, len(itemsListJson.Result.Items))
