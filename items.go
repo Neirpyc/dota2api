@@ -40,9 +40,8 @@ type ItemJSON struct {
 }
 
 type itemName struct {
-	name   string
-	prefix string
-	full   string
+	name string
+	full string
 }
 
 func (iN itemName) GetName() string {

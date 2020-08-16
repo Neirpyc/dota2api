@@ -166,15 +166,16 @@ type LiveTeams struct {
 }
 
 type PlayerLive struct {
-	PlayerSlot   int
-	AccountID    int64
-	Hero         Hero
-	KDA          KDA
-	Stats        PlayerStatsLive
-	Items        LivePlayerItems
-	RespawnTimer time.Duration
-	Position     Position
-	Gold         PlayerGold
+	PlayerSlot    int
+	AccountID     int64
+	Hero          Hero
+	KDA           KDA
+	Stats         PlayerStatsLive
+	Items         LivePlayerItems
+	RespawnTimer  time.Duration
+	UltimateState UltimateState
+	Position      Position
+	Gold          PlayerGold
 }
 
 type PlayersLive []PlayerLive
@@ -350,6 +351,10 @@ func (l livePlayerJSON) toLivePlayer(api *Dota2) (PlayerLive, error) {
 			Level:         l.Level,
 		},
 		RespawnTimer: time.Duration(l.RespawnTimer) * time.Second,
+		UltimateState: UltimateState{
+			UltimateState:    l.UltimateState,
+			UltimateCooldown: time.Duration(l.UltimateCooldown) * time.Second,
+		},
 		Position: Position{
 			X: l.PositionX,
 			Y: l.PositionY,
