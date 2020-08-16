@@ -73,3 +73,50 @@ List:
     CastTo: '[]Friend'
     IterOnFields:
       - ''
+  - ReceiverName: l
+    ReceiverType: LiveGamePlayers
+    FuncParameterName: lP
+    FuncParameterType: LiveGamePlayer
+    IterParamName: lP
+    ForVarName: lP
+    CastTo: '[]LiveGamePlayer'
+    IterOnFields:
+      - ''
+  - ReceiverName: s
+    ReceiverType: SideLive
+    MethodNameExtension: Pick
+    FuncParameterName: picks
+    FuncParameterType: 'Hero'
+    IterParamName: picks
+    ForVarName: pick
+    IterOnFields:
+      - '.Picks'
+  - ReceiverName: s
+    ReceiverType: SideLive
+    MethodNameExtension: Ban
+    FuncParameterName: bans
+    FuncParameterType: 'Hero'
+    IterParamName: bans
+    ForVarName: ban
+    IterOnFields:
+      - '.Bans'
+  - ReceiverName: s
+    ReceiverType: SideLive
+    MethodNameExtension: Player
+    FuncParameterName: players
+    FuncParameterType: PlayerLive
+    IterParamName: players
+    ForVarName: player
+    CastTo: '[]PlayerLive'
+    IterOnFields:
+      - '.Players'
+  - ReceiverName: s
+    ReceiverType: SideLive
+    MethodNameExtension: Ability
+    FuncParameterName: abilities
+    FuncParameterType: LiveAbility
+    IterParamName: abilities
+    ForVarName: ability
+    CastTo: '[]LiveAbility'
+    IterOnFields:
+      - '.Abilities'

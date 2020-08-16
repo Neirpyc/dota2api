@@ -357,3 +357,223 @@ func (fr Friends) GoForEach(f func(friend Friend)) func() {
 		f(friend)
 	})
 }
+
+func (l LiveGamePlayers) ForEachI(f func(lP LiveGamePlayer, index int)) {
+	index := 0
+	iter := func(lP []LiveGamePlayer) {
+		for _, lP := range lP {
+			f(lP, index)
+			index++
+		}
+	}
+	iter([]LiveGamePlayer(l))
+
+}
+
+func (l LiveGamePlayers) GoForEachI(f func(lP LiveGamePlayer, index int)) func() {
+	var wg sync.WaitGroup
+	index := -1
+	iter := func(lP []LiveGamePlayer) {
+		wg.Add(len(lP))
+		for _, lP := range lP {
+			index++
+			index := index
+			lP := lP
+			go func() {
+				f(lP, index)
+				wg.Done()
+			}()
+		}
+	}
+	iter([]LiveGamePlayer(l))
+
+	return wg.Wait
+}
+
+func (l LiveGamePlayers) ForEach(f func(lP LiveGamePlayer)) {
+	l.ForEachI(func(lP LiveGamePlayer, index int) {
+		f(lP)
+	})
+}
+
+func (l LiveGamePlayers) GoForEach(f func(lP LiveGamePlayer)) func() {
+	return l.GoForEachI(func(lP LiveGamePlayer, index int) {
+		f(lP)
+	})
+}
+
+func (s SideLive) ForEachPickI(f func(picks Hero, index int)) {
+	index := 0
+	iter := func(picks []Hero) {
+		for _, pick := range picks {
+			f(pick, index)
+			index++
+		}
+	}
+	iter(s.Picks)
+
+}
+
+func (s SideLive) GoForEachPickI(f func(picks Hero, index int)) func() {
+	var wg sync.WaitGroup
+	index := -1
+	iter := func(picks []Hero) {
+		wg.Add(len(picks))
+		for _, pick := range picks {
+			index++
+			index := index
+			pick := pick
+			go func() {
+				f(pick, index)
+				wg.Done()
+			}()
+		}
+	}
+	iter(s.Picks)
+
+	return wg.Wait
+}
+
+func (s SideLive) ForEachPick(f func(picks Hero)) {
+	s.ForEachPickI(func(picks Hero, index int) {
+		f(picks)
+	})
+}
+
+func (s SideLive) GoForEachPick(f func(picks Hero)) func() {
+	return s.GoForEachPickI(func(picks Hero, index int) {
+		f(picks)
+	})
+}
+
+func (s SideLive) ForEachBanI(f func(bans Hero, index int)) {
+	index := 0
+	iter := func(bans []Hero) {
+		for _, ban := range bans {
+			f(ban, index)
+			index++
+		}
+	}
+	iter(s.Bans)
+
+}
+
+func (s SideLive) GoForEachBanI(f func(bans Hero, index int)) func() {
+	var wg sync.WaitGroup
+	index := -1
+	iter := func(bans []Hero) {
+		wg.Add(len(bans))
+		for _, ban := range bans {
+			index++
+			index := index
+			ban := ban
+			go func() {
+				f(ban, index)
+				wg.Done()
+			}()
+		}
+	}
+	iter(s.Bans)
+
+	return wg.Wait
+}
+
+func (s SideLive) ForEachBan(f func(bans Hero)) {
+	s.ForEachBanI(func(bans Hero, index int) {
+		f(bans)
+	})
+}
+
+func (s SideLive) GoForEachBan(f func(bans Hero)) func() {
+	return s.GoForEachBanI(func(bans Hero, index int) {
+		f(bans)
+	})
+}
+
+func (s SideLive) ForEachPlayerI(f func(players PlayerLive, index int)) {
+	index := 0
+	iter := func(players []PlayerLive) {
+		for _, player := range players {
+			f(player, index)
+			index++
+		}
+	}
+	iter([]PlayerLive(s.Players))
+
+}
+
+func (s SideLive) GoForEachPlayerI(f func(players PlayerLive, index int)) func() {
+	var wg sync.WaitGroup
+	index := -1
+	iter := func(players []PlayerLive) {
+		wg.Add(len(players))
+		for _, player := range players {
+			index++
+			index := index
+			player := player
+			go func() {
+				f(player, index)
+				wg.Done()
+			}()
+		}
+	}
+	iter([]PlayerLive(s.Players))
+
+	return wg.Wait
+}
+
+func (s SideLive) ForEachPlayer(f func(players PlayerLive)) {
+	s.ForEachPlayerI(func(players PlayerLive, index int) {
+		f(players)
+	})
+}
+
+func (s SideLive) GoForEachPlayer(f func(players PlayerLive)) func() {
+	return s.GoForEachPlayerI(func(players PlayerLive, index int) {
+		f(players)
+	})
+}
+
+func (s SideLive) ForEachAbilityI(f func(abilities LiveAbility, index int)) {
+	index := 0
+	iter := func(abilities []LiveAbility) {
+		for _, ability := range abilities {
+			f(ability, index)
+			index++
+		}
+	}
+	iter([]LiveAbility(s.Abilities))
+
+}
+
+func (s SideLive) GoForEachAbilityI(f func(abilities LiveAbility, index int)) func() {
+	var wg sync.WaitGroup
+	index := -1
+	iter := func(abilities []LiveAbility) {
+		wg.Add(len(abilities))
+		for _, ability := range abilities {
+			index++
+			index := index
+			ability := ability
+			go func() {
+				f(ability, index)
+				wg.Done()
+			}()
+		}
+	}
+	iter([]LiveAbility(s.Abilities))
+
+	return wg.Wait
+}
+
+func (s SideLive) ForEachAbility(f func(abilities LiveAbility)) {
+	s.ForEachAbilityI(func(abilities LiveAbility, index int) {
+		f(abilities)
+	})
+}
+
+func (s SideLive) GoForEachAbility(f func(abilities LiveAbility)) func() {
+	return s.GoForEachAbilityI(func(abilities LiveAbility, index int) {
+		f(abilities)
+	})
+}
