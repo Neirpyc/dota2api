@@ -180,7 +180,7 @@ func (api Dota2) fillHeroesCache() error {
 			return err
 		}
 		if heroesListJson.Result.Status != 200 {
-			return errors.New("non 200 status code")
+			return statusCodeError(heroesListJson.Result.Status, 200)
 		}
 
 		api.heroesCache.heroes = heroesListJson.toHeroes()

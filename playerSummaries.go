@@ -3,7 +3,6 @@ package dota2api
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"image"
 	"image/jpeg"
@@ -264,7 +263,7 @@ func (api *Dota2) GetPlayerSummaries(params ...Parameter) (PlayerAccounts, error
 	var playerAccounts PlayerAccounts
 	var playerSummaries playerSummariesJSON
 
-	param, err := getParameterMap([]int{parameterSteamIds}, nil, params)
+	param, err := getParameterMap([]parameterKind{parameterSteamIds}, nil, params)
 	if err != nil {
 		return playerAccounts, err
 	}
@@ -291,9 +290,9 @@ func (api *Dota2) GetPlayerSummaries(params ...Parameter) (PlayerAccounts, error
 func ParameterSteamIds(ids ...SteamId) Parameter {
 	idsUint64 := make([]uint64, len(ids))
 	for i, id := range ids {
-		current, found := id.SteamId64()
-		if !found {
-			panic(errors.New("steam Ids must be 64 bits Ids"))
+		current, err := id.SteamId64()
+		if err != nil {
+			panic(err)
 		}
 		idsUint64[i] = current
 	}

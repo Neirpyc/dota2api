@@ -41,9 +41,9 @@ func (f friendListJSON) ToFriends() Friends {
 }
 
 func (fr Friends) GetBySteamId(s SteamId) (Friend, error) {
-	id, f := s.SteamId64()
-	if !f {
-		return Friend{}, errors.New("steamId64 required")
+	id, err := s.SteamId64()
+	if err != nil {
+		return Friend{}, err
 	}
 	beg, end := 0, len(fr)-1
 	for beg <= end {
@@ -57,7 +57,7 @@ func (fr Friends) GetBySteamId(s SteamId) (Friend, error) {
 			end = curr - 1
 		}
 	}
-	return Friend{}, errors.New("not found")
+	return Friend{}, errors.New(fmt.Sprintf("friend with id %d not found", id))
 }
 
 type friendJSON struct {
@@ -82,7 +82,7 @@ func (fr Friends) Count() int {
 func (api Dota2) GetFriendList(params ...Parameter) (Friends, error) {
 	var friendList friendListJSON
 
-	param, err := getParameterMap([]int{parameterSteamId}, nil, params)
+	param, err := getParameterMap([]parameterKind{parameterSteamId}, nil, params)
 	if err != nil {
 		return Friends{}, err
 	}

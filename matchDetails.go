@@ -722,7 +722,7 @@ func (api Dota2) GetMatchDetails(params ...Parameter) (MatchDetails, error) {
 	var matchDetails matchDetailsJSON
 	var match MatchDetails
 
-	param, err := getParameterMap([]int{parameterKindMatchId}, nil, params)
+	param, err := getParameterMap([]parameterKind{parameterKindMatchId}, nil, params)
 	if err != nil {
 		return match, err
 	}

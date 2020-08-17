@@ -2,7 +2,6 @@ package dota2api
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"reflect"
 	"time"
@@ -248,10 +247,10 @@ func (api Dota2) GetMatchHistory(params ...interface{}) (MatchHistory, error) {
 		} else if v, ok := p.(Parameter); ok {
 			parameters = append(parameters, v)
 		} else {
-			return res, errors.New("invalid parameter")
+			return res, invalidParameterTypeError(reflect.TypeOf(p))
 		}
 	}
-	param, err := getParameterMap(nil, []int{
+	param, err := getParameterMap(nil, []parameterKind{
 		parameterKindHeroId,
 		parameterKindMatchesRequested,
 		parameterKindAccountId,
@@ -283,7 +282,7 @@ func (api Dota2) GetMatchHistory(params ...interface{}) (MatchHistory, error) {
 		return res, err
 	}
 	if matchHistory.Result.Status != 1 {
-		return res, errors.New(string(resp))
+		return res, statusCodeError(matchHistory.Result.Status, 1)
 	}
 	if c.c != nil {
 		if matchHistory.Result.NumResults > 0 {
@@ -310,10 +309,10 @@ func (api Dota2) GetMatchHistoryBySequenceNum(params ...interface{}) (MatchHisto
 		} else if v, ok := p.(Parameter); ok {
 			parameters = append(parameters, v)
 		} else {
-			return res, errors.New("invalid parameter")
+			return res, invalidParameterTypeError(reflect.TypeOf(p))
 		}
 	}
-	param, err := getParameterMap(nil, []int{
+	param, err := getParameterMap(nil, []parameterKind{
 		parameterStartMatchAtSeqNum,
 		parameterKindMatchesRequested}, parameters)
 	if err != nil {
@@ -340,7 +339,7 @@ func (api Dota2) GetMatchHistoryBySequenceNum(params ...interface{}) (MatchHisto
 		return res, err
 	}
 	if matchHistory.Result.Status != 1 {
-		return res, errors.New(string(resp))
+		return res, statusCodeError(matchHistory.Result.Status, 1)
 	}
 	if c.c != nil {
 		if len(matchHistory.Result.Matches) > 0 {

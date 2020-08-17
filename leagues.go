@@ -2,7 +2,6 @@ package dota2api
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"time"
 )
@@ -425,7 +424,7 @@ func (api Dota2) GetLiveLeagueGames(params ...Parameter) (LiveGames, error) {
 		return LiveGames{}, err
 	}
 	if liveGames.Result.Status != 200 {
-		return LiveGames{}, errors.New("non 200 status")
+		return LiveGames{}, statusCodeError(liveGames.Result.Status, 200)
 	}
 	return liveGames.toLiveGames(api)
 }

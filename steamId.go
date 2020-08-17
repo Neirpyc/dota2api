@@ -1,5 +1,7 @@
 package dota2api
 
+import "errors"
+
 const uint32Max = uint64(^uint32(0))
 
 type SteamId struct {
@@ -7,11 +9,11 @@ type SteamId struct {
 	isId64 bool
 }
 
-func (s SteamId) SteamId64() (id uint64, ok bool) {
+func (s SteamId) SteamId64() (uint64, error) {
 	if s.isId64 {
-		return s.id, true
+		return s.id, nil
 	}
-	return
+	return s.id, errors.New("expected 64bit steamId")
 }
 
 func (s SteamId) SteamId32() uint32 {

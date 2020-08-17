@@ -129,19 +129,16 @@ func TestSteamId_SteamId64(t *testing.T) {
 	g.Describe("SteamId.SteamId64", func() {
 		g.Describe("With a previously SteamId32 SteamId", func() {
 			steamId := NewSteamIdFrom32(4039455774)
-			id, found := steamId.SteamId64()
-			g.It("Should return found == false", func() {
-				g.Assert(found).IsFalse()
-			})
-			g.It("Should return no Id", func() {
-				g.Assert(id == 0).IsTrue()
+			_, err := steamId.SteamId64()
+			g.It("Should return error", func() {
+				g.Assert(err).IsNotNil()
 			})
 		})
 		g.Describe("With a previously SteamId64 SteamId", func() {
 			steamId := NewSteamIdFrom64(8674665223082153551)
-			id, found := steamId.SteamId64()
-			g.It("Should return found == true", func() {
-				g.Assert(found).IsTrue()
+			id, err := steamId.SteamId64()
+			g.It("Should return no error", func() {
+				g.Assert(err).IsNil()
 			})
 			g.It("Should return the correct Id", func() {
 				g.Assert(id == 8674665223082153551).IsTrue()

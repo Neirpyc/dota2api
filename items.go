@@ -191,7 +191,7 @@ func (api *Dota2) fillItemsCache() error {
 		}
 
 		if itemsListJson.Result.Status != 200 {
-			return errors.New("non 200 status code")
+			return statusCodeError(itemsListJson.Result.Status, 200)
 		}
 
 		api.itemsCache.items = itemsListJson.toItems()

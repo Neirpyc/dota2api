@@ -2,7 +2,6 @@ package dota2api
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strconv"
 )
@@ -24,7 +23,7 @@ type VanityResp struct {
 func (api Dota2) ResolveVanityUrl(params ...Parameter) (SteamId, error) {
 	var steamId SteamId
 
-	param, err := getParameterMap([]int{parameterVanityUrl}, nil, params)
+	param, err := getParameterMap([]parameterKind{parameterVanityUrl}, nil, params)
 	if err != nil {
 		return steamId, err
 	}
@@ -46,7 +45,7 @@ func (api Dota2) ResolveVanityUrl(params ...Parameter) (SteamId, error) {
 	}
 
 	if vanity.Response.Success != 1 {
-		return steamId, errors.New(string(resp))
+		return steamId, statusCodeError(vanity.Response.Success, 1)
 	}
 
 	steamId.id, err = strconv.ParseUint(vanity.Response.SteamId, 10, 64)

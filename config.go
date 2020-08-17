@@ -8,10 +8,19 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
+	"reflect"
 	"time"
 )
 
 //go:generate ./genIterators -p dota2api -i genIterators.yaml -o iterators.go
+
+func statusCodeError(got int, expected int) error {
+	return errors.New(fmt.Sprintf("api returned status code %d where %d was expected", got, expected))
+}
+
+func invalidParameterTypeError(got reflect.Type) error {
+	return errors.New(fmt.Sprintf("unaccepted parameter type %s", got.String()))
+}
 
 type Config struct {
 	Timeout         int    `yaml:"Timeout"`
@@ -119,7 +128,7 @@ func LoadConfigFromFile(file string) (Dota2, error) {
 	}
 
 	if conf.SteamApiKey == "" {
-		return Dota2{}, errors.New("SteamApiKey is empty.[http://steamcommunity.com/dev/apikey]")
+		return Dota2{}, errors.New("field SteamApiKey is required. Find one at http://steamcommunity.com/dev/apikey")
 	}
 
 	return LoadConfig(conf), nil
