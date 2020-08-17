@@ -113,6 +113,10 @@ type LiveGame struct {
 
 type LiveGames []LiveGame
 
+func (l LiveGames) Count() int {
+	return len(l)
+}
+
 type LiveGamePlayer struct {
 	AccountId int64
 	Name      string
@@ -410,7 +414,6 @@ func (api Dota2) GetLiveLeagueGames(params ...Parameter) (LiveGames, error) {
 	param["key"] = api.steamApiKey
 
 	url, err := parseUrl(api.getLiveGamesUrl(), param)
-	fmt.Println(url)
 	if err != nil {
 		return LiveGames{}, err
 	}

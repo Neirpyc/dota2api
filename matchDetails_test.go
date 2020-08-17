@@ -153,7 +153,7 @@ func TestDota2_GetMatchDetails(t *testing.T) {
 			g.Assert(f).IsFalse()
 			for i, ban := range details.PicksBans.GetByPickType(Ban) {
 				g.Assert(ban.IsBan()).IsTrue()
-				g.Assert(ban.Hero.ID).Equal(bansHeroesIds[i])
+				g.Assert(ban.Hero.Id).Equal(bansHeroesIds[i])
 				g.Assert(ban.Order).Equal(10 + i)
 				g.Assert(ban.GetTeam() == int(bansTeams[i])).IsTrue()
 			}
@@ -161,7 +161,7 @@ func TestDota2_GetMatchDetails(t *testing.T) {
 			picksIsDire := []bool{true, false, true, false, false, true, true, false, false, true}
 			for i, pick := range details.PicksBans.GetByPickType(Pick) {
 				g.Assert(pick.GetType()).Equal(Pick)
-				g.Assert(pick.Hero.ID).Equal(picksHeroesIds[i])
+				g.Assert(pick.Hero.Id).Equal(picksHeroesIds[i])
 				g.Assert(pick.Order).Equal(i)
 				g.Assert(pick.IsDire()).Equal(picksIsDire[i])
 			}
@@ -199,16 +199,16 @@ func TestDota2_GetMatchDetails(t *testing.T) {
 			})
 		})
 		g.It("Should return the correct items for player 0", func() {
-			g.Assert(details.Radiant[0].Items.Item0.ID == 63).IsTrue()
-			g.Assert(details.Radiant[0].Items.Item1.ID == 77).IsTrue()
-			g.Assert(details.Radiant[0].Items.Item2.ID == 236).IsTrue()
-			g.Assert(details.Radiant[0].Items.Item3.ID == 77).IsTrue()
-			g.Assert(details.Radiant[0].Items.Item4.ID == 485).IsTrue()
-			g.Assert(details.Radiant[0].Items.Item5.ID == 7).IsTrue()
-			g.Assert(details.Radiant[0].Items.BackpackItem0.ID == 0).IsTrue()
-			g.Assert(details.Radiant[0].Items.BackpackItem1.ID == 0).IsTrue()
-			g.Assert(details.Radiant[0].Items.BackpackItem2.ID == 0).IsTrue()
-			g.Assert(details.Radiant[0].Items.ItemNeutral.ID == 357).IsTrue()
+			g.Assert(details.Radiant[0].Items.Item0.Id == 63).IsTrue()
+			g.Assert(details.Radiant[0].Items.Item1.Id == 77).IsTrue()
+			g.Assert(details.Radiant[0].Items.Item2.Id == 236).IsTrue()
+			g.Assert(details.Radiant[0].Items.Item3.Id == 77).IsTrue()
+			g.Assert(details.Radiant[0].Items.Item4.Id == 485).IsTrue()
+			g.Assert(details.Radiant[0].Items.Item5.Id == 7).IsTrue()
+			g.Assert(details.Radiant[0].Items.BackpackItem0.Id == 0).IsTrue()
+			g.Assert(details.Radiant[0].Items.BackpackItem1.Id == 0).IsTrue()
+			g.Assert(details.Radiant[0].Items.BackpackItem2.Id == 0).IsTrue()
+			g.Assert(details.Radiant[0].Items.ItemNeutral.Id == 357).IsTrue()
 		})
 		g.It("Should return the correct AbilityBuild for player 0", func() {
 			g.Assert(details.Radiant[0].AbilityUpgrades.Count()).Equal(18)

@@ -1130,3 +1130,89 @@ func BenchmarkSideLive_GoForEachAbility(b *testing.B) {
 
 	})()
 }
+
+func TestLiveGamesGame_Iterators(t *testing.T) {
+	g := Goblin(t)
+	g.Describe("TestLiveGames_Iterators", func() {
+		g.It("Has a working ForEach method", func() {
+			c := 0
+			l := LiveGames{}
+			l = make([]LiveGame, 10)
+
+			l.ForEachGame(func(game LiveGame) {
+				c++
+			})
+			g.Assert(c).Equal(10 * 1)
+		})
+		g.It("Has a working GoForEach method", func() {
+			l := LiveGames{}
+			l = make([]LiveGame, 10)
+
+			c := make(chan bool, 10*1)
+			l.GoForEachGame(func(game LiveGame) {
+				c <- true
+			})()
+			for i := 0; i < 10*1; i++ {
+				select {
+				case <-c:
+					continue
+				default:
+					g.Fail("Skipped element in for each")
+				}
+			}
+		})
+		g.It("Has a working ForEach methodI", func() {
+			c := 0
+			l := LiveGames{}
+			l = make([]LiveGame, 10)
+
+			l.ForEachGameI(func(game LiveGame, index int) {
+				g.Assert(index).Equal(c)
+				c++
+			})
+			g.Assert(c).Equal(10 * 1)
+		})
+		g.It("Has a working GoForEachI method", func() {
+			l := LiveGames{}
+			l = make([]LiveGame, 10)
+
+			c := make(chan int, 10*1)
+			l.GoForEachGameI(func(game LiveGame, index int) {
+				c <- index
+			})()
+			sum := 0
+			for i := 0; i < 10*1; i++ {
+				select {
+				case read := <-c:
+					sum += read
+					continue
+				default:
+					g.Fail("Skipped element in for each")
+				}
+			}
+			g.Assert(sum).Equal(10*1*(10*1+1)/2 - 10*1)
+		})
+	})
+}
+
+func BenchmarkLiveGames_ForEachGame(b *testing.B) {
+	l := LiveGames{}
+	l = make([]LiveGame, b.N)
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	l.ForEachGame(func(game LiveGame) {
+
+	})
+}
+
+func BenchmarkLiveGames_GoForEachGame(b *testing.B) {
+	l := LiveGames{}
+	l = make([]LiveGame, b.N)
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	l.GoForEachGame(func(game LiveGame) {
+
+	})()
+}

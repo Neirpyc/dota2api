@@ -51,17 +51,17 @@ type Heroes struct {
 // If it doesn't work, it then run a dichotomy search.
 func (h Heroes) GetById(id int) (Hero, error) {
 	if id < len(h.heroes) && id > 0 {
-		if h.heroes[id-1].ID == id {
+		if h.heroes[id-1].Id == id {
 			return h.heroes[id-1], nil
 		}
 	}
 	beg, end := 0, len(h.heroes)-1
 	for beg <= end {
 		curr := (beg + end) / 2
-		if h.heroes[curr].ID == id {
+		if h.heroes[curr].Id == id {
 			return h.heroes[curr], nil
 		}
-		if id > h.heroes[curr].ID {
+		if id > h.heroes[curr].Id {
 			beg = curr + 1
 		} else {
 			end = curr - 1
@@ -108,7 +108,7 @@ func heroNameFromFullName(name string) heroName {
 }
 
 type Hero struct {
-	ID   int
+	Id   int
 	Name heroName
 }
 
@@ -142,14 +142,14 @@ func (h heroesJSON) toHeroes() Heroes {
 		heroes.heroes[i] = hero.toHero()
 	}
 	sort.Slice(heroes.heroes, func(i, j int) bool {
-		return heroes.heroes[i].ID < heroes.heroes[j].ID
+		return heroes.heroes[i].Id < heroes.heroes[j].Id
 	})
 	return heroes
 }
 
 func (h heroJSON) toHero() Hero {
 	return Hero{
-		ID: h.ID,
+		Id: h.ID,
 		Name: heroName{
 			name: h.Name[len(heroPrefix):],
 			full: h.Name,

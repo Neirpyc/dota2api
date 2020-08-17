@@ -120,3 +120,13 @@ List:
     CastTo: '[]LiveAbility'
     IterOnFields:
       - '.Abilities'
+  - ReceiverName: l
+    ReceiverType: LiveGames
+    MethodNameExtension: Game
+    FuncParameterName: game
+    FuncParameterType: LiveGame
+    IterParamName: games
+    ForVarName: game
+    CastTo: '[]LiveGame'
+    IterOnFields:
+      - ''

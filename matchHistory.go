@@ -70,7 +70,7 @@ func (m matchHistoryJSON) toMatchSummary(d Dota2) (res MatchHistory, err error) 
 		for _, p := range src.Players {
 			var h Hero
 			if p.HeroID == 0 {
-				h.ID = 0
+				h.Id = 0
 			} else if h, err = heroes.GetById(p.HeroID); err != nil {
 				return res, err
 			}
@@ -120,7 +120,7 @@ func (m MatchSummary) GetPlayer(pos int) (Player, bool) {
 }
 
 func (m MatchSummary) GetByHero(hero Hero) (Player, bool) {
-	return m.GetByHeroId(hero.ID)
+	return m.GetByHeroId(hero.Id)
 }
 
 func (m MatchSummary) PlayerCount() int {
@@ -159,12 +159,12 @@ func (t Team) GetPlayer(pos int) (Player, bool) {
 }
 
 func (t Team) GetByHero(hero Hero) (Player, bool) {
-	return t.GetByHeroId(hero.ID)
+	return t.GetByHeroId(hero.Id)
 }
 
 func (t Team) GetByHeroId(id int) (Player, bool) {
 	for _, p := range t.players {
-		if p.Hero.ID == id {
+		if p.Hero.Id == id {
 			return p, true
 		}
 	}

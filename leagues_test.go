@@ -46,7 +46,7 @@ func TestDota2_GetLiveLeagueGames(t *testing.T) {
 					AccountId: 42,
 					Name:      "name",
 					Hero: Hero{
-						ID: 120,
+						Id: 120,
 						Name: heroName{
 							name: "pangolier",
 							full: "npc_dota_hero_pangolier",
@@ -104,14 +104,14 @@ func TestDota2_GetLiveLeagueGames(t *testing.T) {
 								T4TowerTop: true,
 							},
 							Picks: []Hero{{
-								ID: 19,
+								Id: 19,
 								Name: heroName{
 									name: "tiny",
 									full: "npc_dota_hero_tiny",
 								},
 							}},
 							Bans: []Hero{{
-								ID: 110,
+								Id: 110,
 								Name: heroName{
 									name: "phoenix",
 									full: "npc_dota_hero_phoenix",
@@ -121,7 +121,7 @@ func TestDota2_GetLiveLeagueGames(t *testing.T) {
 								PlayerSlot: 1,
 								AccountID:  42,
 								Hero: Hero{
-									ID: 120,
+									Id: 120,
 									Name: heroName{
 										name: "pangolier",
 										full: "npc_dota_hero_pangolier",
@@ -141,7 +141,7 @@ func TestDota2_GetLiveLeagueGames(t *testing.T) {
 								},
 								Items: LivePlayerItems{
 									Item0: Item{
-										ID: 42,
+										Id: 42,
 										Name: itemName{
 											name: "ward_observer",
 											full: "item_ward_observer",

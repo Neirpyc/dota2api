@@ -577,3 +577,47 @@ func (s SideLive) GoForEachAbility(f func(abilities LiveAbility)) func() {
 		f(abilities)
 	})
 }
+
+func (l LiveGames) ForEachGameI(f func(game LiveGame, index int)) {
+	index := 0
+	iter := func(games []LiveGame) {
+		for _, game := range games {
+			f(game, index)
+			index++
+		}
+	}
+	iter([]LiveGame(l))
+
+}
+
+func (l LiveGames) GoForEachGameI(f func(game LiveGame, index int)) func() {
+	var wg sync.WaitGroup
+	index := -1
+	iter := func(games []LiveGame) {
+		wg.Add(len(games))
+		for _, game := range games {
+			index++
+			index := index
+			game := game
+			go func() {
+				f(game, index)
+				wg.Done()
+			}()
+		}
+	}
+	iter([]LiveGame(l))
+
+	return wg.Wait
+}
+
+func (l LiveGames) ForEachGame(f func(game LiveGame)) {
+	l.ForEachGameI(func(game LiveGame, index int) {
+		f(game)
+	})
+}
+
+func (l LiveGames) GoForEachGame(f func(game LiveGame)) func() {
+	return l.GoForEachGameI(func(game LiveGame, index int) {
+		f(game)
+	})
+}

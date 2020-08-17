@@ -65,7 +65,7 @@ func itemNameFromFullName(name string) itemName {
 }
 
 type Item struct {
-	ID         int
+	Id         int
 	Name       itemName
 	Cost       int
 	SecretShop bool
@@ -84,17 +84,17 @@ type Items struct {
 // If it doesn't work, it then run a dichotomy search.
 func (i Items) GetById(id int) (Item, error) {
 	if id < len(i.items) && id > 0 {
-		if i.items[id-1].ID == id {
+		if i.items[id-1].Id == id {
 			return i.items[id-1], nil
 		}
 	}
 	beg, end := 0, len(i.items)-1
 	for beg <= end {
 		curr := (beg + end) / 2
-		if i.items[curr].ID == id {
+		if i.items[curr].Id == id {
 			return i.items[curr], nil
 		}
-		if id > i.items[curr].ID {
+		if id > i.items[curr].Id {
 			beg = curr + 1
 		} else {
 			end = curr - 1
@@ -148,14 +148,14 @@ func (i itemsJSON) toItems() Items {
 		items.items[i] = item.toItem()
 	}
 	sort.Slice(items.items, func(i, j int) bool {
-		return items.items[i].ID < items.items[j].ID
+		return items.items[i].Id < items.items[j].Id
 	})
 	return items
 }
 
 func (i itemJSON) toItem() Item {
 	return Item{
-		ID: i.ID,
+		Id: i.ID,
 		Name: itemName{
 			name: i.Name[len(itemPrefix):],
 			full: i.Name,

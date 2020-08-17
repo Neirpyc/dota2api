@@ -152,7 +152,7 @@ func (p PicksBans) GetPick(order int) (PickBan, bool) {
 
 func (p PicksBans) GetPickByHero(hero Hero) (PickBan, bool) {
 	for _, pickBan := range p {
-		if pickBan.Hero.ID == hero.ID {
+		if pickBan.Hero.Id == hero.Id {
 			return pickBan, true
 		}
 	}

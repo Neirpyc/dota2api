@@ -126,16 +126,16 @@ func TestItems_GetById(t *testing.T) {
 	g.Describe("Items.GetById", func() {
 		g.It("Should return the correct hero when ID is found", func() {
 			for _, item := range items.items {
-				i, err := items.GetById(item.ID)
+				i, err := items.GetById(item.Id)
 				g.Assert(err).IsNil()
-				g.Assert(i.ID).Equal(item.ID)
+				g.Assert(i.Id).Equal(item.Id)
 				g.Assert(i.Name).Equal(item.Name)
 			}
 		})
 		g.It("Should return Error when ID is not found", func() {
 			missingId := 1
 			for _, hero := range items.items {
-				missingId += hero.ID
+				missingId += hero.Id
 			}
 			_, err := items.GetById(missingId)
 			g.Assert(err).IsNotNil()
@@ -149,7 +149,7 @@ func BenchmarkItems_GetById(b *testing.B) {
 	ids := make([]int, b.N)
 	rand.Seed(time.Now().Unix())
 	for i := 0; i < b.N; i++ {
-		ids[i] = items.items[rand.Int()%len(items.items)].ID
+		ids[i] = items.items[rand.Int()%len(items.items)].Id
 	}
 	b.ReportAllocs()
 	b.ResetTimer()
@@ -167,7 +167,7 @@ func TestItems_GetByName(t *testing.T) {
 			for _, item := range items.items {
 				i, err := items.GetByName(item.Name.GetFullName())
 				g.Assert(err).IsNil()
-				g.Assert(i.ID).Equal(item.ID)
+				g.Assert(i.Id).Equal(item.Id)
 				g.Assert(i.Name).Equal(item.Name)
 			}
 		})
