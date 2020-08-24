@@ -621,3 +621,49 @@ func (l LiveGames) GoForEachGame(f func(game LiveGame)) func() {
 		f(game)
 	})
 }
+
+func (m MatchSummary) ForEachPlayerI(f func(player Player, index int)) {
+	index := 0
+	iter := func(team []Player) {
+		for _, p := range team {
+			f(p, index)
+			index++
+		}
+	}
+	iter(m.Radiant.players)
+	iter(m.Dire.players)
+
+}
+
+func (m MatchSummary) GoForEachPlayerI(f func(player Player, index int)) func() {
+	var wg sync.WaitGroup
+	index := -1
+	iter := func(team []Player) {
+		wg.Add(len(team))
+		for _, p := range team {
+			index++
+			index := index
+			p := p
+			go func() {
+				f(p, index)
+				wg.Done()
+			}()
+		}
+	}
+	iter(m.Radiant.players)
+	iter(m.Dire.players)
+
+	return wg.Wait
+}
+
+func (m MatchSummary) ForEachPlayer(f func(player Player)) {
+	m.ForEachPlayerI(func(player Player, index int) {
+		f(player)
+	})
+}
+
+func (m MatchSummary) GoForEachPlayer(f func(player Player)) func() {
+	return m.GoForEachPlayerI(func(player Player, index int) {
+		f(player)
+	})
+}

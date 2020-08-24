@@ -1216,3 +1216,95 @@ func BenchmarkLiveGames_GoForEachGame(b *testing.B) {
 
 	})()
 }
+
+func TestMatchSummaryPlayer_Iterators(t *testing.T) {
+	g := Goblin(t)
+	g.Describe("TestMatchSummary_Iterators", func() {
+		g.It("Has a working ForEach method", func() {
+			c := 0
+			m := MatchSummary{}
+			m.Radiant.players = make([]Player, 10)
+			m.Dire.players = make([]Player, 10)
+
+			m.ForEachPlayer(func(player Player) {
+				c++
+			})
+			g.Assert(c).Equal(10 * 2)
+		})
+		g.It("Has a working GoForEach method", func() {
+			m := MatchSummary{}
+			m.Radiant.players = make([]Player, 10)
+			m.Dire.players = make([]Player, 10)
+
+			c := make(chan bool, 10*2)
+			m.GoForEachPlayer(func(player Player) {
+				c <- true
+			})()
+			for i := 0; i < 10*2; i++ {
+				select {
+				case <-c:
+					continue
+				default:
+					g.Fail("Skipped element in for each")
+				}
+			}
+		})
+		g.It("Has a working ForEach methodI", func() {
+			c := 0
+			m := MatchSummary{}
+			m.Radiant.players = make([]Player, 10)
+			m.Dire.players = make([]Player, 10)
+
+			m.ForEachPlayerI(func(player Player, index int) {
+				g.Assert(index).Equal(c)
+				c++
+			})
+			g.Assert(c).Equal(10 * 2)
+		})
+		g.It("Has a working GoForEachI method", func() {
+			m := MatchSummary{}
+			m.Radiant.players = make([]Player, 10)
+			m.Dire.players = make([]Player, 10)
+
+			c := make(chan int, 10*2)
+			m.GoForEachPlayerI(func(player Player, index int) {
+				c <- index
+			})()
+			sum := 0
+			for i := 0; i < 10*2; i++ {
+				select {
+				case read := <-c:
+					sum += read
+					continue
+				default:
+					g.Fail("Skipped element in for each")
+				}
+			}
+			g.Assert(sum).Equal(10*2*(10*2+1)/2 - 10*2)
+		})
+	})
+}
+
+func BenchmarkMatchSummary_ForEachPlayer(b *testing.B) {
+	m := MatchSummary{}
+	m.Radiant.players = make([]Player, b.N)
+	m.Dire.players = make([]Player, b.N)
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	m.ForEachPlayer(func(player Player) {
+
+	})
+}
+
+func BenchmarkMatchSummary_GoForEachPlayer(b *testing.B) {
+	m := MatchSummary{}
+	m.Radiant.players = make([]Player, b.N)
+	m.Dire.players = make([]Player, b.N)
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	m.GoForEachPlayer(func(player Player) {
+
+	})()
+}

@@ -329,3 +329,60 @@ func TestDota2_GetMatchDetails_Integration(t *testing.T) {
 		})
 	})
 }
+
+func TestDota2_GetMatchHistory_Integration(t *testing.T) {
+	g := Goblin(t)
+	api, _ := LoadConfigFromFile("config.yaml")
+	g.Describe("api.GetMatchHistory Integration Test", func() {
+		g.Describe("Basic", func() {
+			c := NewCursor()
+			games, err := api.GetMatchHistory(c)
+			g.It("Should not error", func() {
+				g.Assert(err).IsNil()
+			})
+			g.It("Should return games", func() {
+				g.Assert(games.Count() > 0).IsTrue()
+			})
+			g.It("Should modify the cursor", func() {
+				g.Assert(c.GetLastReceivedMatch() == games[games.Count()-1].MatchId).IsTrue()
+			})
+		})
+		g.Describe("Settings", func() {
+			c := NewCursor()
+			c.c.begin = 5572552442
+			oldId := c.GetLastReceivedMatch()
+			games, err := api.GetMatchHistory(c, HeroId(74), AccountId(107353159), MatchesRequested(3))
+			g.It("Should not error", func() {
+				g.Assert(err).IsNil()
+			})
+			g.It("Should return games", func() {
+				g.Assert(games.Count()).Equal(3)
+			})
+			g.It("Should modify the cursor", func() {
+				g.Assert(c.GetLastReceivedMatch() == games[games.Count()-1].MatchId).IsTrue()
+			})
+			g.It("Should take the cursor into account", func() {
+				for _, m := range games {
+					g.Assert(m.MatchId < oldId).IsTrue()
+				}
+			})
+			g.It("Should take Account Id parameter into account", func() {
+				for _, m := range games {
+					ok := false
+					m.ForEachPlayer(func(player Player) {
+						if player.AccountId == 107353159 {
+							ok = true
+						}
+					})
+					g.Assert(ok).IsTrue()
+				}
+			})
+			g.It("Should take Hero Id parameter into account", func() {
+				for _, m := range games {
+					_, f := m.GetByHeroId(74)
+					g.Assert(f).IsTrue()
+				}
+			})
+		})
+	})
+}

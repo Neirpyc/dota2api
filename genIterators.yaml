@@ -130,3 +130,13 @@ List:
     CastTo: '[]LiveGame'
     IterOnFields:
       - ''
+  - ReceiverName: m
+    ReceiverType: MatchSummary
+    MethodNameExtension: Player
+    FuncParameterName: player
+    FuncParameterType: Player
+    IterParamName: team
+    ForVarName: p
+    IterOnFields:
+      - .Radiant.players
+      - .Dire.players
